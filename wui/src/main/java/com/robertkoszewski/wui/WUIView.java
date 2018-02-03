@@ -23,46 +23,8 @@
 
 package com.robertkoszewski.wui;
 
-import com.robertkoszewski.wui.server.*;
-import com.robertkoszewski.wui.templates.BaseTemplate;
-import com.robertkoszewski.wui.test.RootController;
+import com.robertkoszewski.wui.templates.Content;
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args ) throws Exception
-    {
-        System.out.println( "Hello World!" );
-        /*
-        Server s = ServerFactory.getServerInstance();
-        s.startServer(8080);
-        
-        s.addPage("/", "IT UTTERLY WORKS!");
-        */
-        
-        
-        WUIWindow w = new WUIWindow();
-        w.addController("/", new RootController());
-        
-        w.open();
-        
-        /*
-        WUIWindow w = WUI.newWindow("Title", "Icon");
-        
-        
-        //new WUIApp();
-        
-        
-        Renderer r = new RendererNative();
-        r.open("http://www.google.es", "", null, false, "", null);
-        
-        
-        */
-        
-        
-      
-    }
+public interface WUIView {
+	public Content getContent();
 }

@@ -21,48 +21,52 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui;
+package com.robertkoszewski.wui.templates;
 
-import com.robertkoszewski.wui.server.*;
-import com.robertkoszewski.wui.templates.BaseTemplate;
-import com.robertkoszewski.wui.test.RootController;
+import java.util.Vector;
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args ) throws Exception
-    {
-        System.out.println( "Hello World!" );
-        /*
-        Server s = ServerFactory.getServerInstance();
-        s.startServer(8080);
-        
-        s.addPage("/", "IT UTTERLY WORKS!");
-        */
-        
-        
-        WUIWindow w = new WUIWindow();
-        w.addController("/", new RootController());
-        
-        w.open();
-        
-        /*
-        WUIWindow w = WUI.newWindow("Title", "Icon");
-        
-        
-        //new WUIApp();
-        
-        
-        Renderer r = new RendererNative();
-        r.open("http://www.google.es", "", null, false, "", null);
-        
-        
-        */
-        
-        
-      
-    }
+import com.robertkoszewski.wui.elements.HTMLElement;
+import com.robertkoszewski.wui.elements.TimestampedElement;
+
+public interface Content extends TimestampedElement{
+
+	/**
+	 * Get Page Content
+	 * @return
+	 */
+	public Vector<HTMLElement> getContent();
+	
+	/**
+	 * Set Page Title
+	 * @param title
+	 */
+	public void setTitle(String title);
+	
+	/**
+	 * Get Page Title
+	 * @return
+	 */
+	public String getTitle();
+	
+	/**
+	 * Add Element to Page
+	 * @param element
+	 */
+	public void addElement(HTMLElement element);
+	
+	/**
+	 * Remove Element from Page
+	 * @param element
+	 */
+	public void removeElement(HTMLElement element);
+	
+	/**
+	 * Remove Element at Index
+	 * @param index
+	 */
+	public void removeElementAt(int index);
+	
+	// TESTING METHODS
+	public void setHTML(String html);
+	public String getHTML();
 }

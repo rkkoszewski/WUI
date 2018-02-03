@@ -21,48 +21,25 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui;
+package com.robertkoszewski.wui.server;
 
-import com.robertkoszewski.wui.server.*;
-import com.robertkoszewski.wui.templates.BaseTemplate;
-import com.robertkoszewski.wui.test.RootController;
+import java.util.Set;
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args ) throws Exception
-    {
-        System.out.println( "Hello World!" );
-        /*
-        Server s = ServerFactory.getServerInstance();
-        s.startServer(8080);
-        
-        s.addPage("/", "IT UTTERLY WORKS!");
-        */
-        
-        
-        WUIWindow w = new WUIWindow();
-        w.addController("/", new RootController());
-        
-        w.open();
-        
-        /*
-        WUIWindow w = WUI.newWindow("Title", "Icon");
-        
-        
-        //new WUIApp();
-        
-        
-        Renderer r = new RendererNative();
-        r.open("http://www.google.es", "", null, false, "", null);
-        
-        
-        */
-        
-        
-      
-    }
+import org.reflections.Reflections;
+
+public class ServerFactory {
+	
+	public static Server getServerInstance() throws ServerNotFoundException, InstantiationException, IllegalAccessException {
+		Reflections reflections = new Reflections("com.robertkoszewski.wui.server");
+		Set<Class<? extends Server>> modules = reflections.getSubTypesOf(Server.class);
+		
+		if(modules.size() == 0) {
+			throw new ServerNotFoundException();
+		}
+		
+		System.out.println("FOUND " + modules.size() + " SERVER IMPLEMENTATIONS");
+		
+		return modules.iterator().next().newInstance();
+	}
+	
 }

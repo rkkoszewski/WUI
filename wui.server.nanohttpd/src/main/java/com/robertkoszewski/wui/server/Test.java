@@ -21,48 +21,26 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui;
+package com.robertkoszewski.wui.server;
 
-import com.robertkoszewski.wui.server.*;
-import com.robertkoszewski.wui.templates.BaseTemplate;
-import com.robertkoszewski.wui.test.RootController;
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args ) throws Exception
-    {
-        System.out.println( "Hello World!" );
-        /*
-        Server s = ServerFactory.getServerInstance();
-        s.startServer(8080);
-        
-        s.addPage("/", "IT UTTERLY WORKS!");
-        */
-        
-        
-        WUIWindow w = new WUIWindow();
-        w.addController("/", new RootController());
-        
-        w.open();
-        
-        /*
-        WUIWindow w = WUI.newWindow("Title", "Icon");
-        
-        
-        //new WUIApp();
-        
-        
-        Renderer r = new RendererNative();
-        r.open("http://www.google.es", "", null, false, "", null);
-        
-        
-        */
-        
-        
-      
-    }
+public class Test {
+
+	public static void main(String[] args) {
+		
+		System.out.println("STARTING SERVER...");
+
+	  	Server s = new NanoHTTPDServer();
+		try {
+			s.startServer(8080);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*
+		s.addPage("/", "HELLO IT WORKS");
+		s.addPage("/1", "HELLO THIS ALSO WORKS");
+		*/
+	}
+
 }

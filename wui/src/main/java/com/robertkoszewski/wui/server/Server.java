@@ -21,48 +21,14 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui;
+package com.robertkoszewski.wui.server;
 
-import com.robertkoszewski.wui.server.*;
-import com.robertkoszewski.wui.templates.BaseTemplate;
-import com.robertkoszewski.wui.test.RootController;
+import com.robertkoszewski.wui.WUIController;
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args ) throws Exception
-    {
-        System.out.println( "Hello World!" );
-        /*
-        Server s = ServerFactory.getServerInstance();
-        s.startServer(8080);
-        
-        s.addPage("/", "IT UTTERLY WORKS!");
-        */
-        
-        
-        WUIWindow w = new WUIWindow();
-        w.addController("/", new RootController());
-        
-        w.open();
-        
-        /*
-        WUIWindow w = WUI.newWindow("Title", "Icon");
-        
-        
-        //new WUIApp();
-        
-        
-        Renderer r = new RendererNative();
-        r.open("http://www.google.es", "", null, false, "", null);
-        
-        
-        */
-        
-        
-      
-    }
+public interface Server {
+	public void startServer(int port) throws Exception;
+	public void stopServer();
+	//public void addPage(String url, String content);
+	//public void removePage(String url);
+	public void addController(String url, WUIController content);
 }

@@ -21,48 +21,47 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui;
+package com.robertkoszewski.wui.test;
 
-import com.robertkoszewski.wui.server.*;
-import com.robertkoszewski.wui.templates.BaseTemplate;
-import com.robertkoszewski.wui.test.RootController;
+import com.robertkoszewski.wui.WUIController;
+import com.robertkoszewski.wui.WUIView;
+import com.robertkoszewski.wui.templates.Content;
+import com.robertkoszewski.wui.templates.WindowTemplate;
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args ) throws Exception
-    {
-        System.out.println( "Hello World!" );
-        /*
-        Server s = ServerFactory.getServerInstance();
-        s.startServer(8080);
-        
-        s.addPage("/", "IT UTTERLY WORKS!");
-        */
-        
-        
-        WUIWindow w = new WUIWindow();
-        w.addController("/", new RootController());
-        
-        w.open();
-        
-        /*
-        WUIWindow w = WUI.newWindow("Title", "Icon");
-        
-        
-        //new WUIApp();
-        
-        
-        Renderer r = new RendererNative();
-        r.open("http://www.google.es", "", null, false, "", null);
-        
-        
-        */
-        
-        
-      
-    }
+public class RootController implements WUIController{
+
+	private RootView view;
+	int i = 1;
+	
+	@Override
+	public void initialize(WindowTemplate template) {
+		view = new RootView(template.getContentInstance());
+	}
+
+	@Override
+	public Content viewUpdate() {
+		view.setText("IT WORKS. COUNTING: " + i++);
+		
+		return view.getContent();
+	}
+	
+	public class RootView implements WUIView{
+
+		private Content content;
+		
+		public RootView(Content content) {
+			this.content = content;
+		}
+		
+		public void setText(String text) {
+			content.setHTML(text);
+		};
+
+		@Override
+		public Content getContent() {
+			return content;
+		}
+		
+	}
+
 }

@@ -21,48 +21,84 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui;
+package com.robertkoszewski.wui.templates;
 
-import com.robertkoszewski.wui.server.*;
-import com.robertkoszewski.wui.templates.BaseTemplate;
-import com.robertkoszewski.wui.test.RootController;
+import java.util.Vector;
+
+import com.robertkoszewski.wui.elements.AbstractTimestampedElement;
+import com.robertkoszewski.wui.elements.HTMLElement;
 
 /**
- * Hello world!
- *
+ * Base Content
+ * @author Robert Koszewski
  */
-public class App 
-{
-    public static void main( String[] args ) throws Exception
-    {
-        System.out.println( "Hello World!" );
-        /*
-        Server s = ServerFactory.getServerInstance();
-        s.startServer(8080);
-        
-        s.addPage("/", "IT UTTERLY WORKS!");
-        */
-        
-        
-        WUIWindow w = new WUIWindow();
-        w.addController("/", new RootController());
-        
-        w.open();
-        
-        /*
-        WUIWindow w = WUI.newWindow("Title", "Icon");
-        
-        
-        //new WUIApp();
-        
-        
-        Renderer r = new RendererNative();
-        r.open("http://www.google.es", "", null, false, "", null);
-        
-        
-        */
-        
-        
-      
-    }
+public class BaseContent extends AbstractTimestampedElement implements Content {
+	
+	private String title;
+	private Vector<HTMLElement> content = new Vector<HTMLElement>();
+	
+	/**
+	 * Serialize a Page
+	 * @return
+	 */
+	public Vector<HTMLElement> getContent(){
+		return content;
+	}
+	
+	/**
+	 * Set Page Title
+	 * @param title
+	 */
+	public void setTitle(String title){
+		this.title = title;
+	}
+	
+	/**
+	 * Get Page Title
+	 * @return
+	 */
+	public String getTitle(){
+		return title;
+	}
+	
+	/**
+	 * Add Element to Page
+	 * @param element
+	 */
+	public void addElement(HTMLElement element){
+		content.addElement(element);
+	}
+	
+	/**
+	 * Remove Element from Page
+	 * @param element
+	 */
+	public void removeElement(HTMLElement element){
+		content.remove(element);
+		updateTimestamp();
+	}
+	
+	/**
+	 * Remove Element at Index
+	 * @param index
+	 */
+	public void removeElementAt(int index){
+		content.remove(index);
+	}
+	
+	// TESTING METHODS
+	
+	String html = "";
+
+	@Override
+	public void setHTML(String html) {
+		this.html = html;
+	}
+
+	@Override
+	public String getHTML() {
+		return this.html;
+	}
+	
+	
 }

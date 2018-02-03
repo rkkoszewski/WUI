@@ -23,46 +23,69 @@
 
 package com.robertkoszewski.wui;
 
-import com.robertkoszewski.wui.server.*;
+import com.robertkoszewski.wui.server.Server;
+import com.robertkoszewski.wui.server.ServerFactory;
+import com.robertkoszewski.wui.server.ServerNotFoundException;
 import com.robertkoszewski.wui.templates.BaseTemplate;
-import com.robertkoszewski.wui.test.RootController;
+import com.robertkoszewski.wui.templates.WindowTemplate;
 
 /**
- * Hello world!
- *
+ * WUI Window Implementation
+ * @author Robert Koszewski
  */
-public class App 
-{
-    public static void main( String[] args ) throws Exception
-    {
-        System.out.println( "Hello World!" );
-        /*
-        Server s = ServerFactory.getServerInstance();
-        s.startServer(8080);
-        
-        s.addPage("/", "IT UTTERLY WORKS!");
-        */
-        
-        
-        WUIWindow w = new WUIWindow();
-        w.addController("/", new RootController());
-        
-        w.open();
-        
-        /*
-        WUIWindow w = WUI.newWindow("Title", "Icon");
-        
-        
-        //new WUIApp();
-        
-        
-        Renderer r = new RendererNative();
-        r.open("http://www.google.es", "", null, false, "", null);
-        
-        
-        */
-        
-        
-      
-    }
+public class WUIWindow {
+	
+	private final WindowTemplate template;
+	private final Server server;
+	
+	/*
+	 * Constructors 
+	 */
+	
+	public WUIWindow() {
+		this(new BaseTemplate());
+	}
+	
+	public WUIWindow(WindowTemplate template) {
+		this.template = template;
+		this.server = initializeServer();
+	}
+	
+	private Server initializeServer() {
+		try {
+			return ServerFactory.getServerInstance();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ServerNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		};
+		return null; // TODO: Handle this better. We don't want to catch exceptions, but we don't want unexpected nulls
+	}
+	
+	/*
+	 * Methods
+	 */
+	
+	public void open() {
+		try {
+			this.server.startServer(8080);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // Autoconf this
+	}
+	
+	public void addView() {
+		
+	}
+	
+	public void addController(String url, WUIController controller) {
+		controller.initialize(template); // TODO: Move this to the server to be initialized in a lazy-load approach.
+		server.addController(url, controller);
+	}
 }

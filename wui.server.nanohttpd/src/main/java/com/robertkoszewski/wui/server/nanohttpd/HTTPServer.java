@@ -21,48 +21,61 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui;
+package com.robertkoszewski.wui.server.nanohttpd;
 
-import com.robertkoszewski.wui.server.*;
-import com.robertkoszewski.wui.templates.BaseTemplate;
-import com.robertkoszewski.wui.test.RootController;
+import java.io.IOException;
+import java.util.Map;
+
+import com.robertkoszewski.wui.WUIController;
+
+import fi.iki.elonen.NanoHTTPD;
 
 /**
- * Hello world!
- *
+ * NanoHTTPD Based Web Server Implementation for WUI
+ * @author Robert Koszewski
  */
-public class App 
-{
-    public static void main( String[] args ) throws Exception
-    {
-        System.out.println( "Hello World!" );
-        /*
-        Server s = ServerFactory.getServerInstance();
-        s.startServer(8080);
-        
-        s.addPage("/", "IT UTTERLY WORKS!");
-        */
-        
-        
-        WUIWindow w = new WUIWindow();
-        w.addController("/", new RootController());
-        
-        w.open();
-        
-        /*
-        WUIWindow w = WUI.newWindow("Title", "Icon");
-        
-        
-        //new WUIApp();
-        
-        
-        Renderer r = new RendererNative();
-        r.open("http://www.google.es", "", null, false, "", null);
-        
-        
-        */
-        
-        
-      
+public class HTTPServer extends NanoHTTPD{
+	
+	private Map<String, WUIController> pages;
+	
+	/*
+	public App()  {
+        super(8080);
+        start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
+        System.out.println("\nRunning! Point your browsers to http://localhost:8080/ \n");
     }
+    */
+	
+	public HTTPServer(int port, Map<String, WUIController> pages) throws IOException {
+		super(port);
+		start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
+		this.pages = pages;
+		System.out.println("SERVER STARTED AT PORT: " + port);
+	}
+	
+	 @Override
+     public Response serve(IHTTPSession session) {
+		 System.out.println(session.getUri());
+		 
+		 WUIController controller = pages.get(session.getUri());
+		 String response = "";;
+		 
+		 if(controller == null) response = "404 Not Found";
+		 else response = controller.viewUpdate().getHTML();
+
+		 return newFixedLengthResponse(response);
+		 
+		 /*
+         String msg = "<html><body><h1>Hello server</h1>\n";
+         Map<String, String> parms = session.getParms();
+         if (parms.get("username") == null) {
+             msg += "<form action='?' method='get'>\n  <p>Your name: <input type='text' name='username'></p>\n" + "</form>\n";
+         } else {
+             msg += "<p>Hello, " + parms.get("username") + "!</p>";
+         }
+         
+         */
+         //return newFixedLengthResponse(msg + "</body></html>\n");
+     }
+	
 }
