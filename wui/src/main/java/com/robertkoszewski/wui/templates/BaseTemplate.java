@@ -23,6 +23,8 @@
 
 package com.robertkoszewski.wui.templates;
 
+import com.robertkoszewski.wui.server.ResourceManager;
+
 /**
  * Base Template
  * @author Robert Koszewski
@@ -32,8 +34,9 @@ public class BaseTemplate implements WindowTemplate{
 	private String title = "";
 
 	@Override
-	public String getTemplateHTML() {
-		return "<html><body></body></html>";
+	public String getTemplateHTML(ResourceManager resources) {
+		String html = resources.getResourceAsString("/templates/base/template.html");
+		return (html != null ? html : "<html><body>ERROR: Unable to find Base Template</body></html>");
 	}
 
 	@Override

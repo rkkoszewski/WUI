@@ -54,4 +54,17 @@ public class StringUtils {
 	    int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
 	    return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
 	}
+	
+	/**
+	 * Remove String from String Start
+	 * @param text
+	 * @param removeChar
+	 * @return
+	 */
+	public static String removeStringFromStringStart(String text, String remove) {
+		int len = remove.length();
+		while(text.startsWith(remove))
+			text = text.substring(len);
+		return text;
+	}
 }

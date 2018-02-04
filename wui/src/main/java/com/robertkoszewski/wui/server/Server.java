@@ -23,12 +23,22 @@
 
 package com.robertkoszewski.wui.server;
 
-import com.robertkoszewski.wui.WUIController;
-
+/**
+ * Server Interface
+ * @author Robert Koszewski
+ */
 public interface Server {
-	public void startServer(int port) throws Exception;
+	
+	/**
+	 * Start Server
+	 * @param port
+	 * @param responseManager
+	 * @throws Exception
+	 */
+	public void startServer(int port, ResponseManager responseManager) throws Exception;
+	
+	/**
+	 * Stop Server
+	 */
 	public void stopServer();
-	//public void addPage(String url, String content);
-	//public void removePage(String url);
-	public void addController(String url, WUIController content);
 }

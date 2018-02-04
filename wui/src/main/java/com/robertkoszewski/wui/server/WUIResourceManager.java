@@ -23,28 +23,50 @@
 
 package com.robertkoszewski.wui.server;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import com.robertkoszewski.wui.utils.StringUtils;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * WUI Resource Provider
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server{
+public class WUIResourceManager implements ResourceManager {
 	
-	private HTTPServer server;
+	private static String BasePath = "/com/robertkoszewski/wui/resources/";
 
-	/**
-	 * Start Server
-	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
+	@Override
+	public boolean resourceExists(String path) {
+		return WUIResourceManager.class.getResourceAsStream(processPath(path, true)) != null;
 	}
 
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
+	@Override
+	public InputStream getResource(String path) {
+		return WUIResourceManager.class.getResourceAsStream(processPath(path, true));
 	}
+
+	@Override
+	public String getResourceAsString(String path) {
+		InputStream in = WUIResourceManager.class.getResourceAsStream(processPath(path, true)); 
+		if(in == null) return null;
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+		String out = "";
+		try {
+			String line;
+			while ((line = reader.readLine()) != null)
+				out += line;
+		} catch (IOException e) {
+			return null;
+		}
+		return out;
+	}
+	
+	// Helper Methods
+	private String processPath(String path, boolean prependBasePath) {
+		return BasePath + StringUtils.removeStringFromStringStart(path, "/");
+	}
+
 }

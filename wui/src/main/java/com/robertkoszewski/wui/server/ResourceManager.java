@@ -23,28 +23,32 @@
 
 package com.robertkoszewski.wui.server;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import java.io.InputStream;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Resource Manager Interface
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server{
+public interface ResourceManager {
 	
-	private HTTPServer server;
-
 	/**
-	 * Start Server
+	 * Check if resouce exists
+	 * @param path
+	 * @return
 	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
-	}
-
+	public boolean resourceExists(String path);
+	
 	/**
-	 * Stop Server
+	 * Get Resource
+	 * @param path
+	 * @return
 	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
-	}
+	public InputStream getResource(String path);
+	
+	/**
+	 * Get Resource as Stream
+	 * @param path
+	 * @return
+	 */
+	public String getResourceAsString(String path);
 }

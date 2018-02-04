@@ -23,6 +23,24 @@
 
 package com.robertkoszewski.wui.server;
 
-public interface Request {
+import java.util.Map;
 
+/**
+ * Request Interface
+ * @author Robert Koszewski
+ */
+public interface Request {
+	// URL
+	public String getURL();
+	
+	// Headers
+	public Map<String, String> getHeaders();
+	public String getHeader(String id);
+	
+	// POST Data
+	public void getPostData();
+	public void getPostBody();
+
+	// POST Data
+	public void getGetData();
 }

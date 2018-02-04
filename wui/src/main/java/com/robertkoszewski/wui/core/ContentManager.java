@@ -21,30 +21,21 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.core;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import com.robertkoszewski.wui.WUIController;
+import com.robertkoszewski.wui.server.ResponseManager;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Content Manager Interface
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server{
+public interface ContentManager extends ResponseManager {
 	
-	private HTTPServer server;
-
 	/**
-	 * Start Server
+	 * Add Controller to URL
+	 * @param url
+	 * @param content
 	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
-	}
-
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
-	}
+	public void addController(String url, WUIController content);
 }

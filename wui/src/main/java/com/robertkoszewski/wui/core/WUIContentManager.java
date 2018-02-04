@@ -21,30 +21,58 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.core;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import java.util.HashMap;
+import java.util.Map;
 
-/**
- * NanoHTTPD Server Module for WUI
- * @author Robert Koszewski
- */
-public class NanoHTTPDServer implements Server{
+import com.robertkoszewski.wui.WUIController;
+import com.robertkoszewski.wui.server.*;
+import com.robertkoszewski.wui.server.responses.*;
+import com.robertkoszewski.wui.templates.WindowTemplate;
+
+public class WUIContentManager implements ContentManager {
+
+	private final WindowTemplate template;
+	private final ResourceManager resourceManager;
+	private Map<String, WUIController> pages = new HashMap<String, WUIController>();
 	
-	private HTTPServer server;
-
-	/**
-	 * Start Server
-	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
+	public WUIContentManager(WindowTemplate template) {
+		this.template = template;
+		this.resourceManager = new WUIResourceManager();
 	}
 
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
+	// Content Management Methods
+	@Override
+	public void addController(String url, WUIController content) {
+		pages.put(url, content);
+		
+	}
+	
+	// Response Manager Methods
+	@Override
+	public Response getResponse(Request request) {
+		WUIController controller = pages.get(request.getURL());
+		
+		// Is Content Request?
+		boolean isContentRequest = request.getHeader("x-wui-content-request") != null;
+		
+		if(isContentRequest) {
+			
+			
+		}else {
+			// Show Current Template
+			return new WUIStringResponse("text/html", template.getTemplateHTML(resourceManager));
+			
+		}
+		
+		
+		System.out.println("SERVING VIEW: " + request.getURL() + " (IS CONTENT REQUEST: " + isContentRequest + ")");
+
+		// Serve View
+		if(controller == null)
+			return new WUIStringResponse("text/html", "Content Not Found");
+		else
+			return new WUIStringResponse("text/html", controller.viewUpdate().getHTML());
 	}
 }

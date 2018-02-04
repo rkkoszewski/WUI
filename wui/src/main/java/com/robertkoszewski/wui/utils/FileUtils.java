@@ -44,8 +44,9 @@ public class FileUtils {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String readFileInJARToString(String path) throws IOException{
+	public static String readFileInJARToString(String path) throws Exception{
 		InputStream in = FileUtils.class.getResourceAsStream(path); 
+		if(in == null) return null;
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		String out = "";
 		String line;

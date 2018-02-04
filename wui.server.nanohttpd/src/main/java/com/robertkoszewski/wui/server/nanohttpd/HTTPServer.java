@@ -23,10 +23,11 @@
 
 package com.robertkoszewski.wui.server.nanohttpd;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Map;
-
-import com.robertkoszewski.wui.WUIController;
+import com.robertkoszewski.wui.server.ResponseManager;
+import com.robertkoszewski.wui.server.responses.FileResponse;
+import com.robertkoszewski.wui.server.responses.StringResponse;
 
 import fi.iki.elonen.NanoHTTPD;
 
@@ -36,26 +37,56 @@ import fi.iki.elonen.NanoHTTPD;
  */
 public class HTTPServer extends NanoHTTPD{
 	
-	private Map<String, WUIController> pages;
-	
-	/*
-	public App()  {
-        super(8080);
-        start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
-        System.out.println("\nRunning! Point your browsers to http://localhost:8080/ \n");
-    }
-    */
-	
-	public HTTPServer(int port, Map<String, WUIController> pages) throws IOException {
+	private final ResponseManager responseManager;
+
+	public HTTPServer(int port, ResponseManager responseManager) throws IOException {
 		super(port);
+		this.responseManager = responseManager;
 		start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
-		this.pages = pages;
 		System.out.println("SERVER STARTED AT PORT: " + port);
 	}
 	
 	 @Override
      public Response serve(IHTTPSession session) {
-		 System.out.println(session.getUri());
+
+		 // Get Response Object from the WUI Response Manager
+		 com.robertkoszewski.wui.server.responses.Response responseObject = responseManager.getResponse(new NanoHTTPDRequest(session));
+		 
+		 // Response Variable
+		 Response response;
+		 
+		 // Check for Response Types
+		 if(responseObject == null) {
+			 response = newFixedLengthResponse("ERROR: An unexpected server error occured. CAUSE: Unexpected response. Response is NULL.");
+			 
+		 }else if(responseObject instanceof StringResponse) { // String Response
+			 response = newFixedLengthResponse(Response.Status.OK, responseObject.getContentType(), ((StringResponse) responseObject).getStringResponse());
+
+		 }else if(responseObject instanceof FileResponse){ // File Response
+			 response = newChunkedResponse(Response.Status.OK, responseObject.getContentType(), ((FileResponse) responseObject).getInputStream());
+			 
+		 }else { // Generic or Unknown Response Type
+			 response = newChunkedResponse(Response.Status.OK, responseObject.getContentType(), new ByteArrayInputStream(responseObject.getResponse()));
+			 
+		 }
+		 
+		 return response; // Serve Response
+		 
+		 
+		 
+		 /*
+		 boolean content_request = session.getHeaders().get("x-wui-content-request").length() != 0;
+		 String response = template.getTemplateHTML(resources);
+		 */
+		 
+		 
+		 /*
+		 return new Response(Response.Status.OK, "image/jpeg", fis, -1);
+		 
+		 return newFixedLengthResponse(response);
+		 */
+		 
+		 /*
 		 
 		 WUIController controller = pages.get(session.getUri());
 		 String response = "";;
@@ -64,6 +95,8 @@ public class HTTPServer extends NanoHTTPD{
 		 else response = controller.viewUpdate().getHTML();
 
 		 return newFixedLengthResponse(response);
+		 
+		 */
 		 
 		 /*
          String msg = "<html><body><h1>Hello server</h1>\n";

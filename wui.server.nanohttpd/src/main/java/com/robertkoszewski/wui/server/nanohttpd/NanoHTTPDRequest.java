@@ -21,30 +21,52 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.server.nanohttpd;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import java.util.Map;
+import java.util.Vector;
+
+import com.robertkoszewski.wui.server.Request;
+
+import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * NanoHTTPD Compatible Request
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server{
+public class NanoHTTPDRequest implements Request{
 	
-	private HTTPServer server;
+	private final IHTTPSession session;
 
-	/**
-	 * Start Server
-	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
+	public NanoHTTPDRequest(IHTTPSession session) {
+		this.session = session;
 	}
 
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
+	public String getURL() {
+		return session.getUri();
 	}
+
+	public Map<String, String> getHeaders() {
+		return session.getHeaders();
+	}
+
+	public String getHeader(String id) {
+		return session.getHeaders().get(id);
+	}
+
+	public void getPostData() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void getPostBody() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void getGetData() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

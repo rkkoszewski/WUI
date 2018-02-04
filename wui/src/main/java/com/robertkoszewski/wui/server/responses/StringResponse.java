@@ -21,30 +21,12 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
-
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+package com.robertkoszewski.wui.server.responses;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * String Response
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server{
-	
-	private HTTPServer server;
-
-	/**
-	 * Start Server
-	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
-	}
-
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
-	}
+public interface StringResponse extends Response{
+	public String getStringResponse();
 }

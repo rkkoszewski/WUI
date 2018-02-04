@@ -23,9 +23,13 @@
 
 package com.robertkoszewski.wui;
 
+import com.robertkoszewski.wui.core.ContentManager;
+import com.robertkoszewski.wui.core.WUIContentManager;
+import com.robertkoszewski.wui.server.ResourceManager;
 import com.robertkoszewski.wui.server.Server;
 import com.robertkoszewski.wui.server.ServerFactory;
 import com.robertkoszewski.wui.server.ServerNotFoundException;
+import com.robertkoszewski.wui.server.WUIResourceManager;
 import com.robertkoszewski.wui.templates.BaseTemplate;
 import com.robertkoszewski.wui.templates.WindowTemplate;
 
@@ -37,6 +41,8 @@ public class WUIWindow {
 	
 	private final WindowTemplate template;
 	private final Server server;
+	private final ContentManager contentManager;
+	//private final ResourceManager resources;
 	
 	/*
 	 * Constructors 
@@ -48,6 +54,8 @@ public class WUIWindow {
 	
 	public WUIWindow(WindowTemplate template) {
 		this.template = template;
+		//this.resources = new WUIResourceManager();
+		this.contentManager = new WUIContentManager(template);
 		this.server = initializeServer();
 	}
 	
@@ -73,7 +81,7 @@ public class WUIWindow {
 	
 	public void open() {
 		try {
-			this.server.startServer(8080);
+			this.server.startServer(8080, contentManager);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -86,6 +94,6 @@ public class WUIWindow {
 	
 	public void addController(String url, WUIController controller) {
 		controller.initialize(template); // TODO: Move this to the server to be initialized in a lazy-load approach.
-		server.addController(url, controller);
+		contentManager.addController(url, controller);
 	}
 }

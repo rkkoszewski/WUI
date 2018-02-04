@@ -29,6 +29,8 @@ public class Test {
 	public static void main(String[] args) {
 		
 		System.out.println("STARTING SERVER...");
+/*
+ * 
 
 	  	Server s = new NanoHTTPDServer();
 		try {
@@ -37,7 +39,7 @@ public class Test {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		/*
+
 		s.addPage("/", "HELLO IT WORKS");
 		s.addPage("/1", "HELLO THIS ALSO WORKS");
 		*/

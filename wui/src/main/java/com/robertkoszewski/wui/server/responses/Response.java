@@ -21,30 +21,32 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.server.responses;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import java.util.Map;
+import java.util.Vector;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Basic Response Type
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server{
+public interface Response {
 	
-	private HTTPServer server;
-
 	/**
-	 * Start Server
+	 * Get Response Content Mime Type (Example: text/html, text/json, image/jpeg, image/png)
+	 * @return
 	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
-	}
-
+	public String getContentType();
+	
 	/**
-	 * Stop Server
+	 * Return Custom Headers
+	 * @return
 	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
-	}
+	public Map<String, Vector<String>> getHeaders();
+	
+	/**
+	 * Get RAW Response. This is called when the server doesn't support any other super-types.
+	 * @return
+	 */
+	public byte[] getResponse();
 }

@@ -23,6 +23,8 @@
 
 package com.robertkoszewski.wui.templates;
 
+import com.robertkoszewski.wui.server.ResourceManager;
+
 /**
  * Window Template
  * @author Robert Koszewski
@@ -31,9 +33,10 @@ public interface WindowTemplate {
 	
 	/**
 	 * Returns the base HTML template
+	 * @param resources
 	 * @return
 	 */
-	public String getTemplateHTML();
+	String getTemplateHTML(ResourceManager resources);
 	
 	/**
 	 * Renders a Content Response

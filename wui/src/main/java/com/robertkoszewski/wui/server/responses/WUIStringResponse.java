@@ -21,8 +21,42 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.server.responses;
 
-public interface Response {
+import java.util.Map;
+import java.util.Vector;
+
+public class WUIStringResponse implements StringResponse{
+	
+	// Variables
+	private final String mimeType;
+	private final String response;
+	
+	// Constructor
+	public WUIStringResponse(String mimeType, String response) {
+		this.mimeType = mimeType;
+		this.response = response;
+	}
+
+	// Methods
+	@Override
+	public String getContentType() {
+		return mimeType;
+	}
+
+	@Override
+	public Map<String, Vector<String>> getHeaders() {
+		return null;
+	}
+
+	@Override
+	public byte[] getResponse() {
+		return response.getBytes();
+	}
+
+	@Override
+	public String getStringResponse() {
+		return response;
+	}
 
 }
