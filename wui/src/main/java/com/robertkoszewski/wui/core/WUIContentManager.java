@@ -23,6 +23,8 @@
 
 package com.robertkoszewski.wui.core;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,22 +59,42 @@ public class WUIContentManager implements ContentManager {
 		// Is Content Request?
 		boolean isContentRequest = request.getHeader("x-wui-content-request") != null;
 		
+		System.out.println("SERVING CONTENT: " + request.getURL() + " (IS CONTENT REQUEST: " + isContentRequest + ")");
+		
+
 		if(isContentRequest) {
-			
+			// Content Request
+			// Serve View
+			if(controller == null)
+				return new WUIStringResponse("text/html", "Content Not Found");
+			else
+				return new WUIStringResponse("text/html", controller.viewUpdate().getHTML());
 			
 		}else {
-			// Show Current Template
-			return new WUIStringResponse("text/html", template.getTemplateHTML(resourceManager));
+			// Show Current Template or Resource
+			if(controller != null) {
+				return new WUIStringResponse("text/html", template.getTemplateHTML(resourceManager));
+			}
 			
+			// Serve Resource
+			InputStream resource = resourceManager.getResource(request.getURL());
+
+			if(resource != null) {
+				try {
+					System.out.println("SERVING RESOURCE: "+request.getURL());
+					return new WUIFileResponse("text/javascript", resource);
+					
+				} catch (FileNotFoundException e) {
+					// Ignore Error
+				}
+			}
+			
+			return new WUIStringResponse("text/html","ERROR: Resource not found");
 		}
 		
 		
-		System.out.println("SERVING VIEW: " + request.getURL() + " (IS CONTENT REQUEST: " + isContentRequest + ")");
+		
 
-		// Serve View
-		if(controller == null)
-			return new WUIStringResponse("text/html", "Content Not Found");
-		else
-			return new WUIStringResponse("text/html", controller.viewUpdate().getHTML());
+		
 	}
 }
