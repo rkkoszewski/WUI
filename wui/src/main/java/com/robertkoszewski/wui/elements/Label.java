@@ -21,106 +21,48 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.templates;
-
-import java.util.Vector;
-
-import com.robertkoszewski.wui.elements.Element;
-import com.robertkoszewski.wui.elements.ElementWithData;
-import com.robertkoszewski.wui.elements.ElementWithSingleNesting;
-import com.robertkoszewski.wui.elements.NestedElement;
+package com.robertkoszewski.wui.elements;
 
 /**
- * Base Content
+ * Text Label
  * @author Robert Koszewski
  */
-public class BaseContent extends NestedElement implements Content, ElementWithSingleNesting {
+public class Label extends Element{
 	
-	private String title;
-	private Vector<Element> content = new Vector<Element>();
+	// Variables
+	private String label;
 	
-	/**
-	 * Serialize a Page
-	 * @return
-	 */
-	public Vector<Element> getContent(){
-		return content;
+	// Constructors
+	public Label() {
+		label = "";
+	}
+	
+	public Label(String label) {
+		this.label = label;
 	}
 	
 	/**
-	 * Set Page Title
-	 * @param title
+	 * Set Text Value
+	 * @param value
 	 */
-	public void setTitle(String title){
-		this.title = title;
-	}
-	
-	/**
-	 * Get Page Title
-	 * @return
-	 */
-	public String getTitle(){
-		return title;
-	}
-	
-	/**
-	 * Add Element to Page
-	 * @param element
-	 */
-	public void addElement(Element element){
-		content.addElement(element);
-		updateNestingTimestamp();
-	}
-	
-	/**
-	 * Remove Element from Page
-	 * @param element
-	 */
-	public void removeElement(Element element){
-		content.remove(element);
+	public void setText(String value) {
+		label = value;
 		updateTimestamp();
-		updateNestingTimestamp();
 	}
 	
 	/**
-	 * Remove Element at Index
-	 * @param index
+	 * Get Text Value
+	 * @return
 	 */
-	public void removeElementAt(int index){
-		content.remove(index);
+	public String getValue() {
+		return label;
 	}
+	
+	// HTML Element Methods
 
-	/**
-	 * Get Element Data
-	 */
 	@Override
 	public Object getElementData() {
-		return title;
-	}
-
-	/**
-	 * Get Child Elements
-	 */
-	@Override
-	public Element[] getChildElements() {
-		return content.toArray(new Element[content.size()]);
+		return label;
 	}
 	
-	// TESTING METHODS
-	
-	/*
-	
-	String html = "";
-
-	@Override
-	public void setHTML(String html) {
-		this.html = html;
-	}
-
-	@Override
-	public String getHTML() {
-		return this.html;
-	}
-	
-	*/
 }

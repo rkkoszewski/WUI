@@ -23,8 +23,5 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/wui.server.nanohttpd/target/classes"/>
-	<classpathentry kind="lib" path="C:/Users/rkkos/.m2/repository/org/nanohttpd/nanohttpd/2.3.1/nanohttpd-2.3.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/rkkos/.m2/repository/org/nanohttpd/nanohttpd-websocket/2.3.1/nanohttpd-websocket-2.3.1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -25,23 +25,27 @@ package com.robertkoszewski.wui.elements;
 
 import com.robertkoszewski.wui.utils.Utils;
 
-public class AbstractTimestampedElement implements TimestampedElement{
+/**
+ * Element With Nesting
+ * @author Robert Koszewski
+ */
+public abstract class NestedElement extends Element implements ElementWithNestingTimestamp{
 
-	protected long element_timestamp = Utils.getTimestamp(); // Element UID
+	protected long element_nesting_timestamp = Utils.getTimestamp(); // Element UID
 	
 	/**
 	 * Returns the Element Last Modified time stamp
 	 * @return Time stamp
 	 */
-	public long getTimestamp(){
-		return element_timestamp;
+	public long getNestingTimestamp(){
+		return element_nesting_timestamp;
 	}
 	
 	/**
 	 * Update the Element time stamp
 	 */
-	public void updateTimestamp(){
-		this.element_timestamp = Utils.getTimestamp();
+	public void updateNestingTimestamp(){
+		this.element_nesting_timestamp = Utils.getTimestamp();
 	}
 	
 }

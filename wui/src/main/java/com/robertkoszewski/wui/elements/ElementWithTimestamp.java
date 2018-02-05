@@ -23,40 +23,7 @@
 
 package com.robertkoszewski.wui.elements;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class TextInput extends Element{
-	
-	// Variables
-	private Map<String, String> data;
-	
-	// Constructors
-	public TextInput() {
-		data = new HashMap<String, String>();
-	}
-	
-	/**
-	 * Set Text Input Value
-	 * @param value
-	 */
-	public void setValue(String value) {
-		data.put("value", value);
-	}
-	
-	/**
-	 * Get Text Input Value
-	 * @return
-	 */
-	public String getValue() {
-		String v = data.get("value");
-		return (v != null ? v : "");
-	}
-	
-	// HTML Element Methods
-
-	@Override
-	public Object getElementData() {
-		return data;
-	}
+public interface ElementWithTimestamp {
+	public long getTimestamp();
+	public void updateTimestamp();
 }

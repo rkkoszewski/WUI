@@ -21,47 +21,14 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.test;
+package com.robertkoszewski.wui.elements;
 
-import com.robertkoszewski.wui.WUIController;
-import com.robertkoszewski.wui.WUIView;
-import com.robertkoszewski.wui.templates.Content;
-import com.robertkoszewski.wui.templates.WindowTemplate;
+import java.util.Map;
 
-public class RootController implements WUIController{
-
-	private RootView view;
-	int i = 1;
-	
-	@Override
-	public void initialize(WindowTemplate template) {
-		view = new RootView(template.getContentInstance());
-	}
-
-	@Override
-	public Content viewUpdate() {
-		view.setText("IT WORKS. COUNTING: " + i++);
-		
-		return view.getContent();
-	}
-	
-	public class RootView implements WUIView{
-
-		private Content content;
-		
-		public RootView(Content content) {
-			this.content = content;
-		}
-		
-		public void setText(String text) {
-			content.setHTML(text);
-		};
-
-		@Override
-		public Content getContent() {
-			return content;
-		}
-		
-	}
-
+/**
+ * Element that has Multiple Nested Child Elements with IDs
+ * @author Robert Koszewski
+ */
+public interface ElementWithMultipleNesting {
+	public Map<String, Element[]> getChildElements();
 }

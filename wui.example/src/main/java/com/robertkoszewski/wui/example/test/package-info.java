@@ -5,4 +5,4 @@
  * @author Robert Koszewski
  *
  */
-package com.robertkoszewski.wui.test;
+package com.robertkoszewski.wui.example.test;

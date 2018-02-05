@@ -23,6 +23,8 @@
 
 package com.robertkoszewski.wui.core;
 
+import java.net.URL;
+
 import com.robertkoszewski.wui.WUIController;
 import com.robertkoszewski.wui.server.ResponseManager;
 
@@ -38,4 +40,6 @@ public interface ContentManager extends ResponseManager {
 	 * @param content
 	 */
 	public void addController(String url, WUIController content);
+
+	public void setIcon(URL resource);
 }

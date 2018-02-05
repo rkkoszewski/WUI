@@ -23,6 +23,12 @@
 
 package com.robertkoszewski.wui.elements;
 
-public interface HTMLElement {
-	// public String getHTML();
+/**
+ * Timestamp for Nested Elements
+ * @author Robert Koszewski
+ *
+ */
+public interface ElementWithNestingTimestamp {
+	public long getNestingTimestamp();
+	public void updateNestingTimestamp();
 }

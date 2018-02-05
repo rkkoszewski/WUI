@@ -23,7 +23,7 @@
 
 package com.robertkoszewski.wui.elements;
 
-public interface TimestampedElement {
-	public long getTimestamp();
-	public void updateTimestamp();
+public interface ElementWithData extends ElementWithTimestamp {
+	// public String getHTML();
+	public Object getElementData();
 }

@@ -25,16 +25,16 @@ package com.robertkoszewski.wui.templates;
 
 import java.util.Vector;
 
-import com.robertkoszewski.wui.elements.HTMLElement;
-import com.robertkoszewski.wui.elements.TimestampedElement;
+import com.robertkoszewski.wui.elements.Element;
+import com.robertkoszewski.wui.elements.ElementWithTimestamp;
 
-public interface Content extends TimestampedElement{
+public interface Content extends ElementWithTimestamp{
 
 	/**
 	 * Get Page Content
 	 * @return
 	 */
-	public Vector<HTMLElement> getContent();
+	public Vector<Element> getContent();
 	
 	/**
 	 * Set Page Title
@@ -52,21 +52,18 @@ public interface Content extends TimestampedElement{
 	 * Add Element to Page
 	 * @param element
 	 */
-	public void addElement(HTMLElement element);
+	public void addElement(Element element);
 	
 	/**
 	 * Remove Element from Page
 	 * @param element
 	 */
-	public void removeElement(HTMLElement element);
+	public void removeElement(Element element);
 	
 	/**
 	 * Remove Element at Index
 	 * @param index
 	 */
 	public void removeElementAt(int index);
-	
-	// TESTING METHODS
-	public void setHTML(String html);
-	public String getHTML();
+
 }

@@ -21,106 +21,45 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.templates;
+package com.robertkoszewski.wui.elements;
 
-import java.util.Vector;
+import java.util.UUID;
 
-import com.robertkoszewski.wui.elements.Element;
-import com.robertkoszewski.wui.elements.ElementWithData;
-import com.robertkoszewski.wui.elements.ElementWithSingleNesting;
-import com.robertkoszewski.wui.elements.NestedElement;
+import com.robertkoszewski.wui.utils.Utils;
 
 /**
- * Base Content
+ * Base Element
  * @author Robert Koszewski
  */
-public class BaseContent extends NestedElement implements Content, ElementWithSingleNesting {
-	
-	private String title;
-	private Vector<Element> content = new Vector<Element>();
-	
+public abstract class Element implements ElementWithData, ElementWithTimestamp {
+
+	protected long data_timestamp = Utils.getTimestamp(); // Element UID	
+	protected String element_name = this.getClass().getSimpleName();//.getName();
+	protected UUID element_uuid = UUID.randomUUID();
+
 	/**
-	 * Serialize a Page
+	 * Get Element Name
 	 * @return
 	 */
-	public Vector<Element> getContent(){
-		return content;
+	public String getElementName() {
+		return element_name;
 	}
 	
 	/**
-	 * Set Page Title
-	 * @param title
+	 * Returns the Element Last Modified time stamp
+	 * @return Time stamp
 	 */
-	public void setTitle(String title){
-		this.title = title;
+	public long getTimestamp(){
+		return data_timestamp;
 	}
 	
 	/**
-	 * Get Page Title
-	 * @return
+	 * Update the Element time stamp
 	 */
-	public String getTitle(){
-		return title;
-	}
-	
-	/**
-	 * Add Element to Page
-	 * @param element
-	 */
-	public void addElement(Element element){
-		content.addElement(element);
-		updateNestingTimestamp();
-	}
-	
-	/**
-	 * Remove Element from Page
-	 * @param element
-	 */
-	public void removeElement(Element element){
-		content.remove(element);
-		updateTimestamp();
-		updateNestingTimestamp();
-	}
-	
-	/**
-	 * Remove Element at Index
-	 * @param index
-	 */
-	public void removeElementAt(int index){
-		content.remove(index);
+	public void updateTimestamp(){
+		this.data_timestamp = Utils.getTimestamp();
 	}
 
-	/**
-	 * Get Element Data
-	 */
-	@Override
-	public Object getElementData() {
-		return title;
-	}
-
-	/**
-	 * Get Child Elements
-	 */
-	@Override
-	public Element[] getChildElements() {
-		return content.toArray(new Element[content.size()]);
-	}
 	
-	// TESTING METHODS
 	
-	/*
-	
-	String html = "";
-
-	@Override
-	public void setHTML(String html) {
-		this.html = html;
-	}
-
-	@Override
-	public String getHTML() {
-		return this.html;
-	}
-	
-	*/
 }
