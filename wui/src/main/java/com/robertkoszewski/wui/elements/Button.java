@@ -23,51 +23,45 @@
 
 package com.robertkoszewski.wui.elements;
 
-import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.robertkoszewski.wui.utils.Utils;
-
-/**
- * Base Element
- * @author Robert Koszewski
- */
-public abstract class Element implements ElementWithData, ElementWithTimestamp {
-
-	protected long data_timestamp = Utils.getTimestamp(); // Element UID	
-	protected String element_name = this.getClass().getSimpleName();//.getName();
-	protected UUID element_uuid = UUID.randomUUID();
-
+public class Button extends AbstractActionableElement{
+	
+	// Variables
+	private Map<String, String> data;
+	
+	// Constructors
+	public Button() {
+		data = new HashMap<String, String>();
+	}
+	
+	public Button(String value) {
+		this();
+		setValue(value);
+	}
+	
 	/**
-	 * Get Element Name
+	 * Set Text Input Value
+	 * @param value
+	 */
+	public void setValue(String value) {
+		data.put("value", value);
+	}
+	
+	/**
+	 * Get Text Input Value
 	 * @return
 	 */
-	public String getElementName() {
-		return element_name;
+	public String getValue() {
+		String v = data.get("value");
+		return (v != null ? v : "");
 	}
 	
-	/**
-	 * Element UUID
-	 * @return
-	 */
-	public UUID getElementUUID() {
-		return element_uuid;
-	}
-	
-	/**
-	 * Returns the Element Last Modified time stamp
-	 * @return Time stamp
-	 */
-	public long getTimestamp(){
-		return data_timestamp;
-	}
-	
-	/**
-	 * Update the Element time stamp
-	 */
-	public void updateTimestamp(){
-		this.data_timestamp = Utils.getTimestamp();
-	}
+	// HTML Element Methods
 
-	
-	
+	@Override
+	public Object getElementData() {
+		return data;
+	}
 }

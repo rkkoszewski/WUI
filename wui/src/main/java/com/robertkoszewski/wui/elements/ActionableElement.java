@@ -23,51 +23,8 @@
 
 package com.robertkoszewski.wui.elements;
 
-import java.util.UUID;
-
-import com.robertkoszewski.wui.utils.Utils;
-
-/**
- * Base Element
- * @author Robert Koszewski
- */
-public abstract class Element implements ElementWithData, ElementWithTimestamp {
-
-	protected long data_timestamp = Utils.getTimestamp(); // Element UID	
-	protected String element_name = this.getClass().getSimpleName();//.getName();
-	protected UUID element_uuid = UUID.randomUUID();
-
-	/**
-	 * Get Element Name
-	 * @return
-	 */
-	public String getElementName() {
-		return element_name;
-	}
-	
-	/**
-	 * Element UUID
-	 * @return
-	 */
-	public UUID getElementUUID() {
-		return element_uuid;
-	}
-	
-	/**
-	 * Returns the Element Last Modified time stamp
-	 * @return Time stamp
-	 */
-	public long getTimestamp(){
-		return data_timestamp;
-	}
-	
-	/**
-	 * Update the Element time stamp
-	 */
-	public void updateTimestamp(){
-		this.data_timestamp = Utils.getTimestamp();
-	}
-
-	
-	
+public interface ActionableElement {
+	public void addActionListener(Runnable callback);
+	public void removeActionListener(Runnable callback);
+	public void actionPerformed();
 }

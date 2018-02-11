@@ -12,6 +12,16 @@
 				"setData": function(node, data){
 					$(node).text(data);
 				}
+			},
+			"Button" : {
+				"html": "<button></button>",
+				"setData": function(node, data, element){
+					console.debug("DATA", data);
+					$(node).text(data.value);
+					$(node).click(function(){
+						performAction(element.uuid);
+					});
+				}
 			}
 	}
 	
@@ -22,8 +32,15 @@
 	function generateElement(data){
 		var element = elements[data.element];
 		var $html = $(element.html);
-		element.setData($html[0], data.data);
+		element.setData($html[0], data.data, data);
 		return $html[0];
+	}
+	
+	function performAction(uuid){
+		$.ajax({
+			url: window.location.href,
+			headers: {'x-wui-request': 'action', 'x-wui-element': uuid}
+		});
 	}
 	
 	function getPageContent(){

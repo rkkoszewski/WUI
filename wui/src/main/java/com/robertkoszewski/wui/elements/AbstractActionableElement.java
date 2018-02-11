@@ -23,51 +23,31 @@
 
 package com.robertkoszewski.wui.elements;
 
-import java.util.UUID;
-
-import com.robertkoszewski.wui.utils.Utils;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
- * Base Element
+ * Abstract Actionable Element
  * @author Robert Koszewski
  */
-public abstract class Element implements ElementWithData, ElementWithTimestamp {
+public abstract class AbstractActionableElement extends Element implements ActionableElement {
+	
+	ArrayList<Runnable> actionPerformedCallbacks = new ArrayList<Runnable>();
 
-	protected long data_timestamp = Utils.getTimestamp(); // Element UID	
-	protected String element_name = this.getClass().getSimpleName();//.getName();
-	protected UUID element_uuid = UUID.randomUUID();
-
-	/**
-	 * Get Element Name
-	 * @return
-	 */
-	public String getElementName() {
-		return element_name;
+	@Override
+	public void actionPerformed() {
+		Iterator<Runnable> it = actionPerformedCallbacks.iterator();
+		while(it.hasNext())
+			it.next().run();
 	}
 	
-	/**
-	 * Element UUID
-	 * @return
-	 */
-	public UUID getElementUUID() {
-		return element_uuid;
+	@Override
+	public void addActionListener(Runnable callback) {
+		actionPerformedCallbacks.add(callback);
+	}	
+	
+	@Override
+	public void removeActionListener(Runnable callback) {
+		actionPerformedCallbacks.remove(callback);
 	}
-	
-	/**
-	 * Returns the Element Last Modified time stamp
-	 * @return Time stamp
-	 */
-	public long getTimestamp(){
-		return data_timestamp;
-	}
-	
-	/**
-	 * Update the Element time stamp
-	 */
-	public void updateTimestamp(){
-		this.data_timestamp = Utils.getTimestamp();
-	}
-
-	
-	
 }

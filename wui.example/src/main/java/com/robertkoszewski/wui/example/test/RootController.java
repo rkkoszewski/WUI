@@ -25,6 +25,7 @@ package com.robertkoszewski.wui.example.test;
 
 import com.robertkoszewski.wui.WUIController;
 import com.robertkoszewski.wui.WUIView;
+import com.robertkoszewski.wui.elements.Button;
 import com.robertkoszewski.wui.elements.Label;
 import com.robertkoszewski.wui.templates.Content;
 import com.robertkoszewski.wui.templates.WindowTemplate;
@@ -73,15 +74,28 @@ public class RootController implements WUIController{
 		private Label label;
 		private Label cpu_label;
 		private Label ram_label;
+		private int press = 0;
 		
 		public RootView(Content content) {
 			this.content = content;
 			label = new Label();
+			final Label label_press = new Label("BUTTON NEVER PRESSED");
 			cpu_label = new Label();
 			ram_label = new Label();
 			content.addElement(label);
+			content.addElement(label_press);
 			content.addElement(cpu_label);
 			content.addElement(ram_label);
+			
+			// Button Test
+			Button b = new Button("Press Me!!");
+			b.addActionListener(new Runnable() {
+				public void run() {
+					label_press.setText("COUNTING PRESSES: " + press++);
+				}
+			});
+			
+			content.addElement(b);
 		}
 		
 		public void setText(String text) {
