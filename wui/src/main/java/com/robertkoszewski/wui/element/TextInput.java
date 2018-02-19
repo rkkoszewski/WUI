@@ -21,49 +21,26 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.templates;
+package com.robertkoszewski.wui.element;
 
-import java.util.Vector;
+import com.robertkoszewski.wui.element.feature.AbstractElementWithDynamicData;
 
-import com.robertkoszewski.wui.element.Element;
-import com.robertkoszewski.wui.element.feature.ElementWithElementTimestamp;
-
-public interface Content extends ElementWithElementTimestamp{
+public class TextInput extends AbstractElementWithDynamicData<String>{
 
 	/**
-	 * Get Page Content
+	 * Set Text Input Value
+	 * @param value
+	 */
+	public void setValue(String value) {
+		setData("value", value);
+	}
+	
+	/**
+	 * Get Text Input Value
 	 * @return
 	 */
-	public Vector<Element> getContent();
-	
-	/**
-	 * Set Page Title
-	 * @param title
-	 */
-	public void setTitle(String title);
-	
-	/**
-	 * Get Page Title
-	 * @return
-	 */
-	public String getTitle();
-	
-	/**
-	 * Add Element to Page
-	 * @param element
-	 */
-	public void addElement(Element element);
-	
-	/**
-	 * Remove Element from Page
-	 * @param element
-	 */
-	public void removeElement(Element element);
-	
-	/**
-	 * Remove Element at Index
-	 * @param index
-	 */
-	public void removeElementAt(int index);
-
+	public String getValue() {
+		String v = getData("value");
+		return (v != null ? v : "");
+	}
 }

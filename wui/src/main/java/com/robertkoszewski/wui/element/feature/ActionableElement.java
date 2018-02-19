@@ -21,12 +21,14 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.elements;
+package com.robertkoszewski.wui.element.feature;
 
 /**
- * Element that has Nested Child Elements
+ * Interactive Element
  * @author Robert Koszewski
  */
-public interface ElementWithSingleNesting {
-	public Element[] getChildElements();
+public interface ActionableElement {
+	public void actionPerformed();
+	public void addActionListener(Runnable callback);
+	public void removeActionListener(Runnable callback);
 }

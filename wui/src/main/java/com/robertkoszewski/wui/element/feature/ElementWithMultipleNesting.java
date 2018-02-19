@@ -21,31 +21,16 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.elements;
+package com.robertkoszewski.wui.element.feature;
 
-import com.robertkoszewski.wui.utils.Utils;
+import java.util.Map;
+
+import com.robertkoszewski.wui.element.Element;
 
 /**
- * Element With Nesting
+ * Element that has Multiple Nested Child Elements with IDs
  * @author Robert Koszewski
  */
-public abstract class NestedElement extends Element implements ElementWithNestingTimestamp{
-
-	protected long element_nesting_timestamp = Utils.getTimestamp(); // Element UID
-	
-	/**
-	 * Returns the Element Last Modified time stamp
-	 * @return Time stamp
-	 */
-	public long getNestingTimestamp(){
-		return element_nesting_timestamp;
-	}
-	
-	/**
-	 * Update the Element time stamp
-	 */
-	public void updateNestingTimestamp(){
-		this.element_nesting_timestamp = Utils.getTimestamp();
-	}
-	
+public interface ElementWithMultipleNesting {
+	public Map<String, Element[]> getChildElements();
 }

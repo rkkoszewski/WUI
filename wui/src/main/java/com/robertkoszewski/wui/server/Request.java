@@ -23,6 +23,7 @@
 
 package com.robertkoszewski.wui.server;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,16 +32,61 @@ import java.util.Map;
  */
 public interface Request {
 	// URL
+	/**
+	 * Get Request URL
+	 * @return URL
+	 */
 	public String getURL();
 	
 	// Headers
+	/**
+	 * Get Headers
+	 * @return
+	 */
 	public Map<String, String> getHeaders();
+	
+	/**
+	 * Get Header
+	 * @param id
+	 * @return
+	 */
 	public String getHeader(String id);
+	
+	// Get Cookies
+	
+	/**
+	 * Get all Cookies
+	 * @return
+	 */
+	public Map<String, String> getCookies();
+	
+	/**
+	 * Get Cookie
+	 * @param id
+	 * @return
+	 */
+	public String getCookie(String id);
 	
 	// POST Data
 	public void getPostData();
 	public void getPostBody();
 
-	// POST Data
-	public void getGetData();
+	// GET Parameters
+	/**
+	 * Get all GET Parameters
+	 */
+	public Map<String, List<String>> getParameters();
+	
+	/**
+	 * Get GET Parameter with all variants
+	 */
+	public List<String> getParameter(String id);
+	
+	/**
+	 * Get first GET Parameter
+	 */
+	public String getFirstParameter(String id);
+	
+	// Remote Data
+	public String getRemoteIpAddress();
 }

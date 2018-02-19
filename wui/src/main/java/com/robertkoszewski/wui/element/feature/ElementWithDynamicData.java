@@ -21,42 +21,21 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.elements;
+package com.robertkoszewski.wui.element.feature;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class TextInput extends Element{
-	
-	// Variables
-	private Map<String, String> data;
-	
-	// Constructors
-	public TextInput() {
-		data = new HashMap<String, String>();
-	}
+/**
+ * Element with Dynamic Data
+ * @author Robert Koszewski
+ */
+public interface ElementWithDynamicData extends ElementWithData {
+	/**
+	 * Get Data Timestamp
+	 * @return Timestamp
+	 */
+	public long getDataTimestamp();
 	
 	/**
-	 * Set Text Input Value
-	 * @param value
+	 * Update Data Timestamp
 	 */
-	public void setValue(String value) {
-		data.put("value", value);
-	}
-	
-	/**
-	 * Get Text Input Value
-	 * @return
-	 */
-	public String getValue() {
-		String v = data.get("value");
-		return (v != null ? v : "");
-	}
-	
-	// HTML Element Methods
-
-	@Override
-	public Object getElementData() {
-		return data;
-	}
+	public void updateDataTimestamp();
 }

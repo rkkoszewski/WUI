@@ -23,11 +23,15 @@
 
 package com.robertkoszewski.wui;
 
+import java.util.concurrent.locks.Lock;
+
 import com.robertkoszewski.wui.templates.Content;
 import com.robertkoszewski.wui.templates.WindowTemplate;
 
 public interface WUIController {
-	public void initialize(WindowTemplate template);
+	public Content initialize(WindowTemplate template);
 	//public WindowTemplate viewUpdate();
-	public Content viewUpdate();
+	//public Content viewUpdate();
+	public Lock getLock();
+	public Content getContent(); // TODO: Remove this, and store it in the ContentManager instead
 }

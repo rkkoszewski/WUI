@@ -21,33 +21,14 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.elements;
-
-import java.util.ArrayList;
-import java.util.Iterator;
+package com.robertkoszewski.wui.element.feature;
 
 /**
- * Abstract Actionable Element
+ * Timestamp for Nested Elements
  * @author Robert Koszewski
+ *
  */
-public abstract class AbstractActionableElement extends Element implements ActionableElement {
-	
-	ArrayList<Runnable> actionPerformedCallbacks = new ArrayList<Runnable>();
-
-	@Override
-	public void actionPerformed() {
-		Iterator<Runnable> it = actionPerformedCallbacks.iterator();
-		while(it.hasNext())
-			it.next().run();
-	}
-	
-	@Override
-	public void addActionListener(Runnable callback) {
-		actionPerformedCallbacks.add(callback);
-	}	
-	
-	@Override
-	public void removeActionListener(Runnable callback) {
-		actionPerformedCallbacks.remove(callback);
-	}
+public interface ElementWithNestingTimestamp {
+	public long getNestingTimestamp();
+	public void updateNestingTimestamp();
 }

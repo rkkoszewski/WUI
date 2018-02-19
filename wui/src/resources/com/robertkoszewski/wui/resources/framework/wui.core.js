@@ -64,11 +64,16 @@
 			  $(document.body).append(el);
 			  
 			});
+		}).always(function(){
+			// Get Page
+			//setTimeout(getPageContent, 1000);
+			getPageContent();
 		});
+
 	}
 		
 	getPageContent(); // Initial Run
 		
-	setInterval(getPageContent, 1000); // Run Every Second
+	//setInterval(getPageContent, 1000); // Run Every Second
 
 })();

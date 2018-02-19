@@ -25,16 +25,17 @@ package com.robertkoszewski.wui.templates;
 
 import java.util.Vector;
 
-import com.robertkoszewski.wui.elements.Element;
-import com.robertkoszewski.wui.elements.ElementWithData;
-import com.robertkoszewski.wui.elements.ElementWithSingleNesting;
-import com.robertkoszewski.wui.elements.NestedElement;
+import com.robertkoszewski.wui.element.Element;
+import com.robertkoszewski.wui.element.NestedElement;
+import com.robertkoszewski.wui.element.feature.ElementWithData;
+import com.robertkoszewski.wui.element.feature.ElementWithDynamicData;
+import com.robertkoszewski.wui.element.feature.ElementWithSingleNesting;
 
 /**
  * Base Content
  * @author Robert Koszewski
  */
-public class BaseContent extends NestedElement implements Content, ElementWithSingleNesting {
+public class BaseContent extends NestedElement implements Content, ElementWithData, ElementWithSingleNesting {
 	
 	private String title;
 	private Vector<Element> content = new Vector<Element>();
@@ -78,7 +79,7 @@ public class BaseContent extends NestedElement implements Content, ElementWithSi
 	 */
 	public void removeElement(Element element){
 		content.remove(element);
-		updateTimestamp();
+		updateElementTimestamp();
 		updateNestingTimestamp();
 	}
 	

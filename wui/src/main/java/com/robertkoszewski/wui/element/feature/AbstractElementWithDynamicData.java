@@ -21,49 +21,78 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.templates;
+package com.robertkoszewski.wui.element.feature;
 
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.robertkoszewski.wui.element.Element;
-import com.robertkoszewski.wui.element.feature.ElementWithElementTimestamp;
+import com.robertkoszewski.wui.utils.Utils;
 
-public interface Content extends ElementWithElementTimestamp{
-
+/**
+ * Abstract Actionable Element with Dynamic Data
+ * @author Robert Koszewski
+ */
+public abstract class AbstractElementWithDynamicData<T> extends Element implements ElementWithDynamicData {
+	
+	// Variables
+	private Map<String, T> data = new HashMap<String, T>(); // Element Data
+	private long data_timestamp = Utils.getTimestamp(); // Element Data Timestamp
+	
 	/**
-	 * Get Page Content
+	 * Set Text Input Value
+	 * @param value
+	 */
+	protected void setData(String key, T value) {
+		data.put(key, value);
+		updateDataTimestamp();
+	}
+	
+	/**
+	 * Get Text Input Value
 	 * @return
 	 */
-	public Vector<Element> getContent();
+	protected T getData(String key) {
+		return data.get(key);
+	}
 	
 	/**
-	 * Set Page Title
-	 * @param title
+	 * Remove Data
+	 * @param key
 	 */
-	public void setTitle(String title);
+	protected void removeData(String key) {
+		data.remove(key);
+		updateDataTimestamp();
+	}
 	
 	/**
-	 * Get Page Title
-	 * @return
+	 * Clear Data
 	 */
-	public String getTitle();
+	protected void clearData() {
+		data.clear();
+		updateDataTimestamp();
+	}
 	
-	/**
-	 * Add Element to Page
-	 * @param element
-	 */
-	public void addElement(Element element);
+	// TODO: Implement a ChangeNotificable HashMap
 	
-	/**
-	 * Remove Element from Page
-	 * @param element
-	 */
-	public void removeElement(Element element);
-	
-	/**
-	 * Remove Element at Index
-	 * @param index
-	 */
-	public void removeElementAt(int index);
+	// HTML Element Methods
 
+	@Override
+	public Object getElementData() {
+		return data;
+	}
+	
+	// Time Methods
+	
+	@Override
+	public long getDataTimestamp() {
+		return data_timestamp;
+	}
+
+	@Override
+	public void updateDataTimestamp() {
+		this.data_timestamp = Utils.getTimestamp();
+		triggerElementUpdate();
+	}
+	
 }

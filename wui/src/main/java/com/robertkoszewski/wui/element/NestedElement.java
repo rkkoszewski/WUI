@@ -21,48 +21,32 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.elements;
+package com.robertkoszewski.wui.element;
+
+import com.robertkoszewski.wui.element.feature.ElementWithNestingTimestamp;
+import com.robertkoszewski.wui.utils.Utils;
 
 /**
- * Text Label
+ * Element With Nesting
  * @author Robert Koszewski
  */
-public class Label extends Element{
-	
-	// Variables
-	private String label;
-	
-	// Constructors
-	public Label() {
-		label = "";
-	}
-	
-	public Label(String label) {
-		this.label = label;
-	}
-	
-	/**
-	 * Set Text Value
-	 * @param value
-	 */
-	public void setText(String value) {
-		label = value;
-		updateTimestamp();
-	}
-	
-	/**
-	 * Get Text Value
-	 * @return
-	 */
-	public String getValue() {
-		return label;
-	}
-	
-	// HTML Element Methods
+public abstract class NestedElement extends Element implements ElementWithNestingTimestamp{
 
-	@Override
-	public Object getElementData() {
-		return label;
+	protected long element_nesting_timestamp = Utils.getTimestamp(); // Element UID
+	
+	/**
+	 * Returns the Element Last Modified time stamp
+	 * @return Time stamp
+	 */
+	public long getNestingTimestamp(){
+		return element_nesting_timestamp;
+	}
+	
+	/**
+	 * Update the Element time stamp
+	 */
+	public void updateNestingTimestamp(){
+		this.element_nesting_timestamp = Utils.getTimestamp();
 	}
 	
 }

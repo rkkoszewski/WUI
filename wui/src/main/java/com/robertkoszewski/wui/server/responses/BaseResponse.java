@@ -21,49 +21,45 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.templates;
+package com.robertkoszewski.wui.server.responses;
 
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.robertkoszewski.wui.element.Element;
-import com.robertkoszewski.wui.element.feature.ElementWithElementTimestamp;
+import com.robertkoszewski.wui.server.Cookie;
 
-public interface Content extends ElementWithElementTimestamp{
+/**
+ * Base Response Class
+ * @author Robert Koszewski
+ *
+ */
+public abstract class BaseResponse implements Response{
+	
+	private String mimeType = "text/html";
+	private Map<String, Cookie> cookies = new HashMap<String, Cookie>();
+	private Map<String, String> headers = new HashMap<String, String>();
+	
+	public BaseResponse(String mimeType) {
+		this.mimeType = mimeType;
+	}
+	
+	@Override
+	public String getMimeType() {
+		return this.mimeType;
+	}
 
-	/**
-	 * Get Page Content
-	 * @return
-	 */
-	public Vector<Element> getContent();
-	
-	/**
-	 * Set Page Title
-	 * @param title
-	 */
-	public void setTitle(String title);
-	
-	/**
-	 * Get Page Title
-	 * @return
-	 */
-	public String getTitle();
-	
-	/**
-	 * Add Element to Page
-	 * @param element
-	 */
-	public void addElement(Element element);
-	
-	/**
-	 * Remove Element from Page
-	 * @param element
-	 */
-	public void removeElement(Element element);
-	
-	/**
-	 * Remove Element at Index
-	 * @param index
-	 */
-	public void removeElementAt(int index);
+	@Override
+	public Map<String, String> getHeaders() {
+		return headers;
+	}
 
+	@Override
+	public Map<String, Cookie> getCookies() {
+		return cookies;
+	}
+
+	@Override
+	public void setCookie(String key, Cookie cookie) {
+		cookies.put(key, cookie);
+	}
 }

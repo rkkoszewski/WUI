@@ -23,11 +23,15 @@
 
 package com.robertkoszewski.wui.server.nanohttpd;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import com.robertkoszewski.wui.server.Request;
 
+import fi.iki.elonen.NanoHTTPD.CookieHandler;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 
 /**
@@ -47,14 +51,37 @@ public class NanoHTTPDRequest implements Request{
 	}
 
 	public Map<String, String> getHeaders() {
-		return session.getHeaders();
+		return Collections.unmodifiableMap(session.getHeaders());
 	}
 
 	public String getHeader(String id) {
 		return session.getHeaders().get(id);
 	}
+	
+	// Cookies
 
+	public Map<String, String> getCookies() {
+		// This is actually already internally a HashMap in NanoHTTPD but 
+		// for whatever reason it's not accessible. Maybe that's their way
+		// to make it read-only? We will never know.
+		HashMap<String, String> cookies = new HashMap<String, String>();
+		CookieHandler cookie_handler = session.getCookies();
+		Iterator<String> cit = cookie_handler.iterator();
+		while(cit.hasNext()) {
+			String cookie_key = cit.next();
+			cookies.put(cookie_key, cookie_handler.read(cookie_key)); 
+		}
+		return Collections.unmodifiableMap(cookies);
+	}
+
+	public String getCookie(String id) {
+		return session.getCookies().read(id);
+	}
+	
+	// POST Parameters
+	
 	public void getPostData() {
+		
 		// TODO Auto-generated method stub
 		
 	}
@@ -63,10 +90,35 @@ public class NanoHTTPDRequest implements Request{
 		// TODO Auto-generated method stub
 		
 	}
+	
+	// GET Parameters
 
-	public void getGetData() {
-		// TODO Auto-generated method stub
-		
+	/**
+	 * Get all GET Parameters
+	 */
+	public Map<String, List<String>> getParameters() {
+		return session.getParameters();
+	}
+	
+	/**
+	 * Get GET Parameter with all variants
+	 */
+	public List<String> getParameter(String id) {
+		return session.getParameters().get(id);
+	}
+
+	/**
+	 * Get GET Parameter
+	 */
+	public String getFirstParameter(String id) {
+		List<String> p = getParameter(id);
+		return (p.size() == 0 ? null : p.get(0));
+	}
+	
+	// Client Data
+	
+	public String getRemoteIpAddress() {
+		return session.getRemoteIpAddress();
 	}
 
 }

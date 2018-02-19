@@ -21,10 +21,43 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.elements;
+package com.robertkoszewski.wui.server;
 
-public interface ActionableElement {
-	public void addActionListener(Runnable callback);
-	public void removeActionListener(Runnable callback);
-	public void actionPerformed();
+/**
+ * Cookie
+ * @author Robert Koszewski
+ */
+public class Cookie {
+	
+	private String value;
+	private int expiration;
+	private boolean isSession = false;
+	
+	public Cookie(String value) {
+		this.value = value;
+		isSession = true;
+	}
+	
+	public Cookie (String value, int expiration_in_days) {
+		this(value);
+		this.expiration = expiration_in_days;
+	}
+	
+	public String getValue() {
+		return value;
+	}
+
+	public int getExpiration() {
+		return expiration;
+	}
+	
+	public boolean isSessionCookie() {
+		return isSession;
+	}
+	
+	@Override
+	public String toString() {
+		return "VALUE: "+ value + " | EXPIRATION: " + expiration + " | SESSION: " + isSession;
+	}
+	
 }

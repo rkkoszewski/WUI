@@ -32,7 +32,9 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Vector;
+import java.util.concurrent.locks.Lock;
 
 import javax.imageio.ImageIO;
 
@@ -41,8 +43,9 @@ import org.imgscalr.Scalr;
 
 import com.google.gson.Gson;
 import com.robertkoszewski.wui.WUIController;
-import com.robertkoszewski.wui.elements.ActionableElement;
-import com.robertkoszewski.wui.elements.Element;
+import com.robertkoszewski.wui.element.Element;
+import com.robertkoszewski.wui.element.feature.ActionableElement;
+import com.robertkoszewski.wui.element.feature.ElementWithData;
 import com.robertkoszewski.wui.server.*;
 import com.robertkoszewski.wui.server.responses.*;
 import com.robertkoszewski.wui.templates.WindowTemplate;
@@ -53,6 +56,7 @@ public class WUIContentManager implements ContentManager {
 
 	// Static Variables
 	private static final int MAX_ICON_SIZE_PX = 64;
+	private static final String WUI_SESSION_ID = "WUISESSIONID";
 	
 	// Variables
 	private final WindowTemplate template;
@@ -79,6 +83,19 @@ public class WUIContentManager implements ContentManager {
 	@Override
 	public Response getResponse(Request request) {
 		
+		// Response
+		Response response = null;
+		Map<String, Cookie> cookies = new HashMap<String, Cookie>();
+		
+		// Has Session?
+		String sessionID = request.getCookie(WUI_SESSION_ID);
+		// @DEBUG System.out.println("CURRENT SESSION ID: " + sessionID);
+		if(sessionID == null) {
+			// Generate new Session ID
+			sessionID = newSessionID();
+			cookies.put(WUI_SESSION_ID, new Cookie(sessionID)); // Update Session ID Cookie
+		}
+
 		// Is Content Request?
 		RequestType requestType = null;
 		String wuiRequestHeader = request.getHeader("x-wui-request");
@@ -99,18 +116,21 @@ public class WUIContentManager implements ContentManager {
 
 			switch (requestType) {
 			case ACTION: // Action Performed Request Type
-				return performAction(request);
+				response =  performAction(request);
+				break;
 
 			case CONTENT: // Content Request Type
 				// Serve View
 				WUIController controller = pages.get(request.getURL()); // TODO: Inline this if nowhere else required
-				return toContentResponse(controller);
+				response = toContentResponse(controller);
+				break;
 				
 			case UNKNOWN: // Unknown Request Type
-				return new WUIStringResponse("text/html", "ERROR: Unkown Action");
+				response = new WUIStringResponse("text/html", "ERROR: Unkown Action");
+				break;
 				
 			default: // Unimplemented Request Type
-				return new WUIStringResponse("text/html", "ERROR: Action Not Implemented");
+				response = new WUIStringResponse("text/html", "ERROR: Action Not Implemented");
 			}
 
 		} else { // Regular Request	
@@ -123,44 +143,51 @@ public class WUIContentManager implements ContentManager {
 				// SERVE: Application Icon
 				case "/favicon.ico":
 					try {
-						return new WUIFileResponse("image/x-icon", imageToICO(icon));
-					} catch (Exception e) {
-						// return 404 not found
-					}
+						response = new WUIFileResponse("image/x-icon", imageToICO(icon));
+					} catch (Exception e) {}
 					break;
 					
 				case "/favicon.png":
 					try {
-						return new WUIFileResponse("image/png", imageToFormat(icon, "png"));
-					} catch (Exception e) {
-						// return 404 not found
-					}
+						response = new WUIFileResponse("image/png", imageToFormat(icon, "png"));
+					} catch (Exception e) {}
 					break;
 					
-			
-			}
-			
-			// Show Current Template or Resource
-			WUIController controller = pages.get(request.getURL()); // TODO: Inline this if nowhere else required
-			if(controller != null) {
-				return new WUIStringResponse("text/html", template.getTemplateHTML(resourceManager));
-			}
-			
-			// Serve Resource
-			InputStream resource = resourceManager.getResource(url);
-
-			if(resource != null) {
-				try {
-					System.out.println("SERVING RESOURCE: "+request.getURL());
-					return new WUIFileResponse("text/javascript", resource);
+				default: // Everything Else
 					
-				} catch (FileNotFoundException e) {
-					// Ignore Error
-				}
+					// Show Current Template or Resource
+					WUIController controller = pages.get(request.getURL()); // TODO: Inline this if nowhere else required
+					if(controller != null) {
+						response = new WUIStringResponse("text/html", template.getTemplateHTML(resourceManager));
+						
+					}else {
+						
+						// Serve Resource
+						InputStream resource = resourceManager.getResource(url);
+
+						if(resource != null) {
+							try {
+								System.out.println("SERVING RESOURCE: "+request.getURL());
+								response = new WUIFileResponse("text/javascript", resource);
+								
+							} catch (FileNotFoundException e) {
+								// Ignore Error
+							}
+						}
+					}
 			}
 			
-			return new WUIStringResponse("text/html","ERROR: Resource not found");
+			// No Response Content (ERROR 404)
+			if(response == null) {
+				response = new WUIStringResponse("text/html","ERROR: Resource not found");
+			}
 		}
+		
+		// Send Cookies and any aggregated data
+		response.getCookies().putAll(cookies); // Set Cookies
+
+		// Return Response
+		return response;
 	}
 
 	/**
@@ -171,7 +198,19 @@ public class WUIContentManager implements ContentManager {
 		icon = resource;
 	}
 	
+	/**
+	 * Generate Session ID (TODO: Improve this and make it more secure)
+	 * @return Session ID
+	 */
+	private String newSessionID() {
+		return UUID.randomUUID().toString();
+	}
 	
+	/**
+	 * Perform Action
+	 * @param request
+	 * @return
+	 */
 	private Response performAction(Request request) {
 		
 		String elmentUUID = request.getHeader("x-wui-element");
@@ -191,6 +230,7 @@ public class WUIContentManager implements ContentManager {
 		return new WUIStringResponse("text/html", "ACTION PERFORMED");
 	}
 	
+	int l = 0;
 
 	/**
 	 * Content Response Generator
@@ -213,7 +253,20 @@ public class WUIContentManager implements ContentManager {
 		Map<String, Element> element_cache = new HashMap<String, Element>();
 		
 		
-		Vector<Element> content = controller.viewUpdate().getContent();
+		// LOCKING TEST
+		Lock lock = controller.getLock();
+		if(l++ != 0) { // TODO: CHECK TIMESTAMP
+
+			synchronized (lock) {
+				try {
+					lock.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace(); // TODO: Not necesary
+				}
+			}
+		}
+		
+		Vector<Element> content = controller.getContent().getContent(); // TODO: Improve this.
 		Node[] root = new Node[content.size()];
 
 		Iterator<Element> it = content.iterator();
@@ -221,13 +274,18 @@ public class WUIContentManager implements ContentManager {
 		int i = 0;
 		while(it.hasNext()) {
 			Element e = it.next();
+			e.addElementUpdateLock(null, lock);
 			
 			Node n = new Node();
-			n.timestamp = e.getTimestamp();
-			n.data = e.getElementData();
+			n.timestamp = e.getElementTimestamp();
 			n.element = e.getElementName();
 			n.uuid = e.getElementUUID().toString();
 			
+			// Element with Data
+			if(e instanceof ElementWithData) {
+				n.data = ((ElementWithData) e).getElementData();
+			}
+
 			root[i++] = n;
 			
 			// Add to Element Cache

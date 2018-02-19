@@ -28,15 +28,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
-import java.util.Vector;
 
 import org.apache.commons.io.IOUtils;
 
-public class WUIFileResponse implements FileResponse{
+/**
+ * File Response
+ * @author Robert Koszewski
+ */
+public class WUIFileResponse extends BaseResponse implements FileResponse{
 	
 	// Variables
-	private final String mimeType;
 	private final InputStream inputStream;
 	private long size;
 	private boolean forceDownload = false;
@@ -49,7 +50,7 @@ public class WUIFileResponse implements FileResponse{
 	 * @throws FileNotFoundException
 	 */
 	public WUIFileResponse(String mimeType, File file) throws FileNotFoundException {
-		this.mimeType = mimeType;
+		super(mimeType);
 		size = file.length();
 		this.inputStream = new FileInputStream(file);
 	}
@@ -66,7 +67,7 @@ public class WUIFileResponse implements FileResponse{
 	 * @throws FileNotFoundException
 	 */
 	public WUIFileResponse(String mimeType, InputStream inputStream) throws FileNotFoundException {
-		this.mimeType = mimeType;
+		super(mimeType);
 		try {
 			size = inputStream.available();
 		} catch (IOException e) {
@@ -81,15 +82,6 @@ public class WUIFileResponse implements FileResponse{
 	}
 	
 	// Methods
-	@Override
-	public String getContentType() {
-		return this.mimeType;
-	}
-
-	@Override
-	public Map<String, Vector<String>> getHeaders() {
-		return null;
-	}
 
 	@Override
 	public byte[] getResponse() {

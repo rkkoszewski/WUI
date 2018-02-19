@@ -21,49 +21,20 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.templates;
+package com.robertkoszewski.wui.core;
 
-import java.util.Vector;
-
-import com.robertkoszewski.wui.element.Element;
-import com.robertkoszewski.wui.element.feature.ElementWithElementTimestamp;
-
-public interface Content extends ElementWithElementTimestamp{
-
-	/**
-	 * Get Page Content
-	 * @return
-	 */
-	public Vector<Element> getContent();
+public abstract class View implements ViewInterface{
 	
-	/**
-	 * Set Page Title
-	 * @param title
-	 */
-	public void setTitle(String title);
+	public View(Type type) {
+		
+	}
 	
-	/**
-	 * Get Page Title
-	 * @return
-	 */
-	public String getTitle();
+	public void getViewInstance() {
+		createView(null);
+	}
 	
-	/**
-	 * Add Element to Page
-	 * @param element
-	 */
-	public void addElement(Element element);
-	
-	/**
-	 * Remove Element from Page
-	 * @param element
-	 */
-	public void removeElement(Element element);
-	
-	/**
-	 * Remove Element at Index
-	 * @param index
-	 */
-	public void removeElementAt(int index);
-
+	public enum Type{
+		GLOBAL,
+		PRIVATE
+	}
 }

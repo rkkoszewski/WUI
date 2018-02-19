@@ -21,9 +21,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.elements;
+package com.robertkoszewski.wui.core;
 
-public interface ElementWithTimestamp {
-	public long getTimestamp();
-	public void updateTimestamp();
+import com.robertkoszewski.wui.templates.Content;
+
+public interface ViewInterface {
+	public Content createView(Content content);
 }

@@ -21,14 +21,33 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.elements;
+package com.robertkoszewski.wui.element;
 
-/**
- * Timestamp for Nested Elements
- * @author Robert Koszewski
- *
- */
-public interface ElementWithNestingTimestamp {
-	public long getNestingTimestamp();
-	public void updateNestingTimestamp();
+import com.robertkoszewski.wui.element.feature.AbstractElementWithDynamicData;
+
+public class Button extends AbstractElementWithDynamicData<String>{
+
+	// Constructors
+	public Button() {}
+	
+	public Button(String value) {
+		setValue(value);
+	}
+	
+	/**
+	 * Set Text Input Value
+	 * @param value
+	 */
+	public void setValue(String value) {
+		setData("value", value);
+	}
+	
+	/**
+	 * Get Text Input Value
+	 * @return
+	 */
+	public String getValue() {
+		String v = getData("value");
+		return (v != null ? v : "");
+	}
 }

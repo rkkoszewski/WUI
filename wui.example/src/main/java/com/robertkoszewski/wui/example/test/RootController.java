@@ -23,10 +23,13 @@
 
 package com.robertkoszewski.wui.example.test;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import com.robertkoszewski.wui.WUIController;
 import com.robertkoszewski.wui.WUIView;
-import com.robertkoszewski.wui.elements.Button;
-import com.robertkoszewski.wui.elements.Label;
+import com.robertkoszewski.wui.element.Button;
+import com.robertkoszewski.wui.element.Label;
 import com.robertkoszewski.wui.templates.Content;
 import com.robertkoszewski.wui.templates.WindowTemplate;
 import com.robertkoszewski.wui.utils.StringUtils;
@@ -34,12 +37,15 @@ import com.robertkoszewski.wui.utils.SystemInfo;
 
 public class RootController implements WUIController{
 
+	private Lock lock = new ReentrantLock();
 	private RootView view;
 	int i = 1;
 	
-	public void initialize(WindowTemplate template) {
+	public Content initialize(WindowTemplate template) {
+		// Create Root View
 		view = new RootView(template.getContentInstance());
 		
+		// System Info Thread
 		final SystemInfo info = new SystemInfo();
 		
 		new Thread() {
@@ -54,19 +60,23 @@ public class RootController implements WUIController{
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} // Wait 3 Seconds
+					
+					view.setText("IT WORKS. COUNTING: " + i++); // And a counter
 				}
 				
 			};
-			
-			
 		}.start();
-	}
 
-	public Content viewUpdate() {
-		view.setText("IT WORKS. COUNTING: " + i++);
-		
+		// Return Content
 		return view.getContent();
 	}
+
+	
+	/*
+	public Content viewUpdate() {
+		return view.getContent();
+	}
+	*/
 	
 	public class RootView implements WUIView{
 
@@ -114,6 +124,14 @@ public class RootController implements WUIController{
 			return content;
 		}
 		
+	}
+
+	public Lock getLock() {
+		return lock;
+	}
+
+	public Content getContent() {
+		return view.getContent();
 	}
 
 }

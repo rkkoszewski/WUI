@@ -1,7 +1,11 @@
 package com.robertkoszewski.wui.example;
 
 import com.robertkoszewski.wui.WUIWindow;
+import com.robertkoszewski.wui.core.View;
+import com.robertkoszewski.wui.core.ViewInterface;
+import com.robertkoszewski.wui.element.Label;
 import com.robertkoszewski.wui.example.test.RootController;
+import com.robertkoszewski.wui.templates.Content;
 
 /**
  * Hello world!
@@ -26,6 +30,14 @@ public class App
         w.addController("/", new RootController());
         
         w.open();
+        
+        // Define View
+        new View(View.Type.PRIVATE) { // Default is global view
+			public Content createView(Content content) {
+				content.addElement(new Label("ASD"));
+				return null;
+			}
+        };
         
         /*
         WUIWindow w = WUI.newWindow("Title", "Icon");

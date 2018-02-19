@@ -23,32 +23,22 @@
 
 package com.robertkoszewski.wui.server.responses;
 
-import java.util.Map;
-import java.util.Vector;
-
-public class WUIStringResponse implements StringResponse{
+/**
+ * Simple String Response
+ * @author Robert Koszewski
+ */
+public class WUIStringResponse extends BaseResponse implements StringResponse{
 	
 	// Variables
-	private final String mimeType;
 	private final String response;
 	
 	// Constructor
 	public WUIStringResponse(String mimeType, String response) {
-		this.mimeType = mimeType;
+		super(mimeType);
 		this.response = response;
 	}
 
 	// Methods
-	@Override
-	public String getContentType() {
-		return mimeType;
-	}
-
-	@Override
-	public Map<String, Vector<String>> getHeaders() {
-		return null;
-	}
-
 	@Override
 	public byte[] getResponse() {
 		return response.getBytes();
@@ -58,5 +48,4 @@ public class WUIStringResponse implements StringResponse{
 	public String getStringResponse() {
 		return response;
 	}
-
 }

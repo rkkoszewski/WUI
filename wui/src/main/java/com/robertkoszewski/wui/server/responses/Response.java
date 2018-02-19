@@ -24,7 +24,8 @@
 package com.robertkoszewski.wui.server.responses;
 
 import java.util.Map;
-import java.util.Vector;
+
+import com.robertkoszewski.wui.server.Cookie;
 
 /**
  * Basic Response Type
@@ -34,19 +35,33 @@ public interface Response {
 	
 	/**
 	 * Get Response Content Mime Type (Example: text/html, text/json, image/jpeg, image/png)
-	 * @return
+	 * @return MimeType
 	 */
-	public String getContentType();
+	public String getMimeType();
 	
 	/**
 	 * Return Custom Headers
-	 * @return
+	 * @return Headers
 	 */
-	public Map<String, Vector<String>> getHeaders();
+	public Map<String, String> getHeaders();
+	
 	
 	/**
+	 * Return Cookies
+	 * @return Cookies
+	 */
+	public Map<String, Cookie> getCookies();
+	
+	/**
+	 * Set A Cookie
+	 * @param id
+	 * @param value
+	 */
+	public void setCookie(String key, Cookie cookie);
+
+	/**
 	 * Get RAW Response. This is called when the server doesn't support any other super-types.
-	 * @return
+	 * @return Raw Response
 	 */
 	public byte[] getResponse();
 }

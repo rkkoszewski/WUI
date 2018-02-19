@@ -25,6 +25,9 @@ package com.robertkoszewski.wui.server.nanohttpd;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 import com.robertkoszewski.wui.server.ResponseManager;
 import com.robertkoszewski.wui.server.responses.FileResponse;
 import com.robertkoszewski.wui.server.responses.StringResponse;
@@ -60,14 +63,22 @@ public class HTTPServer extends NanoHTTPD{
 			 response = newFixedLengthResponse("ERROR: An unexpected server error occured. CAUSE: Unexpected response. Response is NULL.");
 			 
 		 }else if(responseObject instanceof StringResponse) { // String Response
-			 response = newFixedLengthResponse(Response.Status.OK, responseObject.getContentType(), ((StringResponse) responseObject).getStringResponse());
+			 response = newFixedLengthResponse(Response.Status.OK, responseObject.getMimeType(), ((StringResponse) responseObject).getStringResponse());
 
 		 }else if(responseObject instanceof FileResponse){ // File Response
-			 response = newChunkedResponse(Response.Status.OK, responseObject.getContentType(), ((FileResponse) responseObject).getInputStream());
+			 response = newChunkedResponse(Response.Status.OK, responseObject.getMimeType(), ((FileResponse) responseObject).getInputStream());
 			 
 		 }else { // Generic or Unknown Response Type
-			 response = newChunkedResponse(Response.Status.OK, responseObject.getContentType(), new ByteArrayInputStream(responseObject.getResponse()));
+			 response = newChunkedResponse(Response.Status.OK, responseObject.getMimeType(), new ByteArrayInputStream(responseObject.getResponse()));
 			 
+		 }
+		 
+		 // Serve Cookies
+		 Iterator<Entry<String, com.robertkoszewski.wui.server.Cookie>> roit = responseObject.getCookies().entrySet().iterator();
+		 while(roit.hasNext()) {
+			 Entry<String, com.robertkoszewski.wui.server.Cookie> cookie_entry = roit.next();
+			 com.robertkoszewski.wui.server.Cookie cookie = cookie_entry.getValue();
+			 session.getCookies().set(cookie_entry.getKey(), cookie.getValue(), (cookie.isSessionCookie() ? 9999999 : cookie.getExpiration()));
 		 }
 		 
 		 return response; // Serve Response

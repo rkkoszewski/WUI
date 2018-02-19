@@ -21,47 +21,17 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.elements;
+package com.robertkoszewski.wui.element.feature;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class Button extends AbstractActionableElement{
-	
-	// Variables
-	private Map<String, String> data;
-	
-	// Constructors
-	public Button() {
-		data = new HashMap<String, String>();
-	}
-	
-	public Button(String value) {
-		this();
-		setValue(value);
-	}
+/**
+ * Element with Data (Without Timestamp = Static Data)
+ * @author Robert Koszewski
+ */
+public interface ElementWithData {
 	
 	/**
-	 * Set Text Input Value
-	 * @param value
+	 * Get Element Data
+	 * @return Object
 	 */
-	public void setValue(String value) {
-		data.put("value", value);
-	}
-	
-	/**
-	 * Get Text Input Value
-	 * @return
-	 */
-	public String getValue() {
-		String v = data.get("value");
-		return (v != null ? v : "");
-	}
-	
-	// HTML Element Methods
-
-	@Override
-	public Object getElementData() {
-		return data;
-	}
+	public Object getElementData();
 }

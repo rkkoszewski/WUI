@@ -21,9 +21,14 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.elements;
+package com.robertkoszewski.wui.element.feature;
 
-public interface ElementWithData extends ElementWithTimestamp {
-	// public String getHTML();
-	public Object getElementData();
+import com.robertkoszewski.wui.element.Element;
+
+/**
+ * Element that has Nested Child Elements
+ * @author Robert Koszewski
+ */
+public interface ElementWithSingleNesting {
+	public Element[] getChildElements();
 }
