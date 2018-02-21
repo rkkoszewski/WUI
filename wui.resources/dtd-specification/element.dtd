@@ -1,0 +1,14 @@
+<!-- WUI Element Specification - Alpha 1.0 -->
+<!ELEMENT element (html?, initialize?, set-data?)>
+
+<!-- Required Elements -->
+<!ELEMENT script (#PCDATA)>
+
+<!-- HTML Definition -->
+<!ELEMENT html (#PCDATA)>
+
+<!-- Element Initialization Script -->
+<!ELEMENT initialize (script?)>
+
+<!-- Set Element Data Script -->
+<!ELEMENT set-data (script?)>
