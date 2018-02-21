@@ -23,31 +23,8 @@
 
 package com.robertkoszewski.wui.element;
 
-import com.robertkoszewski.wui.element.feature.AbstractElementWithDynamicData;
 import com.robertkoszewski.wui.templates.ElementTemplate;
 
-public class TextInput extends AbstractElementWithDynamicData<String>{
-
-	/**
-	 * Set Text Input Value
-	 * @param value
-	 */
-	public void setValue(String value) {
-		setData("value", value);
-	}
-	
-	/**
-	 * Get Text Input Value
-	 * @return
-	 */
-	public String getValue() {
-		String v = getData("value");
-		return (v != null ? v : "");
-	}
-
-	@Override
-	public ElementTemplate getElementDefinition() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+public interface HTMLElement {
+	public ElementTemplate getElementDefinition(); // Get Element Definition
 }

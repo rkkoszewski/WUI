@@ -21,33 +21,33 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.element;
+package com.robertkoszewski.wui.server.responses;
 
-import com.robertkoszewski.wui.element.feature.AbstractElementWithDynamicData;
-import com.robertkoszewski.wui.templates.ElementTemplate;
+import com.google.gson.Gson;
 
-public class TextInput extends AbstractElementWithDynamicData<String>{
-
-	/**
-	 * Set Text Input Value
-	 * @param value
-	 */
-	public void setValue(String value) {
-		setData("value", value);
-	}
+/**
+ * Simple String Response
+ * @author Robert Koszewski
+ */
+public class WUIJsonResponse extends BaseResponse implements StringResponse{
 	
-	/**
-	 * Get Text Input Value
-	 * @return
-	 */
-	public String getValue() {
-		String v = getData("value");
-		return (v != null ? v : "");
+	// Variables
+	private final String response;
+	
+	// Constructor
+	public WUIJsonResponse(Object obj) {
+		super("application/json");
+		this.response = new Gson().toJson(obj);
+	}
+
+	// Methods
+	@Override
+	public byte[] getResponse() {
+		return response.getBytes();
 	}
 
 	@Override
-	public ElementTemplate getElementDefinition() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getStringResponse() {
+		return response;
 	}
 }

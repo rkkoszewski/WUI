@@ -23,7 +23,11 @@
 
 package com.robertkoszewski.wui.element;
 
+import java.io.IOException;
+
+import com.robertkoszewski.wui.Test;
 import com.robertkoszewski.wui.element.feature.AbstractElementWithSimpleDynamicData;
+import com.robertkoszewski.wui.templates.ElementTemplate;
 
 /**
  * Text Label
@@ -54,5 +58,15 @@ public class Label extends AbstractElementWithSimpleDynamicData<String>{
 	 */
 	public String getValue() {
 		return getData();
+	}
+
+	@Override
+	public ElementTemplate getElementDefinition() {
+		try {
+			return new ElementTemplate(Test.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/Label.html"));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

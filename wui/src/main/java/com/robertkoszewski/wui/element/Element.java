@@ -30,13 +30,14 @@ import java.util.concurrent.locks.Lock;
 
 import com.robertkoszewski.wui.element.feature.ActionableElement;
 import com.robertkoszewski.wui.element.feature.ElementWithElementTimestamp;
+import com.robertkoszewski.wui.templates.ElementTemplate;
 import com.robertkoszewski.wui.utils.Utils;
 
 /**
  * Base Element
  * @author Robert Koszewski
  */
-public abstract class Element implements ElementWithElementTimestamp, ActionableElement {
+public abstract class Element implements HTMLElement, ElementWithElementTimestamp, ActionableElement {
 
 	private ArrayList<Runnable> action_performed_callback;
 	//private ArrayList<Lock> container_locks = new ArrayList<Lock>();
@@ -120,5 +121,4 @@ public abstract class Element implements ElementWithElementTimestamp, Actionable
 	public void addElementUpdateLock(Object element, Lock lock) {
 		this.lock = lock;
 	}
-	
 }

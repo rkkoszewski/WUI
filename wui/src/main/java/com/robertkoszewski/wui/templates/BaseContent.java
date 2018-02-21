@@ -28,7 +28,6 @@ import java.util.Vector;
 import com.robertkoszewski.wui.element.Element;
 import com.robertkoszewski.wui.element.NestedElement;
 import com.robertkoszewski.wui.element.feature.ElementWithData;
-import com.robertkoszewski.wui.element.feature.ElementWithDynamicData;
 import com.robertkoszewski.wui.element.feature.ElementWithSingleNesting;
 
 /**
@@ -105,6 +104,12 @@ public class BaseContent extends NestedElement implements Content, ElementWithDa
 	@Override
 	public Element[] getChildElements() {
 		return content.toArray(new Element[content.size()]);
+	}
+
+	@Override
+	public ElementTemplate getElementDefinition() { // TODO: THIS IS NOT A HTML ELEMENT. REMOVE THIS.
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	// TESTING METHODS

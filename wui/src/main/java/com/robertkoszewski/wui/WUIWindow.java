@@ -23,22 +23,14 @@
 
 package com.robertkoszewski.wui;
 
-import java.awt.image.BufferedImage;
 import java.net.URL;
-
-import javax.imageio.ImageIO;
-
 import com.robertkoszewski.wui.core.ContentManager;
 import com.robertkoszewski.wui.core.WUIContentManager;
-import com.robertkoszewski.wui.server.ResourceManager;
 import com.robertkoszewski.wui.server.Server;
 import com.robertkoszewski.wui.server.ServerFactory;
 import com.robertkoszewski.wui.server.ServerNotFoundException;
-import com.robertkoszewski.wui.server.WUIResourceManager;
 import com.robertkoszewski.wui.templates.BaseTemplate;
 import com.robertkoszewski.wui.templates.WindowTemplate;
-
-import net.sf.image4j.codec.ico.ICOEncoder;
 
 /**
  * WUI Window Implementation

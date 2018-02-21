@@ -2,7 +2,7 @@
 <!DOCTYPE element PUBLIC "WUI Element Definition" "http://www.robertkoszewski.com/dtd/element.alpha.4.dtd">
 <element>
 	<html>
-		<div></div>
+		<button></button>
 	</html>
 	
 	<initialize>
@@ -12,7 +12,11 @@
 	
 	<set-data>
 		<script>
-			$(node).text(data);
+			console.debug("DATA", data);
+			$(node).text(data.value);
+			$(node).click(function(){
+				performAction(element.uuid);
+			});
 		</script>
 	</set-data>
 

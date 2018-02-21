@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Vector;
@@ -48,6 +49,7 @@ import com.robertkoszewski.wui.element.feature.ActionableElement;
 import com.robertkoszewski.wui.element.feature.ElementWithData;
 import com.robertkoszewski.wui.server.*;
 import com.robertkoszewski.wui.server.responses.*;
+import com.robertkoszewski.wui.templates.ElementTemplate;
 import com.robertkoszewski.wui.templates.WindowTemplate;
 
 import net.sf.image4j.codec.ico.ICOEncoder;
@@ -66,6 +68,7 @@ public class WUIContentManager implements ContentManager {
 	
 	// TODO: Temporary Variables. Move them where corresponds
 	private Map<String, Element> element_cache = new HashMap<String, Element>();
+	private Map<String, ElementTemplate> element_definition_cache = new HashMap<String, ElementTemplate>();
 	
 	public WUIContentManager(WindowTemplate template) {
 		this.template = template;
@@ -123,6 +126,11 @@ public class WUIContentManager implements ContentManager {
 				// Serve View
 				WUIController controller = pages.get(request.getURL()); // TODO: Inline this if nowhere else required
 				response = toContentResponse(controller);
+				break;
+				
+			case ELEMENT: // Element Definition Request Type
+				// Serve View
+				response = getElementDefinition(request);
 				break;
 				
 			case UNKNOWN: // Unknown Request Type
@@ -230,6 +238,25 @@ public class WUIContentManager implements ContentManager {
 		return new WUIStringResponse("text/html", "ACTION PERFORMED");
 	}
 	
+	/**
+	 * Element Definition Response
+	 * @param request
+	 * @return
+	 */
+	private Response getElementDefinition(Request request) {
+		// TODO: Implement multiple element retrieval during one request
+		System.out.println("PARAMETERS!!: " + request.getParameters().toString());
+		
+		List<String> elementID = request.getParameter("element");
+		
+		if(elementID.size() != 0) {
+			return new WUIJsonResponse(element_definition_cache.get(elementID.get(0)));
+		}
+		
+		return new WUIJsonResponse(null); // TODO: Return error.
+		
+	}
+	
 	int l = 0;
 
 	/**
@@ -289,7 +316,15 @@ public class WUIContentManager implements ContentManager {
 			root[i++] = n;
 			
 			// Add to Element Cache
+			// TODO: Rewrite
 			element_cache.put(e.getElementUUID().toString(), e);
+			
+			// Add Element Definition
+			// TODO: Rewrite
+			if(!element_definition_cache.containsKey(e.getElementName())) {
+				element_definition_cache.put(e.getElementName(), e.getElementDefinition()); 
+			}
+			
 			
 		}
 		

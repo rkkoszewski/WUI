@@ -23,7 +23,11 @@
 
 package com.robertkoszewski.wui.element;
 
+import java.io.IOException;
+
+import com.robertkoszewski.wui.Test;
 import com.robertkoszewski.wui.element.feature.AbstractElementWithDynamicData;
+import com.robertkoszewski.wui.templates.ElementTemplate;
 
 public class Button extends AbstractElementWithDynamicData<String>{
 
@@ -49,5 +53,15 @@ public class Button extends AbstractElementWithDynamicData<String>{
 	public String getValue() {
 		String v = getData("value");
 		return (v != null ? v : "");
+	}
+
+	@Override
+	public ElementTemplate getElementDefinition() {
+		try {
+			return new ElementTemplate(Test.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/Button.html"));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

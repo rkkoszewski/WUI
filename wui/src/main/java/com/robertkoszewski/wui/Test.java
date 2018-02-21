@@ -23,6 +23,36 @@
 
 package com.robertkoszewski.wui;
 
-public class Test {
+import java.io.IOException;
 
+import org.apache.commons.io.IOUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+
+import com.robertkoszewski.wui.templates.ElementTemplate;
+
+
+public class Test {
+	public static void main(String[] args) throws IOException {
+
+		
+		ElementTemplate et = new ElementTemplate(Test.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/Label.html"));
+		
+		System.out.println(et.toString());
+		
+		
+		
+	}
+	/*
+	public static String buildCleanHtml(Element node, String html) {
+		for(Element e: node.children()) {
+			e.text()
+		}
+		
+		
+		return html;
+	}
+	*/
 }
