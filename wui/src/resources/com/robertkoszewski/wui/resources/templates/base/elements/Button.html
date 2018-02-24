@@ -7,6 +7,9 @@
 	
 	<initialize>
 		<script>
+			$(node).click(function(){
+				performAction(element.uuid);
+			});
 		</script>
 	</initialize>
 	
@@ -14,9 +17,6 @@
 		<script>
 			console.debug("DATA", data);
 			$(node).text(data.value);
-			$(node).click(function(){
-				performAction(element.uuid);
-			});
 		</script>
 	</set-data>
 

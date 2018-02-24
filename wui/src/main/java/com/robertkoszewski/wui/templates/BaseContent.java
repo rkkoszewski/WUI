@@ -23,6 +23,8 @@
 
 package com.robertkoszewski.wui.templates;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import com.robertkoszewski.wui.element.Element;
@@ -43,8 +45,10 @@ public class BaseContent extends NestedElement implements Content, ElementWithDa
 	 * Serialize a Page
 	 * @return
 	 */
-	public Vector<Element> getContent(){
-		return content;
+	public Map<String, Element[]> getElements(){
+		Map<String, Element[]> elements = new HashMap<String, Element[]>();
+		elements.put("body", content.toArray(new Element[content.size()])); // TDDO: Protect concurrency on "content"
+		return elements;
 	}
 	
 	/**
@@ -111,7 +115,7 @@ public class BaseContent extends NestedElement implements Content, ElementWithDa
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	// TESTING METHODS
 	
 	/*

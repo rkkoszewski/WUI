@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 
 import javax.imageio.ImageIO;
@@ -47,8 +48,10 @@ import com.robertkoszewski.wui.WUIController;
 import com.robertkoszewski.wui.element.Element;
 import com.robertkoszewski.wui.element.feature.ActionableElement;
 import com.robertkoszewski.wui.element.feature.ElementWithData;
+import com.robertkoszewski.wui.element.feature.ElementWithDynamicData;
 import com.robertkoszewski.wui.server.*;
 import com.robertkoszewski.wui.server.responses.*;
+import com.robertkoszewski.wui.templates.Content;
 import com.robertkoszewski.wui.templates.ElementTemplate;
 import com.robertkoszewski.wui.templates.WindowTemplate;
 
@@ -125,7 +128,13 @@ public class WUIContentManager implements ContentManager {
 			case CONTENT: // Content Request Type
 				// Serve View
 				WUIController controller = pages.get(request.getURL()); // TODO: Inline this if nowhere else required
-				response = toContentResponse(controller);
+				
+				long timestamp = 0;
+				try {
+					timestamp = Long.parseUnsignedLong(request.getParameter("t").get(0));
+				}catch(Exception e) {}
+				
+				response = toContentResponse(controller, timestamp);
 				break;
 				
 			case ELEMENT: // Element Definition Request Type
@@ -264,7 +273,7 @@ public class WUIContentManager implements ContentManager {
 	 * @param controller
 	 * @return
 	 */
-	private Response toContentResponse(WUIController controller) {
+	private Response toContentResponse(WUIController controller, long remote_timestamp) {
 		// Template Node
 		//Node root = new Node();
 		//root.element = 
@@ -280,59 +289,101 @@ public class WUIContentManager implements ContentManager {
 		Map<String, Element> element_cache = new HashMap<String, Element>();
 		
 		
-		// LOCKING TEST
+		// Freeze request till data changes
 		Lock lock = controller.getLock();
-		if(l++ != 0) { // TODO: CHECK TIMESTAMP
-
+		if(remote_timestamp != 0) {
 			synchronized (lock) {
 				try {
 					lock.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace(); // TODO: Not necesary
+				} catch (InterruptedException e) {}
+			}
+		}
+		
+		// Build Node Tree
+		Content content = controller.getContent(); // TODO: Improve this.
+		Map<String, Node[]> nodes = new HashMap<String, Node[]>();
+		long timestamp = 0;
+		
+		// Element Updates
+		Vector<Node> updates = new Vector<Node>();
+
+		// Create Node Branch
+		Iterator<Entry<String, Element[]>> bit = content.getElements().entrySet().iterator();
+		while(bit.hasNext()) {
+			// Branch Iteration
+			Entry<String, Element[]> branch = bit.next();
+			Element[] elements = branch.getValue();
+			Node[] root = new Node[elements.length];
+			
+			// Build Node Array
+			int i = 0;
+			for(Element e : branch.getValue()) {
+				
+				e.addElementUpdateLock(null, lock);
+				
+				Node n = new Node();
+				//n.timestamp = e.getElementTimestamp();
+				n.element = e.getElementName();
+				n.uuid = e.getElementUUID().toString();
+				
+				// Store Last Timestamp
+				if(n.timestamp > timestamp) timestamp = n.timestamp; // Element Timestamp
+
+				// Element with Data
+				if(e instanceof ElementWithData) {
+					n.data = ((ElementWithData) e).getElementData();
+					
 				}
+				
+				// Element with Dynamic Data
+				if(e instanceof ElementWithDynamicData) {
+					long element_data_timestamp = ((ElementWithDynamicData) e).getDataTimestamp();
+					if(element_data_timestamp > timestamp) timestamp = element_data_timestamp; // Element DataTimestamp
+					
+					if(remote_timestamp < element_data_timestamp) {
+						// Store New Updated Data
+						updates.add(n);
+					}
+				}
+
+				root[i++] = n;
+				
+				// Add to Element Cache
+				// TODO: Rewrite
+				element_cache.put(e.getElementUUID().toString(), e);
+				
+				// Add Element Definition
+				// TODO: Rewrite
+				if(!element_definition_cache.containsKey(e.getElementName())) {
+					element_definition_cache.put(e.getElementName(), e.getElementDefinition()); 
+				}
+				
 			}
+			
+			// Add Nodes to Branch
+			nodes.put(branch.getKey(), root);
 		}
 		
-		Vector<Element> content = controller.getContent().getContent(); // TODO: Improve this.
-		Node[] root = new Node[content.size()];
-
-		Iterator<Element> it = content.iterator();
 		
-		int i = 0;
-		while(it.hasNext()) {
-			Element e = it.next();
-			e.addElementUpdateLock(null, lock);
-			
-			Node n = new Node();
-			n.timestamp = e.getElementTimestamp();
-			n.element = e.getElementName();
-			n.uuid = e.getElementUUID().toString();
-			
-			// Element with Data
-			if(e instanceof ElementWithData) {
-				n.data = ((ElementWithData) e).getElementData();
-			}
-
-			root[i++] = n;
-			
-			// Add to Element Cache
-			// TODO: Rewrite
-			element_cache.put(e.getElementUUID().toString(), e);
-			
-			// Add Element Definition
-			// TODO: Rewrite
-			if(!element_definition_cache.containsKey(e.getElementName())) {
-				element_definition_cache.put(e.getElementName(), e.getElementDefinition()); 
-			}
-			
-			
+		// Build Content Response
+		ContentResponse content_response = new ContentResponse();
+		content_response.title = content.getTitle();
+		content_response.timestamp = timestamp;
+		
+		if(remote_timestamp == 0) {
+			content_response.type = UpdateStrategy.FULL;
+			content_response.nodes = nodes; // Full Content Update
+		}else {
+			// Partial Data Change Response
+			content_response.type = UpdateStrategy.PARTIALDATA;
+			content_response.updates = updates; // TODO: If updates.size == 0 then do EMPTY RESPONSE
 		}
-		
+
 		// Update Element Cache
 		this.element_cache = element_cache;
 
 		//template.
-		return new WUIStringResponse("text/json", (new Gson()).toJson(root));
+		return new WUIStringResponse("text/json", (new Gson()).toJson(content_response));
 	}
 	
 	// Helper Methods
