@@ -21,10 +21,45 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui;
+package com.robertkoszewski.wui.core;
 
-import com.robertkoszewski.wui.templates.Content;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface WUIView {
-	public Content getContent();
+import com.robertkoszewski.wui.View;
+
+/**
+ * Session Class
+ * @author Robert Koszewski
+ */
+public class Session {
+	
+	private Map<String, ViewInstance> view_instances = new HashMap<String, ViewInstance>();
+	private final SessionManager session_manager;
+	
+	public Session(SessionManager session_manager) {
+		this.session_manager = session_manager;
+	}
+	
+	/**
+	 * Get View Instance
+	 * @param url
+	 * @return View Instance
+	 */
+	public ViewInstance getViewInstance(String url) {
+		ViewInstance view_instance = view_instances.get(url);
+		
+		// View Instance Not Available
+		if(view_instance == null) {
+			// Initialize View Instance
+			View view = session_manager.content_manager.getView(url); // Get View Intializer
+			
+			if(view != null) {
+				view_instance = view.getViewInstance(session_manager.template); // Create New View Instance
+				view_instances.put(url, view_instance); // Store Instance		
+			}
+		}
+
+		return view_instance;
+	}
 }

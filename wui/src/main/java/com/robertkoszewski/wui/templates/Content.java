@@ -24,7 +24,6 @@
 package com.robertkoszewski.wui.templates;
 
 import java.util.Map;
-import java.util.Vector;
 
 import com.robertkoszewski.wui.element.Element;
 import com.robertkoszewski.wui.element.feature.ElementWithElementTimestamp;
@@ -66,5 +65,27 @@ public interface Content extends ElementWithElementTimestamp{
 	 * @param index
 	 */
 	public void removeElementAt(int index);
+	
+	/**
+	 * Set Content Data
+	 * @param id
+	 * @param obj
+	 */
+	public void setData(String name, Object obj);
+	
+	/**
+	 * Get Content Data
+	 * @param id
+	 * @return
+	 */
+	public Object getData(String name);
+	
+	/**
+	 * Get Content Data with Type Definition
+	 * @param id
+	 * @param clazz
+	 * @return
+	 */
+	public <T> T getData(String name, Class<T> classOfT);
 
 }

@@ -34,7 +34,7 @@ public abstract class AbstractElementWithSimpleDynamicData<T> extends Element im
 	
 	// Variables
 	private T data; // Element Data
-	private long data_timestamp = Utils.getTimestamp(); // Element Data Timestamp
+	private long data_timestamp = Utils.getChangeTimestamp(); // Element Data Timestamp
 	
 	/**
 	 * Set Text Input Value
@@ -69,7 +69,7 @@ public abstract class AbstractElementWithSimpleDynamicData<T> extends Element im
 
 	@Override
 	public void updateDataTimestamp() {
-		this.data_timestamp = Utils.getTimestamp();
+		this.data_timestamp = Utils.getChangeTimestamp();
 		triggerElementUpdate();
 	}
 }

@@ -88,4 +88,19 @@ public class Utils {
 	public static synchronized String getElementUID(){
 		return "eid"+euid++;
 	}
+	
+	/**
+	 * Return a Unique Change Timestamp (In one millisecond multiple changes can happen, so we need an extra counter for these)
+	 * @return Timestamp
+	 */
+	private static long last_timestamp = 0;
+	private static int last_change = 0;
+	public static synchronized long getChangeTimestamp(){
+		long timestamp = System.currentTimeMillis();
+		if(last_timestamp != timestamp) { 
+			last_change = 0;
+			last_timestamp = timestamp;
+		}
+		return Long.parseLong(timestamp + "" +  String.format("%03d", last_change++)); // TODO: Find some more robust way to do this. It may break after too many changes.
+	}
 }

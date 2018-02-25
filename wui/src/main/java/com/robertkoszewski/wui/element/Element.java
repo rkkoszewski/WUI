@@ -43,7 +43,7 @@ public abstract class Element implements HTMLElement, ElementWithElementTimestam
 	//private ArrayList<Lock> container_locks = new ArrayList<Lock>();
 	private Lock lock;
 	
-	private long data_timestamp = Utils.getTimestamp(); // Element UID	
+	private long data_timestamp = Utils.getChangeTimestamp(); // Element UID	
 	private String element_name = this.getClass().getSimpleName();//.getName();
 	private UUID element_uuid = UUID.randomUUID();
 
@@ -75,7 +75,7 @@ public abstract class Element implements HTMLElement, ElementWithElementTimestam
 	 * Update the Element time stamp
 	 */
 	public void updateElementTimestamp(){
-		this.data_timestamp = Utils.getTimestamp();
+		this.data_timestamp = Utils.getChangeTimestamp();
 		triggerElementUpdate();
 	}
 

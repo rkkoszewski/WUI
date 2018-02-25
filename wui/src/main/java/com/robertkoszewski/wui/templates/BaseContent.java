@@ -40,6 +40,7 @@ public class BaseContent extends NestedElement implements Content, ElementWithDa
 	
 	private String title;
 	private Vector<Element> content = new Vector<Element>();
+	private Map<String, Object> data = new HashMap<String, Object>();
 	
 	/**
 	 * Serialize a Page
@@ -116,21 +117,18 @@ public class BaseContent extends NestedElement implements Content, ElementWithDa
 		return null;
 	}
 
-	// TESTING METHODS
-	
-	/*
-	
-	String html = "";
-
 	@Override
-	public void setHTML(String html) {
-		this.html = html;
+	public void setData(String name, Object obj) {
+		data.put(name, obj);
 	}
 
 	@Override
-	public String getHTML() {
-		return this.html;
+	public Object getData(String name) {
+		return data.get(name);
 	}
-	
-	*/
+
+	@Override
+	public <T> T getData(String name, Class<T> classOfT) {
+		return classOfT.cast(data.get(name));
+	}
 }

@@ -21,8 +21,67 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui;
+package com.robertkoszewski.wui.core;
 
-public interface WUIApp {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
+import com.robertkoszewski.wui.server.Cookie;
+import com.robertkoszewski.wui.server.Request;
+import com.robertkoszewski.wui.templates.WindowTemplate;
+
+/**
+ * Session Manager Class
+ * @author Robert Koszewski
+ */
+public class SessionManager {
+
+	// Static Variables
+	private static final String WUI_SESSION_ID = "WUISESSIONID";
+	
+	protected final ContentManager content_manager;
+	protected final WindowTemplate template;
+	
+	private Map<String, Session> sessions = new HashMap<String, Session>(); // TODO: Implement Session Cleanup Mechanism
+	
+	// Constructors
+	public SessionManager(ContentManager content_manager, WindowTemplate template) {
+		this.content_manager = content_manager;
+		this.template = template;
+	}
+	
+	// Methods
+	
+	public Session getSession(Request request, Map<String, Cookie> response_cookies) {
+		
+		// Has Session?
+		String sessionID = request.getCookie(WUI_SESSION_ID);
+		// @DEBUG System.out.println("CURRENT SESSION ID: " + sessionID);
+		if(sessionID == null) {
+			// Generate new Session ID
+			sessionID = newSessionID();
+			response_cookies.put(WUI_SESSION_ID, new Cookie(sessionID)); // Update Session ID Cookie
+		}
+		
+		// Return Session
+		
+		Session session = sessions.get(sessionID);
+		if(session == null) {
+			session = new Session(this);
+			sessions.put(sessionID, session);
+		}
+		
+		return session;
+	}
+	
+	// Methods
+	
+	/**
+	 * Generate Session ID (TODO: Improve this and make it more secure)
+	 * @return Session ID
+	 */
+	private String newSessionID() {
+		return UUID.randomUUID().toString();
+	}
 }

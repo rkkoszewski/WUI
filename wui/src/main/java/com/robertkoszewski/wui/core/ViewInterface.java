@@ -26,5 +26,6 @@ package com.robertkoszewski.wui.core;
 import com.robertkoszewski.wui.templates.Content;
 
 public interface ViewInterface {
-	public Content createView(Content content);
+	public void createView(Content content);
+	public void onDestroy();
 }

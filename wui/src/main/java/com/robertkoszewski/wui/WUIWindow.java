@@ -38,10 +38,9 @@ import com.robertkoszewski.wui.templates.WindowTemplate;
  */
 public class WUIWindow {
 	
-	private final WindowTemplate template;
+	//private final WindowTemplate template;
 	private final Server server;
 	private final ContentManager contentManager;
-	//private final ResourceManager resources;
 	
 	/*
 	 * Constructors 
@@ -52,7 +51,7 @@ public class WUIWindow {
 	}
 	
 	public WUIWindow(WindowTemplate template) {
-		this.template = template;
+		//this.template = template;
 		//this.resources = new WUIResourceManager();
 		this.contentManager = new WUIContentManager(template);
 		this.server = initializeServer();
@@ -87,13 +86,8 @@ public class WUIWindow {
 		} // Autoconf this
 	}
 	
-	public void addView() {
-		
-	}
-	
-	public void addController(String url, WUIController controller) {
-		controller.initialize(template); // TODO: Move this to the server to be initialized in a lazy-load approach.
-		contentManager.addController(url, controller);
+	public void addView(String url, View view) {
+		contentManager.addView(url, view);
 	}
 
 	public void setIcon(URL resource) {

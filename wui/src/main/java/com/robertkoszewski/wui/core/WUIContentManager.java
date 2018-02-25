@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
@@ -44,7 +43,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.imgscalr.Scalr;
 
 import com.google.gson.Gson;
-import com.robertkoszewski.wui.WUIController;
+import com.robertkoszewski.wui.View;
 import com.robertkoszewski.wui.element.Element;
 import com.robertkoszewski.wui.element.feature.ActionableElement;
 import com.robertkoszewski.wui.element.feature.ElementWithData;
@@ -57,50 +56,61 @@ import com.robertkoszewski.wui.templates.WindowTemplate;
 
 import net.sf.image4j.codec.ico.ICOEncoder;
 
+/**
+ * WUI Content Manager
+ * @author Robert Koszewski
+ */
 public class WUIContentManager implements ContentManager {
 
 	// Static Variables
 	private static final int MAX_ICON_SIZE_PX = 64;
-	private static final String WUI_SESSION_ID = "WUISESSIONID";
 	
 	// Variables
 	private final WindowTemplate template;
 	private final ResourceManager resourceManager;
-	private Map<String, WUIController> pages = new HashMap<String, WUIController>();
+	private final SessionManager sessionManager;
+
+	// Cache and Resources
+	private Map<String, View> views = new HashMap<String, View>();
 	private URL icon = null; // Define a more flexible Icon class to allow to define different icon sizes.
 	
 	// TODO: Temporary Variables. Move them where corresponds
 	private Map<String, Element> element_cache = new HashMap<String, Element>();
 	private Map<String, ElementTemplate> element_definition_cache = new HashMap<String, ElementTemplate>();
 	
+	// Constructor
+	
 	public WUIContentManager(WindowTemplate template) {
 		this.template = template;
 		this.resourceManager = new WUIResourceManager();
+		this.sessionManager = new SessionManager(this, template);
+	}
+	
+	@Override
+	public void addView(String url, View view) {
+		views.put(url, view);
+	}
+	
+	@Override
+	public View getView(String url) {
+		return views.get(url);
 	}
 
-	// Content Management Methods
 	@Override
-	public void addController(String url, WUIController content) {
-		pages.put(url, content);
-		
+	public void removeView(String url) {
+		views.remove(url);
 	}
 	
 	// Response Manager Methods
 	@Override
 	public Response getResponse(Request request) {
-		
+
 		// Response
 		Response response = null;
 		Map<String, Cookie> cookies = new HashMap<String, Cookie>();
-		
-		// Has Session?
-		String sessionID = request.getCookie(WUI_SESSION_ID);
-		// @DEBUG System.out.println("CURRENT SESSION ID: " + sessionID);
-		if(sessionID == null) {
-			// Generate new Session ID
-			sessionID = newSessionID();
-			cookies.put(WUI_SESSION_ID, new Cookie(sessionID)); // Update Session ID Cookie
-		}
+
+		// Get Session
+		Session session = sessionManager.getSession(request, cookies);
 
 		// Is Content Request?
 		RequestType requestType = null;
@@ -127,14 +137,16 @@ public class WUIContentManager implements ContentManager {
 
 			case CONTENT: // Content Request Type
 				// Serve View
-				WUIController controller = pages.get(request.getURL()); // TODO: Inline this if nowhere else required
+				ViewInstance view = session.getViewInstance(request.getURL());
+				
+				//WUIController controller = pages.get(request.getURL()); // TODO: Inline this if nowhere else required
 				
 				long timestamp = 0;
 				try {
 					timestamp = Long.parseUnsignedLong(request.getParameter("t").get(0));
 				}catch(Exception e) {}
 				
-				response = toContentResponse(controller, timestamp);
+				response = toContentResponse(view, timestamp);
 				break;
 				
 			case ELEMENT: // Element Definition Request Type
@@ -173,8 +185,9 @@ public class WUIContentManager implements ContentManager {
 				default: // Everything Else
 					
 					// Show Current Template or Resource
-					WUIController controller = pages.get(request.getURL()); // TODO: Inline this if nowhere else required
-					if(controller != null) {
+					ViewInstance view = session.getViewInstance(request.getURL()); // TODO: Inline this if nowhere else required
+					
+					if(view != null) {
 						response = new WUIStringResponse("text/html", template.getTemplateHTML(resourceManager));
 						
 					}else {
@@ -213,14 +226,6 @@ public class WUIContentManager implements ContentManager {
 	@Override
 	public void setIcon(URL resource) {
 		icon = resource;
-	}
-	
-	/**
-	 * Generate Session ID (TODO: Improve this and make it more secure)
-	 * @return Session ID
-	 */
-	private String newSessionID() {
-		return UUID.randomUUID().toString();
 	}
 	
 	/**
@@ -273,14 +278,14 @@ public class WUIContentManager implements ContentManager {
 	 * @param controller
 	 * @return
 	 */
-	private Response toContentResponse(WUIController controller, long remote_timestamp) {
+	private Response toContentResponse(ViewInstance view, long remote_timestamp) {
 		// Template Node
 		//Node root = new Node();
 		//root.element = 
 		//root.nodes = controller.viewUpdate().getContent().toArray();
 			
 		// Return Error if controller is null
-		if(controller == null) {
+		if(view == null) {
 			return new WUIStringResponse("text/html", "Content Not Found");
 		}
 		
@@ -290,7 +295,7 @@ public class WUIContentManager implements ContentManager {
 		
 		
 		// Freeze request till data changes
-		Lock lock = controller.getLock();
+		Lock lock = view.getViewLock();
 		if(remote_timestamp != 0) {
 			synchronized (lock) {
 				try {
@@ -300,7 +305,7 @@ public class WUIContentManager implements ContentManager {
 		}
 		
 		// Build Node Tree
-		Content content = controller.getContent(); // TODO: Improve this.
+		Content content = view.getContent(); // TODO: Improve this.
 		Map<String, Node[]> nodes = new HashMap<String, Node[]>();
 		long timestamp = 0;
 		

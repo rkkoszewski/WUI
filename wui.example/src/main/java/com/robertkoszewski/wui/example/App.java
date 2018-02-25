@@ -1,10 +1,10 @@
 package com.robertkoszewski.wui.example;
 
+import com.robertkoszewski.wui.View;
 import com.robertkoszewski.wui.WUIWindow;
-import com.robertkoszewski.wui.core.View;
-import com.robertkoszewski.wui.core.ViewInterface;
+import com.robertkoszewski.wui.element.Button;
 import com.robertkoszewski.wui.element.Label;
-import com.robertkoszewski.wui.example.test.RootController;
+import com.robertkoszewski.wui.example.test.RootView;
 import com.robertkoszewski.wui.templates.Content;
 
 /**
@@ -16,6 +16,7 @@ public class App
     public static void main( String[] args )
     {
         System.out.println( "Hello World!" );
+        
         /*
         Server s = ServerFactory.getServerInstance();
         s.startServer(8080);
@@ -24,21 +25,33 @@ public class App
         */
         
         
-        WUIWindow w = new WUIWindow();
-        w.setIcon(RootController.class.getResource("icon.png"));
+        WUIWindow w = new WUIWindow(); // TODO: Add configuration options to this
         
-        w.addController("/", new RootController());
+        w.setIcon(RootView.class.getResource("icon.png")); // Set Icon
         
-        w.open();
+        // Class Based View
+        w.addView("/data", new RootView()); // Define Root View
         
-        // Define View
-        new View(View.Type.PRIVATE) { // Default is global view
-			public Content createView(Content content) {
-				content.addElement(new Label("ASD"));
-				return null;
+        
+        // Add View
+        final Runnable callback = new Runnable() {
+			public void run() {
+				System.exit(0);
 			}
         };
         
+        w.addView("/", new View(View.Type.PRIVATE) { // Default is global view
+			public void createView(Content content) {
+				content.addElement(new Label("ASD"));
+				Button button = new Button("Shutdown");
+				button.addActionListener(callback);
+				content.addElement(button);
+			}
+        });
+
+        
+        w.open();
+
         /*
         WUIWindow w = WUI.newWindow("Title", "Icon");
         

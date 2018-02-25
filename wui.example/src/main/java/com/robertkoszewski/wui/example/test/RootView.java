@@ -23,27 +23,58 @@
 
 package com.robertkoszewski.wui.example.test;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import com.robertkoszewski.wui.WUIController;
-import com.robertkoszewski.wui.WUIView;
+import com.robertkoszewski.wui.View;
 import com.robertkoszewski.wui.element.Button;
 import com.robertkoszewski.wui.element.Label;
 import com.robertkoszewski.wui.templates.Content;
-import com.robertkoszewski.wui.templates.WindowTemplate;
 import com.robertkoszewski.wui.utils.StringUtils;
 import com.robertkoszewski.wui.utils.SystemInfo;
 
-public class RootController implements WUIController{
+/**
+ * Demo Root View
+ * @author Robert Koszewski
+ */
+public class RootView extends View{
 
-	private Lock lock = new ReentrantLock();
-	private RootView view;
-	int i = 1;
-	
-	public Content initialize(WindowTemplate template) {
-		// Create Root View
-		view = new RootView(template.getContentInstance());
+	public RootView() {
+		super(Type.GLOBAL);
+	}
+
+	public void createView(final Content content) {
+		// Set Data (Pretty much like variables)
+		content.setData("press", 0);
+		content.setData("i", 0);
+		
+		final Label label = new Label();
+		final Label label_press = new Label("BUTTON NEVER PRESSED");
+		
+		final Label cpu_label = new Label();
+		final Label ram_label = new Label();
+		
+		content.addElement(label);
+		content.addElement(label_press);
+		content.addElement(cpu_label);
+		content.addElement(ram_label);
+		
+		/*
+		content.createSharedElement("cpu_label", Label.class, 1, 2);
+		
+		content.createSharedElement("cpu_label", Label.class, new ElementCreated{
+			
+		} 1, 2);
+		*/
+		
+		// Button Test
+		Button b = new Button("Press Me!!");
+		b.addActionListener(new Runnable() {
+			public void run() {
+				int press = content.getData("press", Integer.class);
+				label_press.setText("COUNTING PRESSES: " + press++ );
+				content.setData("press", press);
+			}
+		});
+		
+		// Controller Logic
 		
 		// System Info Thread
 		final SystemInfo info = new SystemInfo();
@@ -52,8 +83,8 @@ public class RootController implements WUIController{
 			public void run() {
 				while(true) {
 					System.out.println("# Updating System Info");
-					view.setCPU("Total RAM: "+ StringUtils.readableFileSize(info.totalMem()));
-					view.setRAM("Used RAM: "+ StringUtils.readableFileSize(info.usedMem()));
+					cpu_label.setText("Total RAM: "+StringUtils.readableFileSize(info.totalMem()));
+					ram_label.setText("Used RAM: "+StringUtils.readableFileSize(info.usedMem()));
 					try {
 						Thread.sleep(3000);
 					} catch (InterruptedException e) {
@@ -61,77 +92,16 @@ public class RootController implements WUIController{
 						e.printStackTrace();
 					} // Wait 3 Seconds
 					
-					view.setText("IT WORKS. COUNTING: " + i++); // And a counter
+					int i = content.getData("i", Integer.class);
+					label.setText("IT WORKS. COUNTING: " + i++); // And a counter
+					content.setData("i", i);
 				}
 				
 			};
 		}.start();
-
-		// Return Content
-		return view.getContent();
+		
+		content.addElement(b);
 	}
-
 	
-	/*
-	public Content viewUpdate() {
-		return view.getContent();
-	}
-	*/
 	
-	public class RootView implements WUIView{
-
-		private Content content;
-		private Label label;
-		private Label cpu_label;
-		private Label ram_label;
-		private int press = 0;
-		
-		public RootView(Content content) {
-			this.content = content;
-			label = new Label();
-			final Label label_press = new Label("BUTTON NEVER PRESSED");
-			cpu_label = new Label();
-			ram_label = new Label();
-			content.addElement(label);
-			content.addElement(label_press);
-			content.addElement(cpu_label);
-			content.addElement(ram_label);
-			
-			// Button Test
-			Button b = new Button("Press Me!!");
-			b.addActionListener(new Runnable() {
-				public void run() {
-					label_press.setText("COUNTING PRESSES: " + press++);
-				}
-			});
-			
-			content.addElement(b);
-		}
-		
-		public void setText(String text) {
-			label.setText(text);
-		};
-		
-		public void setCPU(String text) {
-			cpu_label.setText(text);
-		};
-		
-		public void setRAM(String text) {
-			ram_label.setText(text);
-		};
-
-		public Content getContent() {
-			return content;
-		}
-		
-	}
-
-	public Lock getLock() {
-		return lock;
-	}
-
-	public Content getContent() {
-		return view.getContent();
-	}
-
 }

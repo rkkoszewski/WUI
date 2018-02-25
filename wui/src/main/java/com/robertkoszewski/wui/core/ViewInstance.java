@@ -21,17 +21,51 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui;
+package com.robertkoszewski.wui.core;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+import com.robertkoszewski.wui.element.Element;
 import com.robertkoszewski.wui.templates.Content;
-import com.robertkoszewski.wui.templates.WindowTemplate;
 
-public interface WUIController {
-	public Content initialize(WindowTemplate template);
-	//public WindowTemplate viewUpdate();
-	//public Content viewUpdate();
-	public Lock getLock();
-	public Content getContent(); // TODO: Remove this, and store it in the ContentManager instead
+/**
+ * View Instance
+ * @author Robert Koszewski
+ */
+public class ViewInstance {
+	
+	private Map<String, Element> element_uuid_to_element_cache = new HashMap<String, Element>();
+	private Lock view_lock = new ReentrantLock();
+	private final Content content;
+	
+	public ViewInstance(Content content) {
+		this.content = content;
+	}
+	
+	/**
+	 * Get View Content
+	 * @return
+	 */
+	public Content getContent() {
+		return content;
+	}
+	
+	/**
+	 * Perform Action on Element
+	 * @param element_uuid
+	 * @return
+	 */
+	public boolean performActionOnElement(String element_uuid) {
+		Element el = element_uuid_to_element_cache.get(element_uuid);
+		if(el == null) return false; // Return False if Element is not found
+		el.actionPerformed(); // Perform Action
+		return true; // Return True
+	}
+	
+	public Lock getViewLock() { // TODO: Change this to a waitForViewChange and viewChanged method
+		return view_lock;
+	}
 }

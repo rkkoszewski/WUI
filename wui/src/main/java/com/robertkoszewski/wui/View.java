@@ -23,9 +23,49 @@
 
 package com.robertkoszewski.wui;
 
-public class WUI {
-	public static WUIWindow newWindow(String title, String icon) {
-		return null;
-		//WUIWindow
+import com.robertkoszewski.wui.core.ViewInstance;
+import com.robertkoszewski.wui.core.ViewInterface;
+import com.robertkoszewski.wui.templates.Content;
+import com.robertkoszewski.wui.templates.WindowTemplate;
+
+/**
+ * View Definition
+ * @author Robert Koszewski
+ */
+public abstract class View implements ViewInterface{
+
+	private final Type type;
+	
+	public View(Type type) {
+		this.type = type;
+	}
+	
+	/**
+	 * On Destroy Callback
+	 */
+	public void onDestroy() {}
+	
+	/**
+	 * Get View Instance
+	 * @param template
+	 * @return
+	 */
+	public final ViewInstance getViewInstance(WindowTemplate template) {
+		Content content = template.getContentInstance();
+		// TODO: Change behavior based on Type
+		switch(type) {
+			default:
+		}
+		createView(content);
+		return new ViewInstance(content);
+	}
+	
+	/**
+	 * View Visibility Type
+	 * @author Robert Koszewski
+	 */
+	public enum Type{
+		GLOBAL,
+		PRIVATE
 	}
 }

@@ -37,7 +37,7 @@ public abstract class AbstractElementWithDynamicData<T> extends Element implemen
 	
 	// Variables
 	private Map<String, T> data = new HashMap<String, T>(); // Element Data
-	private long data_timestamp = Utils.getTimestamp(); // Element Data Timestamp
+	private long data_timestamp = Utils.getChangeTimestamp(); // Element Data Timestamp
 	
 	/**
 	 * Set Text Input Value
@@ -91,7 +91,7 @@ public abstract class AbstractElementWithDynamicData<T> extends Element implemen
 
 	@Override
 	public void updateDataTimestamp() {
-		this.data_timestamp = Utils.getTimestamp();
+		this.data_timestamp = Utils.getChangeTimestamp();
 		triggerElementUpdate();
 	}
 	

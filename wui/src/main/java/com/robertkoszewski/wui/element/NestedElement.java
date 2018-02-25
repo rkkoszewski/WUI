@@ -32,7 +32,7 @@ import com.robertkoszewski.wui.utils.Utils;
  */
 public abstract class NestedElement extends Element implements ElementWithNestingTimestamp{
 
-	protected long element_nesting_timestamp = Utils.getTimestamp(); // Element UID
+	protected long element_nesting_timestamp = Utils.getChangeTimestamp(); // Timestamp
 	
 	/**
 	 * Returns the Element Last Modified time stamp
@@ -46,7 +46,7 @@ public abstract class NestedElement extends Element implements ElementWithNestin
 	 * Update the Element time stamp
 	 */
 	public void updateNestingTimestamp(){
-		this.element_nesting_timestamp = Utils.getTimestamp();
+		this.element_nesting_timestamp = Utils.getChangeTimestamp();
 	}
 	
 }

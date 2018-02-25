@@ -25,7 +25,7 @@ package com.robertkoszewski.wui.core;
 
 import java.net.URL;
 
-import com.robertkoszewski.wui.WUIController;
+import com.robertkoszewski.wui.View;
 import com.robertkoszewski.wui.server.ResponseManager;
 
 /**
@@ -33,13 +33,30 @@ import com.robertkoszewski.wui.server.ResponseManager;
  * @author Robert Koszewski
  */
 public interface ContentManager extends ResponseManager {
+
+	/**
+	 * Set Application Icon
+	 * @param resource
+	 */
+	public void setIcon(URL resource);
+
+	/**
+	 * Add View
+	 * @param url
+	 * @param view
+	 */
+	public void addView(String url, View view);
 	
 	/**
-	 * Add Controller to URL
+	 * Get View
 	 * @param url
-	 * @param content
+	 * @return
 	 */
-	public void addController(String url, WUIController content);
-
-	public void setIcon(URL resource);
+	public View getView(String url);
+	
+	/**
+	 * Remove View by URL
+	 * @param url
+	 */
+	public void removeView(String url);
 }
