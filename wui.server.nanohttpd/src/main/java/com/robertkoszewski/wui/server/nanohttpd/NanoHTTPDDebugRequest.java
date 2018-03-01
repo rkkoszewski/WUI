@@ -21,67 +21,98 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.core;
+package com.robertkoszewski.wui.server.nanohttpd;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-import com.robertkoszewski.wui.server.Cookie;
 import com.robertkoszewski.wui.server.Request;
-import com.robertkoszewski.wui.template.WindowTemplate;
+
+import fi.iki.elonen.NanoHTTPD.CookieHandler;
+import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 
 /**
- * Session Manager Class
+ * NanoHTTPD Compatible Request
  * @author Robert Koszewski
  */
-public class SessionManager {
+public class NanoHTTPDDebugRequest implements Request{
+	
+	private final IHTTPSession session;
 
-	// Static Variables
-	private static final String WUI_SESSION_ID = "WUISESSIONID";
-	
-	protected final ContentManager content_manager;
-	protected final WindowTemplate template;
-	
-	private Map<String, Session> sessions = new HashMap<String, Session>(); // TODO: Implement Session Cleanup Mechanism
-	
-	// Constructors
-	public SessionManager(ContentManager content_manager, WindowTemplate template) {
-		this.content_manager = content_manager;
-		this.template = template;
+	public NanoHTTPDDebugRequest(IHTTPSession session) {
+		this.session = session;
+	}
+
+	public String getURL() {
+		return "/data";
+	}
+
+	public Map<String, String> getHeaders() {
+		Map<String, String> m = new HashMap<String, String>();
+		m.put("x-wui-request", "content");
+		return m;
+	}
+
+	public String getHeader(String id) {
+		return getHeaders().get(id);
 	}
 	
-	// Methods
-	
-	public Session getSession(Request request, Map<String, Cookie> response_cookies) {
-		
-		// Has Session?
-		String sessionID = request.getCookie(WUI_SESSION_ID);
-		// @DEBUG System.out.println("CURRENT SESSION ID: " + sessionID);
-		if(sessionID == null) {
-			// Generate new Session ID
-			sessionID = newSessionID();
-			response_cookies.put(WUI_SESSION_ID, new Cookie(sessionID)); // Update Session ID Cookie
-		}
-		
-		// Return Session
-		
-		Session session = sessions.get(sessionID);
-		if(session == null) {
-			session = new Session(this);
-			sessions.put(sessionID, session);
-		}
-		
-		return session;
+	// Cookies
+
+	public Map<String, String> getCookies() {
+		HashMap<String, String> cookies = new HashMap<String, String>();
+		cookies.put("WUISESSIONID", "7370e284-5393-44c7-afac-7795ad8b32a1");
+		return cookies;
+	}
+
+	public String getCookie(String id) {
+		return session.getCookies().read(id);
 	}
 	
-	// Methods
+	// POST Parameters
+	
+	public void getPostData() {
+		
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void getPostBody() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	// GET Parameters
+
+	/**
+	 * Get all GET Parameters
+	 */
+	public Map<String, List<String>> getParameters() {
+		return session.getParameters();
+	}
 	
 	/**
-	 * Generate Session ID (TODO: Improve this and make it more secure)
-	 * @return Session ID
+	 * Get GET Parameter with all variants
 	 */
-	private String newSessionID() {
-		return UUID.randomUUID().toString();
+	public List<String> getParameter(String id) {
+		return session.getParameters().get(id);
 	}
+
+	/**
+	 * Get GET Parameter
+	 */
+	public String getFirstParameter(String id) {
+		List<String> p = getParameter(id);
+		return (p.size() == 0 ? null : p.get(0));
+	}
+	
+	// Client Data
+	
+	public String getRemoteIpAddress() {
+		return session.getRemoteIpAddress();
+	}
+
 }

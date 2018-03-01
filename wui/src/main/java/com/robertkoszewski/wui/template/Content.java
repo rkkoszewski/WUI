@@ -21,30 +21,71 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.template;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import java.util.Map;
 
-/**
- * NanoHTTPD Server Module for WUI
- * @author Robert Koszewski
- */
-public class NanoHTTPDServer implements Server {
+import com.robertkoszewski.wui.ui.feature.BaseElement;
+import com.robertkoszewski.wui.ui.feature.ElementWithElementTimestamp;
+
+public interface Content extends ElementWithElementTimestamp{
+
+	/**
+	 * Get Page Content
+	 * @return
+	 */
+	public Map<String, BaseElement[]> getElements();
 	
-	private HTTPServer server;
-
 	/**
-	 * Start Server
+	 * Set Page Title
+	 * @param title
 	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
-	}
-
+	public void setTitle(String title);
+	
 	/**
-	 * Stop Server
+	 * Get Page Title
+	 * @return
 	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
-	}
+	public String getTitle();
+	
+	/**
+	 * Add Element to Page
+	 * @param element
+	 */
+	public void addElement(BaseElement element);
+	
+	/**
+	 * Remove Element from Page
+	 * @param element
+	 */
+	public void removeElement(BaseElement element);
+	
+	/**
+	 * Remove Element at Index
+	 * @param index
+	 */
+	public void removeElementAt(int index);
+	
+	/**
+	 * Set Content Data
+	 * @param id
+	 * @param obj
+	 */
+	public void setData(String name, Object obj);
+	
+	/**
+	 * Get Content Data
+	 * @param id
+	 * @return
+	 */
+	public Object getData(String name);
+	
+	/**
+	 * Get Content Data with Type Definition
+	 * @param id
+	 * @param clazz
+	 * @return
+	 */
+	public <T> T getData(String name, Class<T> classOfT);
+
 }

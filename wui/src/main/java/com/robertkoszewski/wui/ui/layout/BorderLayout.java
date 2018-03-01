@@ -21,30 +21,40 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.ui.layout;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import java.util.ArrayList;
 
-/**
- * NanoHTTPD Server Module for WUI
- * @author Robert Koszewski
- */
-public class NanoHTTPDServer implements Server {
+import com.robertkoszewski.wui.template.ElementTemplate;
+import com.robertkoszewski.wui.ui.element.Element;
+import com.robertkoszewski.wui.ui.feature.NestedElement;
+
+public class BorderLayout extends NestedElement<BorderLayout.Position, ArrayList<Element>>{
+
+	public BorderLayout() {
+		super(Position.class);
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public ElementTemplate getElementDefinition() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
-	private HTTPServer server;
-
-	/**
-	 * Start Server
-	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
+	public void addChildren(Element e, Position p) {
+		//children.
 	}
 
 	/**
-	 * Stop Server
+	 * Element Positions
+	 * @author Robert Koszewski
 	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
+	public enum Position{
+		north,
+		east,
+		south,
+		west,
+		center
 	}
 }

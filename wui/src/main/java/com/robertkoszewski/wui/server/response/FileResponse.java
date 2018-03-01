@@ -21,30 +21,31 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.server.response;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import java.io.InputStream;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * File Response
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
+public interface FileResponse extends Response {
+
+	/**
+	 * Get Input Stream
+	 * @return
+	 */
+	public InputStream getInputStream();
 	
-	private HTTPServer server;
-
 	/**
-	 * Start Server
+	 * Get File Size
+	 * @return
 	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
-	}
-
+	public long getFileSize();
+	
 	/**
-	 * Stop Server
+	 * Force File Download or just display in Browser
+	 * @return
 	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
-	}
+	public boolean forceDownload();
 }

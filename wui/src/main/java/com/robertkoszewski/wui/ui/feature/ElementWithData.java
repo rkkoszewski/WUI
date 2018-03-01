@@ -21,30 +21,17 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
-
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+package com.robertkoszewski.wui.ui.feature;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Element with Data (Without Timestamp = Static Data)
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
+public interface ElementWithData {
 	
-	private HTTPServer server;
-
 	/**
-	 * Start Server
+	 * Get Element Data
+	 * @return Object
 	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
-	}
-
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
-	}
+	public Object getElementData();
 }

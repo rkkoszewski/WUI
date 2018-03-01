@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.robertkoszewski.wui.element.Element;
-import com.robertkoszewski.wui.templates.Content;
+import com.robertkoszewski.wui.template.Content;
+import com.robertkoszewski.wui.ui.feature.BaseElement;
 
 /**
  * View Instance
@@ -37,7 +37,7 @@ import com.robertkoszewski.wui.templates.Content;
  */
 public class ViewInstance {
 	
-	private Map<String, Element> element_uuid_to_element_cache = new HashMap<String, Element>();
+	private Map<String, BaseElement> element_uuid_to_element_cache = new HashMap<String, BaseElement>();
 	private Lock view_lock = new ReentrantLock();
 	private final Content content;
 	
@@ -59,7 +59,7 @@ public class ViewInstance {
 	 * @return
 	 */
 	public boolean performActionOnElement(String element_uuid) {
-		Element el = element_uuid_to_element_cache.get(element_uuid);
+		BaseElement el = element_uuid_to_element_cache.get(element_uuid);
 		if(el == null) return false; // Return False if Element is not found
 		el.actionPerformed(); // Perform Action
 		return true; // Return True

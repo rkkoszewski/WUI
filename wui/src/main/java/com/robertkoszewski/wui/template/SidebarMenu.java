@@ -21,30 +21,8 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.template;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+public interface SidebarMenu {
 
-/**
- * NanoHTTPD Server Module for WUI
- * @author Robert Koszewski
- */
-public class NanoHTTPDServer implements Server {
-	
-	private HTTPServer server;
-
-	/**
-	 * Start Server
-	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
-	}
-
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
-	}
 }

@@ -29,8 +29,8 @@ import com.robertkoszewski.wui.core.WUIContentManager;
 import com.robertkoszewski.wui.server.Server;
 import com.robertkoszewski.wui.server.ServerFactory;
 import com.robertkoszewski.wui.server.ServerNotFoundException;
-import com.robertkoszewski.wui.templates.BaseTemplate;
-import com.robertkoszewski.wui.templates.WindowTemplate;
+import com.robertkoszewski.wui.template.BaseTemplate;
+import com.robertkoszewski.wui.template.WindowTemplate;
 
 /**
  * WUI Window Implementation

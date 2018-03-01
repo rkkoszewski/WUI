@@ -21,30 +21,14 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.ui.feature;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import java.util.Map;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Element that has Multiple Nested Child Elements with IDs
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
-	
-	private HTTPServer server;
-
-	/**
-	 * Start Server
-	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
-	}
-
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
-	}
+public interface ElementWithMultipleNesting {
+	public Map<String, BaseElement[]> getChildElements();
 }

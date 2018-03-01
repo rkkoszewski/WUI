@@ -23,28 +23,14 @@
 
 package com.robertkoszewski.wui.server;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import com.robertkoszewski.wui.server.response.Response;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Container for holding a Request and a Response
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
-	
-	private HTTPServer server;
-
-	/**
-	 * Start Server
-	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
-	}
-
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
-	}
+public interface RequestResponse {
+	public Request getRequest();
+	public Response getResponse();
+	public boolean isContentRequest();
 }

@@ -21,30 +21,33 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.server.response;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import com.google.gson.Gson;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Simple String Response
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
+public class WUIJsonResponse extends BaseResponse implements StringResponse{
 	
-	private HTTPServer server;
-
-	/**
-	 * Start Server
-	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
+	// Variables
+	private final String response;
+	
+	// Constructor
+	public WUIJsonResponse(Object obj) {
+		super("application/json");
+		this.response = new Gson().toJson(obj);
 	}
 
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
+	// Methods
+	@Override
+	public byte[] getResponse() {
+		return response.getBytes();
+	}
+
+	@Override
+	public String getStringResponse() {
+		return response;
 	}
 }

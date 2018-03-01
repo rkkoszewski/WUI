@@ -21,30 +21,44 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.ui.feature;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import java.util.EnumMap;
+
+import com.robertkoszewski.wui.utils.Utils;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Element With Nesting
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
+public abstract class NestedElement<T extends Enum<T>, E> extends BaseElement implements ElementWithNestingTimestamp{
+
+	protected long element_nesting_timestamp = Utils.getChangeTimestamp(); // Timestamp
 	
-	private HTTPServer server;
-
+	
+	protected EnumMap<T, E> children; // Element Data
+	
 	/**
-	 * Start Server
+	 * Constructor
+	 * @param clazz
 	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
+	public NestedElement(Class<T> clazz) {
+		children = new EnumMap<T, E>(clazz); 
 	}
-
+	
 	/**
-	 * Stop Server
+	 * Returns the Element Last Modified time stamp
+	 * @return Time stamp
 	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
+	public long getNestingTimestamp(){
+		return element_nesting_timestamp;
 	}
+	
+	/**
+	 * Update the Element time stamp
+	 */
+	public void updateNestingTimestamp(){
+		this.element_nesting_timestamp = Utils.getChangeTimestamp();
+	}
+	
 }

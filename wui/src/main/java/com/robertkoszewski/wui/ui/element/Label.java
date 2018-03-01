@@ -21,30 +21,52 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.ui.element;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import java.io.IOException;
+
+import com.robertkoszewski.wui.Test;
+import com.robertkoszewski.wui.template.ElementTemplate;
+import com.robertkoszewski.wui.ui.feature.BaseElementWithSimpleDynamicData;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Text Label
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
-	
-	private HTTPServer server;
+public class Label extends BaseElementWithSimpleDynamicData<String>{
 
+	// Constructors
+	public Label() {
+		setData("");
+	}
+	
+	public Label(String label) {
+		setData(label);
+	}
+	
 	/**
-	 * Start Server
+	 * Set Text Value
+	 * @param value
 	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
+	public void setText(String value) {
+		setData(value);
+	}
+	
+	/**
+	 * Get Text Value
+	 * @return
+	 */
+	public String getValue() {
+		return getData();
 	}
 
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
+	@Override
+	public ElementTemplate getElementDefinition() {
+		try {
+			return new ElementTemplate(Test.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/Label.html"));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

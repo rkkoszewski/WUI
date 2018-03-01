@@ -21,30 +21,84 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.ui.feature;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import java.util.EnumMap;
+
+import com.robertkoszewski.wui.utils.Utils;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Abstract Actionable Element with Dynamic Data
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
+public abstract class BaseElementWithDynamicData<T extends Enum<T>, E> extends BaseElement implements ElementWithDynamicData {
 	
-	private HTTPServer server;
-
+	// Variables
+	protected EnumMap<T, E> data; // Element Data
+	private long data_timestamp = Utils.getChangeTimestamp(); // Element Data Timestamp
+	
 	/**
-	 * Start Server
+	 * Constructor
+	 * @param clazz
 	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
+	public BaseElementWithDynamicData(Class<T> clazz) {
+		data = new EnumMap<T, E>(clazz); 
+	}
+	
+	/**
+	 * Set Text Input Value
+	 * @param value
+	 */
+	protected void setData(T key, E value) {
+		data.put(key, value);
+		updateDataTimestamp();
+	}
+	
+	/**
+	 * Get Text Input Value
+	 * @return
+	 */
+	protected E getData(T key) {
+		return data.get(key);
+	}
+	
+	/**
+	 * Remove Data
+	 * @param key
+	 */
+	protected void removeData(T key) {
+		data.remove(key);
+		updateDataTimestamp();
+	}
+	
+	/**
+	 * Clear Data
+	 */
+	protected void clearData() {
+		data.clear();
+		updateDataTimestamp();
+	}
+	
+	// TODO: Implement a ChangeNotificable HashMap
+	
+	// HTML Element Methods
+
+	@Override
+	public Object getElementData() {
+		return data;
+	}
+	
+	// Time Methods
+	
+	@Override
+	public long getDataTimestamp() {
+		return data_timestamp;
 	}
 
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
+	@Override
+	public void updateDataTimestamp() {
+		this.data_timestamp = Utils.getChangeTimestamp();
+		triggerElementUpdate();
 	}
+	
 }

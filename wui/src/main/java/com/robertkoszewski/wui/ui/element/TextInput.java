@@ -21,30 +21,51 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.ui.element;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import com.robertkoszewski.wui.template.ElementTemplate;
+import com.robertkoszewski.wui.ui.feature.BaseElementWithDynamicData;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Text Input Element
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
-	
-	private HTTPServer server;
+public class TextInput extends BaseElementWithDynamicData<TextInput.Data, String>{
 
 	/**
-	 * Start Server
+	 * Constructor
 	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
+	public TextInput() {
+		super(Data.class);
+	}
+	
+	/**
+	 * Set Text Input Value
+	 * @param value
+	 */
+	protected void setValue(String value) {
+		data.put(Data.value, value);
+	}
+	
+	/**
+	 * Get Text Input Value
+	 * @return
+	 */
+	protected String getValue() {
+		String v = data.get(Data.value);
+		return (v != null ? v : "");
 	}
 
+	@Override
+	public ElementTemplate getElementDefinition() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	/**
-	 * Stop Server
+	 * TextInput Data
 	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
+	protected enum Data{
+		value
 	}
 }

@@ -44,15 +44,15 @@ import org.imgscalr.Scalr;
 
 import com.google.gson.Gson;
 import com.robertkoszewski.wui.View;
-import com.robertkoszewski.wui.element.Element;
-import com.robertkoszewski.wui.element.feature.ActionableElement;
-import com.robertkoszewski.wui.element.feature.ElementWithData;
-import com.robertkoszewski.wui.element.feature.ElementWithDynamicData;
 import com.robertkoszewski.wui.server.*;
-import com.robertkoszewski.wui.server.responses.*;
-import com.robertkoszewski.wui.templates.Content;
-import com.robertkoszewski.wui.templates.ElementTemplate;
-import com.robertkoszewski.wui.templates.WindowTemplate;
+import com.robertkoszewski.wui.server.response.*;
+import com.robertkoszewski.wui.template.Content;
+import com.robertkoszewski.wui.template.ElementTemplate;
+import com.robertkoszewski.wui.template.WindowTemplate;
+import com.robertkoszewski.wui.ui.feature.ActionableElement;
+import com.robertkoszewski.wui.ui.feature.BaseElement;
+import com.robertkoszewski.wui.ui.feature.ElementWithData;
+import com.robertkoszewski.wui.ui.feature.ElementWithDynamicData;
 
 import net.sf.image4j.codec.ico.ICOEncoder;
 
@@ -75,7 +75,7 @@ public class WUIContentManager implements ContentManager {
 	private URL icon = null; // Define a more flexible Icon class to allow to define different icon sizes.
 	
 	// TODO: Temporary Variables. Move them where corresponds
-	private Map<String, Element> element_cache = new HashMap<String, Element>();
+	private Map<String, BaseElement> element_cache = new HashMap<String, BaseElement>();
 	private Map<String, ElementTemplate> element_definition_cache = new HashMap<String, ElementTemplate>();
 	
 	// Constructor
@@ -102,8 +102,21 @@ public class WUIContentManager implements ContentManager {
 	}
 	
 	// Response Manager Methods
+	/**
+	 * Generate Response
+	 */
 	@Override
 	public Response getResponse(Request request) {
+		return getResponse(request, null);
+	}
+	
+	/**
+	 * Generate Response
+	 * @param request
+	 * @param metadata
+	 * @return
+	 */
+	public Response getResponse(Request request, RequestMetadata metadata) {
 
 		// Response
 		Response response = null;
@@ -146,7 +159,7 @@ public class WUIContentManager implements ContentManager {
 					timestamp = Long.parseUnsignedLong(request.getParameter("t").get(0));
 				}catch(Exception e) {}
 				
-				response = toContentResponse(view, timestamp);
+				response = toContentResponse(view, timestamp, metadata);
 				break;
 				
 			case ELEMENT: // Element Definition Request Type
@@ -219,6 +232,54 @@ public class WUIContentManager implements ContentManager {
 		// Return Response
 		return response;
 	}
+	
+	/**
+	 * Get Web Socket Response
+	 */
+	@Override
+	public RequestResponse getWebSocketResponse(String message) {
+		WSRequest request = new Gson().fromJson(message, WSRequest.class);
+		return getWebSocketResponse(request);
+	}
+	
+	/**
+	 * Get Web Socket Response
+	 */
+	@Override
+	public RequestResponse getWebSocketResponse(Request request) {
+		RequestMetadata metadata = new RequestMetadata();
+		Response response = getResponse(request, metadata);
+		return new RequestResponse(){
+
+			@Override
+			public Request getRequest() {
+				WSRequest wsrequest;
+				
+				if(request instanceof WSRequest) {
+					wsrequest = (WSRequest) request;
+				}else {
+					wsrequest = new WSRequest(request);
+					wsrequest.cloneRequest(request);
+				}
+				
+				// Update Timestamp
+				wsrequest.setParameter("t", metadata.latestTimestamp + "");
+				
+				return wsrequest;
+			}
+
+			@Override
+			public Response getResponse() {
+				return response;
+			}
+
+			@Override
+			public boolean isContentRequest() {
+				return metadata.isContentRequest;
+			}
+			
+		};
+	}
 
 	/**
 	 * Set Application Icon
@@ -240,7 +301,7 @@ public class WUIContentManager implements ContentManager {
 		System.out.println("ACTION PERFORMED ON ELEMENT " + elmentUUID);
 		
 		
-		Element element = element_cache.get(elmentUUID);
+		BaseElement element = element_cache.get(elmentUUID);
 		
 		if(element != null) {
 			if(element instanceof ActionableElement) {
@@ -278,7 +339,7 @@ public class WUIContentManager implements ContentManager {
 	 * @param controller
 	 * @return
 	 */
-	private Response toContentResponse(ViewInstance view, long remote_timestamp) {
+	private Response toContentResponse(ViewInstance view, long remote_timestamp, RequestMetadata metadata) {
 		// Template Node
 		//Node root = new Node();
 		//root.element = 
@@ -291,7 +352,7 @@ public class WUIContentManager implements ContentManager {
 		
 		// Element Cache - An Element needs to be part of the DOM in order to be able to be called
 		// TODO: Move Element Cache to Content Interface to be part of the Content (Decide?)
-		Map<String, Element> element_cache = new HashMap<String, Element>();
+		Map<String, BaseElement> element_cache = new HashMap<String, BaseElement>();
 		
 		
 		// Freeze request till data changes
@@ -313,16 +374,16 @@ public class WUIContentManager implements ContentManager {
 		Vector<Node> updates = new Vector<Node>();
 
 		// Create Node Branch
-		Iterator<Entry<String, Element[]>> bit = content.getElements().entrySet().iterator();
+		Iterator<Entry<String, BaseElement[]>> bit = content.getElements().entrySet().iterator();
 		while(bit.hasNext()) {
 			// Branch Iteration
-			Entry<String, Element[]> branch = bit.next();
-			Element[] elements = branch.getValue();
+			Entry<String, BaseElement[]> branch = bit.next();
+			BaseElement[] elements = branch.getValue();
 			Node[] root = new Node[elements.length];
 			
 			// Build Node Array
 			int i = 0;
-			for(Element e : branch.getValue()) {
+			for(BaseElement e : branch.getValue()) {
 				
 				e.addElementUpdateLock(null, lock);
 				
@@ -382,6 +443,12 @@ public class WUIContentManager implements ContentManager {
 			// Partial Data Change Response
 			content_response.type = UpdateStrategy.PARTIALDATA;
 			content_response.updates = updates; // TODO: If updates.size == 0 then do EMPTY RESPONSE
+		}
+		
+		// Update Metadata
+		if(metadata != null) {
+			metadata.latestTimestamp = timestamp;
+			metadata.isContentRequest = true;
 		}
 
 		// Update Element Cache

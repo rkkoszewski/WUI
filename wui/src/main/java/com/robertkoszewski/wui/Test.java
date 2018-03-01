@@ -31,7 +31,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 
-import com.robertkoszewski.wui.templates.ElementTemplate;
+import com.robertkoszewski.wui.template.ElementTemplate;
 
 
 public class Test {

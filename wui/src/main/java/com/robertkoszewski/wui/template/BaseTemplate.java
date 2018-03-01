@@ -21,30 +21,43 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.template;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import com.robertkoszewski.wui.server.ResourceManager;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Base Template
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
+public class BaseTemplate implements WindowTemplate{
 	
-	private HTTPServer server;
+	private String title = "";
 
-	/**
-	 * Start Server
-	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
+	@Override
+	public String getTemplateHTML(ResourceManager resources) {
+		String html = resources.getResourceAsString("/templates/base/template.html");
+		return (html != null ? html : "<html><body>ERROR: Unable to find Base Template</body></html>");
 	}
 
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
+	@Override
+	public String generateResponse(Content content, /*UIControl uicontrol,*/ long timestamp) {
+		// TODO Auto-generated method stub
+		return null;
 	}
+
+	@Override
+	public void setAppName(String title) {
+		this.title = title;
+	}
+
+	@Override
+	public String getAppName() {
+		return this.title;
+	}
+
+	@Override
+	public Content getContentInstance() {
+		return new BaseContent();
+	}
+
 }

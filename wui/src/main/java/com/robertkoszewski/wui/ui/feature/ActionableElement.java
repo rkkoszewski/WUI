@@ -21,30 +21,27 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
-
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+package com.robertkoszewski.wui.ui.feature;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Interactive Element
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
+public interface ActionableElement {
+	/**
+	 * Trigger Action Performed
+	 */
+	public void actionPerformed();
 	
-	private HTTPServer server;
-
 	/**
-	 * Start Server
+	 * Add a ActionListener
+	 * @param callback
 	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
-	}
-
+	public void addActionListener(Runnable callback);
+	
 	/**
-	 * Stop Server
+	 * Remove a ActionListener
+	 * @param callback
 	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
-	}
+	public void removeActionListener(Runnable callback);
 }

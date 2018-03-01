@@ -25,8 +25,8 @@ package com.robertkoszewski.wui;
 
 import com.robertkoszewski.wui.core.ViewInstance;
 import com.robertkoszewski.wui.core.ViewInterface;
-import com.robertkoszewski.wui.templates.Content;
-import com.robertkoszewski.wui.templates.WindowTemplate;
+import com.robertkoszewski.wui.template.Content;
+import com.robertkoszewski.wui.template.WindowTemplate;
 
 /**
  * View Definition

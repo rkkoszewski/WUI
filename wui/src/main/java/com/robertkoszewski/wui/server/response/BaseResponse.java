@@ -21,30 +21,45 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.server.response;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.robertkoszewski.wui.server.Cookie;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Base Response Class
  * @author Robert Koszewski
+ *
  */
-public class NanoHTTPDServer implements Server {
+public abstract class BaseResponse implements Response{
 	
-	private HTTPServer server;
-
-	/**
-	 * Start Server
-	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
+	private String mimeType = "text/html";
+	private Map<String, Cookie> cookies = new HashMap<String, Cookie>();
+	private Map<String, String> headers = new HashMap<String, String>();
+	
+	public BaseResponse(String mimeType) {
+		this.mimeType = mimeType;
+	}
+	
+	@Override
+	public String getMimeType() {
+		return this.mimeType;
 	}
 
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
+	@Override
+	public Map<String, String> getHeaders() {
+		return headers;
+	}
+
+	@Override
+	public Map<String, Cookie> getCookies() {
+		return cookies;
+	}
+
+	@Override
+	public void setCookie(String key, Cookie cookie) {
+		cookies.put(key, cookie);
 	}
 }

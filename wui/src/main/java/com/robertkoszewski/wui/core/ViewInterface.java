@@ -23,7 +23,7 @@
 
 package com.robertkoszewski.wui.core;
 
-import com.robertkoszewski.wui.templates.Content;
+import com.robertkoszewski.wui.template.Content;
 
 public interface ViewInterface {
 	public void createView(Content content);

@@ -21,30 +21,58 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.ui.element;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import java.io.IOException;
+
+import com.robertkoszewski.wui.Test;
+import com.robertkoszewski.wui.template.ElementTemplate;
+import com.robertkoszewski.wui.ui.feature.BaseElementWithDynamicData;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Button Element
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
-	
-	private HTTPServer server;
+public class Button extends BaseElementWithDynamicData<Button.Data, String>{
 
+	// Constructors
+
+	public Button(String value) {
+		super(Data.class);
+		setValue(value);
+	}
+	
 	/**
-	 * Start Server
+	 * Set Text Input Value
+	 * @param value
 	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
+	public void setValue(String value) {
+		data.put(Data.value, value);
+	}
+	
+	/**
+	 * Get Text Input Value
+	 * @return
+	 */
+	public String getValue() {
+		String v = data.get(Data.value);
+		return (v != null ? v : "");
 	}
 
+	@Override
+	public ElementTemplate getElementDefinition() {
+		try {
+			return new ElementTemplate(Test.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/Button.html"));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	/**
-	 * Stop Server
+	 * Button Data
 	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
+	protected enum Data{
+		value
 	}
 }

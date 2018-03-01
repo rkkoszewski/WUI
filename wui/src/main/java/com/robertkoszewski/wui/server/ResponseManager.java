@@ -23,7 +23,7 @@
 
 package com.robertkoszewski.wui.server;
 
-import com.robertkoszewski.wui.server.responses.Response;
+import com.robertkoszewski.wui.server.response.Response;
 
 /**
  * Response Manager Interface
@@ -36,4 +36,18 @@ public interface ResponseManager {
 	 * @return
 	 */
 	public Response getResponse(Request request);
+	
+	/**
+	 * Generate Web Socket Response
+	 * @param message
+	 * @return
+	 */
+	public RequestResponse getWebSocketResponse(String message);
+	
+	/**
+	 * Generate Web Socket Response (With 
+	 * @param request
+	 * @return
+	 */
+	public RequestResponse getWebSocketResponse(Request request);
 }

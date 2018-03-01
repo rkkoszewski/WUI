@@ -24,9 +24,9 @@
 package com.robertkoszewski.wui.example.test;
 
 import com.robertkoszewski.wui.View;
-import com.robertkoszewski.wui.element.Button;
-import com.robertkoszewski.wui.element.Label;
-import com.robertkoszewski.wui.templates.Content;
+import com.robertkoszewski.wui.template.Content;
+import com.robertkoszewski.wui.ui.element.Button;
+import com.robertkoszewski.wui.ui.element.Label;
 import com.robertkoszewski.wui.utils.StringUtils;
 import com.robertkoszewski.wui.utils.SystemInfo;
 

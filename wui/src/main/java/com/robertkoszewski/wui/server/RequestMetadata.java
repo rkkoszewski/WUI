@@ -23,28 +23,11 @@
 
 package com.robertkoszewski.wui.server;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
-
 /**
- * NanoHTTPD Server Module for WUI
+ * Request Metadata
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
-	
-	private HTTPServer server;
-
-	/**
-	 * Start Server
-	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
-	}
-
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
-	}
+public class RequestMetadata {
+	public long latestTimestamp = 0; // Last Change Timestamp
+	public boolean isContentRequest = false; // Identify Content Request
 }

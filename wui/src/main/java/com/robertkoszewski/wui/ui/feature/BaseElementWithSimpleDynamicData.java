@@ -21,30 +21,54 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.ui.feature;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import com.robertkoszewski.wui.utils.Utils;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Abstract Actionable Element with Simple Dynamic Data
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
+public abstract class BaseElementWithSimpleDynamicData<T> extends BaseElement implements ElementWithDynamicData {
 	
-	private HTTPServer server;
-
+	// Variables
+	protected T data; // Element Data
+	private long data_timestamp = Utils.getChangeTimestamp(); // Element Data Timestamp
+	
 	/**
-	 * Start Server
+	 * Set Text Input Value
+	 * @param value
 	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
+	protected void setData(T value) {
+		data = value;
+		updateDataTimestamp();
+	}
+	
+	/**
+	 * Get Text Input Value
+	 * @return
+	 */
+	protected T getData() {
+		return data;
+	}
+	
+	// HTML Element Methods
+
+	@Override
+	public Object getElementData() {
+		return data;
+	}
+	
+	// Time Methods
+	
+	@Override
+	public long getDataTimestamp() {
+		return data_timestamp;
 	}
 
-	/**
-	 * Stop Server
-	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
+	@Override
+	public void updateDataTimestamp() {
+		this.data_timestamp = Utils.getChangeTimestamp();
+		triggerElementUpdate();
 	}
 }

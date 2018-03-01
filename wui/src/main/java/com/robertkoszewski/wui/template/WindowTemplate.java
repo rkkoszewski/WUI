@@ -21,30 +21,50 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.template;
 
-import com.robertkoszewski.wui.server.nanohttpd.HTTPServer;
+import com.robertkoszewski.wui.server.ResourceManager;
 
 /**
- * NanoHTTPD Server Module for WUI
+ * Window Template
  * @author Robert Koszewski
  */
-public class NanoHTTPDServer implements Server {
+public interface WindowTemplate {
 	
-	private HTTPServer server;
-
 	/**
-	 * Start Server
+	 * Returns the base HTML template
+	 * @param resources
+	 * @return
 	 */
-	public void startServer(int port, ResponseManager responseManager) throws Exception {
-		server = new HTTPServer(port, responseManager);
-	}
-
+	String getTemplateHTML(ResourceManager resources);
+	
 	/**
-	 * Stop Server
+	 * Renders a Content Response
+	 * @param res 
+	 * @param req 
+	 * @param content
+	 * @param uicontrol 
+	 * @return
 	 */
-	public void stopServer() {
-		server.stop();
-		server = null;
-	}
+	public String generateResponse(Content content, /*UIControl uicontrol,*/ long timestamp);
+	
+	/**
+	 * Set Window Title
+	 * @param title
+	 */
+	public void setAppName(String title);
+	
+	/**
+	 * Get Window Title
+	 * @return
+	 */
+	public String getAppName();
+	
+	
+	/**
+	 * Get Content Instance
+	 * @return 
+	 */
+	public Content getContentInstance();
+
 }
