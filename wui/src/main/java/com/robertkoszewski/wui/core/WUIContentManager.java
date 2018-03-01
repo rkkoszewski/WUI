@@ -238,6 +238,7 @@ public class WUIContentManager implements ContentManager {
 	 */
 	@Override
 	public RequestResponse getWebSocketResponse(String message) {
+		System.out.println("PAYLOAD: " + message);
 		WSRequest request = new Gson().fromJson(message, WSRequest.class);
 		return getWebSocketResponse(request);
 	}

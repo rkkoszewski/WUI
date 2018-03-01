@@ -40,23 +40,25 @@ public class WSRequest implements Request{
 	@Expose
 	private String url;
 	@Expose
-	private Map<String, String> headers;
+	private Map<String, String> headers = new HashMap<String, String>();;
 	@Expose
-	private Map<String, List<String>> parameters;
+	private Map<String, List<String>> parameters = new HashMap<String, List<String>>();;
 
 	// Private Variables
 	private Request handshake_request;
 	
 	// Constructor
 	public WSRequest(Request request) {
-		this();
+		//this();
 		this.handshake_request = request;
 	}
 	
+	/*
 	public WSRequest() {
-		headers = new HashMap<String, String>();
+		headers 
 		parameters = new HashMap<String, List<String>>();
 	}
+	*/
 	
 	// WS Request Only Methods
 	public void cloneRequest(Request request) {

@@ -85,20 +85,7 @@
 		}
 	}
 	
-	// Perform an Action
-	function performAction(uuid){
-		/*
-		$.ajax({
-			url: window.location.href,
-			headers: {'x-wui-request': 'action', 'x-wui-element': uuid}
-		});
-		*/
-		
-		doRequest({
-			url: window.location.href,
-			headers: {'x-wui-request': 'action', 'x-wui-element': uuid}
-		});
-	}
+	
 	
 	// Get Page Content
 	function getPageContent(){
@@ -309,10 +296,129 @@
 			
 			return new JQResponse(jqrequest);
 		}
-		
+
 		
 		//JSON.stringify({url:"/data",headers:{"x-wui-request":"content"},parameters:{"t":[999999999999999]}})
 		
+	}
+	
+	var wsConnection2 = null;
+	
+	
+	
+	
+	var ping2 = null
+	// TODO: Remove this
+	function doRequestNormal(request){
+		// request.url
+		// request.data
+		// request.headers
+
+		if (window.WebSocket){ // Browser with WebSocket Support
+			console.log("BROWSER SUPPORTED");
+			
+			// Reuse Open Connection
+			if(wsConnection2 != null && wsConnection2.readyState == 1){
+				console.debug("REUSING WS CONNECTION", wsConnection2);
+				
+				// Format Parameters
+		    	var parameters;
+		    	// TODO: There was some better way to do this.. 
+		    	if(request.data){
+		    		parameters = {};
+		    		Object.keys(request.data).forEach(function(key) {
+		    			parameters[key] = [request.data[key]];
+		    		});
+		    	}
+				
+		    	wsConnection2.send(JSON.stringify({
+					url: window.location.pathname,
+					headers: request.headers,
+					parameters: parameters
+				}));
+				
+				// TODO: Implement Callbacks (And how and when to flush them)
+				
+				return;
+			}
+			
+			var ping;
+			
+			var loc = window.location, ws_uri;
+			if (loc.protocol === "https:") {
+				ws_uri = "wss:";
+			} else {
+				ws_uri = "ws:";
+			}
+			ws_uri += "//" + loc.host;
+			ws_uri += loc.pathname
+			
+			wsConnection2 = new WebSocket(ws_uri);
+		    
+		    var callbacks = {
+	    		onReceive: [],
+	    		onClose: []
+		    }
+		    
+			// Send Data
+		    wsConnection2.addEventListener('open', function (event) {
+		    	
+		    	// Format Parameters
+		    	var parameters;
+		    	// TODO: There was some better way to do this.. 
+		    	if(request.data){
+		    		parameters = {};
+		    		Object.keys(request.data).forEach(function(key) {
+		    			parameters[key] = [request.data[key]];
+		    		});
+		    	}
+
+		    	console.debug("SEDING TO SERVER: " , JSON.stringify({
+					url: loc.pathname,
+					headers: request.headers,
+					parameters: parameters
+				}));
+		    	
+		    	wsConnection2.send(JSON.stringify({
+					url: loc.pathname,
+					headers: request.headers,
+					parameters: parameters
+				}));
+				
+		    	ping2 = setInterval(function(){ wsConnection2.send(""); }, 1000); // Keep Alive Ping (TODO: May not be required by all servers)
+			});
+			
+			// Receive Data	
+		    wsConnection2.addEventListener('message', function (event) {
+				console.log('Message from server', event.data);
+				callbacks.onReceive.forEach(function(callback){
+					callback(JSON.parse(event.data));
+				});
+			});
+			
+			// Connection Closed
+		    wsConnection2.addEventListener('close', function (event) {
+				console.debug("SERVER CLOSED");
+				clearInterval(ping2);
+				callbacks.onClose.forEach(function(callback){
+					callback();
+				});
+			});
+			
+			return new WSResponse(callbacks);
+
+		} else { // Legacy Fallback
+		     console.log("BROWSER NOT SUPPORTED");
+		     
+		     // Do HTTP Request
+			var jqrequest = $.ajax({
+				url: request.url,
+				headers: request.headers,
+				data: request.data
+			});
+			
+			return new JQResponse(jqrequest);
+		}
 	}
 	
 	
@@ -321,6 +427,26 @@
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	// Perform an Action
+	function performAction(uuid){
+		/*
+		$.ajax({
+			url: window.location.href,
+			headers: {'x-wui-request': 'action', 'x-wui-element': uuid}
+		});
+		*/
+		
+		doRequestNormal({
+			url: window.location.href,
+			headers: {'x-wui-request': 'action', 'x-wui-element': uuid}
+		});
+	}
 	
 	
 	

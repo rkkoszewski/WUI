@@ -124,7 +124,11 @@ public class HTTPServer extends NanoWSD{
         protected void onMessage(final WebSocketFrame message) {
         	System.out.println("GOT IT!");
 
-        	final RequestResponse requestResponse = responseManager.getWebSocketResponse(message.getTextPayload());
+        	String message_content = message.getTextPayload();
+        	
+        	if(message_content.equals("")) return; // IT's just a ping
+        	
+        	final RequestResponse requestResponse = responseManager.getWebSocketResponse(message_content);
         	
         	// Content Request
         	if(requestResponse.isContentRequest()) {
@@ -158,8 +162,6 @@ public class HTTPServer extends NanoWSD{
     	    	                	request = requestResponse.getRequest();
     	    	                }
 
-    	    	                if(i == 10) return;
-    	    	                
     	    	                if(!this.isInterrupted())
     	    	                	sendResponse(responseObject, message);
     	    				}
