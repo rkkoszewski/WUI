@@ -21,58 +21,71 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.element;
+package com.robertkoszewski.wui.ui.element.feature;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
-import com.robertkoszewski.wui.Test;
-import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.ui.element.feature.BaseElementWithDynamicData;
+import com.robertkoszewski.wui.core.ViewInstance;
+import com.robertkoszewski.wui.ui.element.Element;
+import com.robertkoszewski.wui.ui.element.NodeElement;
+import com.robertkoszewski.wui.utils.Utils;
 
 /**
- * Button Element
+ * Element With Nesting
  * @author Robert Koszewski
  */
-public class Button extends BaseElementWithDynamicData<Button.Data, String>{
+public abstract class BaseNodeElement<T extends Enum<T>> extends BaseElement implements NodeElement{
 
-	// Constructors
-
-	public Button(String value) {
-		super(Data.class);
-		setValue(value);
+	protected long element_nesting_timestamp = Utils.getChangeTimestamp(); // Timestamp
+	private EnumMap<T, List<Element>> children; // Child Elements
+	
+	/**
+	 * Constructor
+	 * @param clazz
+	 */
+	public BaseNodeElement(Class<T> clazz) {
+		children = new EnumMap<T, List<Element>>(clazz); 
 	}
 	
 	/**
-	 * Set Text Input Value
-	 * @param value
+	 * Returns the Element Last Modified time stamp
+	 * @return Time stamp
 	 */
-	public void setValue(String value) {
-		data.put(Data.value, value);
+	public long getNestingTimestamp(){
+		return element_nesting_timestamp;
 	}
 	
 	/**
-	 * Get Text Input Value
-	 * @return
+	 * Update the Element time stamp
 	 */
-	public String getValue() {
-		String v = data.get(Data.value);
-		return (v != null ? v : "");
-	}
-
-	@Override
-	public ElementTemplate getElementDefinition() {
-		try {
-			return new ElementTemplate(Test.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/Button.html"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+	protected void updateNestingTimestamp(){
+		this.element_nesting_timestamp = Utils.getChangeTimestamp();
 	}
 	
 	/**
-	 * Button Data
+	 * Add Child Element
+	 * @param key
+	 * @param element
+	 * @param instance
 	 */
-	protected enum Data{
-		value
+	protected void addChildElement(T key, BaseElement element, ViewInstance instance) {
+		List<Element> branch = children.get(key);
+		// Instantiate Array if not available
+		if(branch == null) branch = new ArrayList<Element>();
+		// Add Element to View
+		element.addElementToView(instance, this);
+		// Put into Array
+		branch.add(element);
+		// Update Nesting Timestamp
+		updateNestingTimestamp();
 	}
+	
+	public Map<T, List<Element>> getChildElements() {
+		return children;
+	}
+	
+	
 }

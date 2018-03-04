@@ -23,17 +23,14 @@
 
 package com.robertkoszewski.wui.ui.element;
 
-import com.robertkoszewski.wui.template.ElementTemplate;
+import com.robertkoszewski.wui.core.ViewInstance;
+import com.robertkoszewski.wui.ui.element.feature.BaseElement;
 
 /**
  * UI Element
  * @author Robert Koszewski
  */
-public interface Element {
-	
-	/**
-	 * Get ELement Definition
-	 * @return Element Definition
-	 */
-	public ElementTemplate getElementDefinition();
+public interface Element extends RootElement {
+	// getParentNode (ViewInstance)
+	public void addElementToView(ViewInstance view, RootElement parent_element); // Add Element to View
 }

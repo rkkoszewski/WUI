@@ -21,44 +21,26 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.feature;
+package com.robertkoszewski.wui.ui.element;
 
-import java.util.EnumMap;
-
-import com.robertkoszewski.wui.utils.Utils;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Element With Nesting
+ * Timestamp for Nested Elements
  * @author Robert Koszewski
+ *
  */
-public abstract class NestedElement<T extends Enum<T>, E> extends BaseElement implements ElementWithNestingTimestamp{
+public interface NodeElement extends Element{
+	/**
+	 * Get Nesting Timestamp
+	 * @return
+	 */
+	public long getNestingTimestamp();
 
-	protected long element_nesting_timestamp = Utils.getChangeTimestamp(); // Timestamp
-	
-	
-	protected EnumMap<T, E> children; // Element Data
-	
 	/**
-	 * Constructor
-	 * @param clazz
+	 * Get Child Nodes
+	 * @return
 	 */
-	public NestedElement(Class<T> clazz) {
-		children = new EnumMap<T, E>(clazz); 
-	}
-	
-	/**
-	 * Returns the Element Last Modified time stamp
-	 * @return Time stamp
-	 */
-	public long getNestingTimestamp(){
-		return element_nesting_timestamp;
-	}
-	
-	/**
-	 * Update the Element time stamp
-	 */
-	public void updateNestingTimestamp(){
-		this.element_nesting_timestamp = Utils.getChangeTimestamp();
-	}
-	
+	public Map<?, List<Element>> getChildElements();
 }

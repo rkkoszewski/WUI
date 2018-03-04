@@ -21,9 +21,19 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.feature;
+package com.robertkoszewski.wui.ui.element.feature;
 
-public interface ElementWithElementTimestamp {
-	public long getElementTimestamp();
-	public void updateElementTimestamp();
+import com.robertkoszewski.wui.ui.element.Element;
+
+/**
+ * Element with Data (Without Timestamp = Static Data)
+ * @author Robert Koszewski
+ */
+public interface DataElement extends Element {
+	
+	/**
+	 * Get Element Data
+	 * @return Object
+	 */
+	public Object getElementData();
 }

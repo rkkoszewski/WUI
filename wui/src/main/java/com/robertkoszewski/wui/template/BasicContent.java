@@ -21,54 +21,89 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.feature;
+package com.robertkoszewski.wui.template;
 
-import com.robertkoszewski.wui.utils.Utils;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.Vector;
+
+import com.robertkoszewski.wui.core.ViewInstance;
+import com.robertkoszewski.wui.ui.element.Element;
+import com.robertkoszewski.wui.ui.element.feature.BaseElement;
+import com.robertkoszewski.wui.ui.element.feature.BaseNodeElement;
+import com.robertkoszewski.wui.ui.element.feature.DataElement;
+import com.robertkoszewski.wui.ui.element.feature.ElementWithSingleNesting;
 
 /**
- * Abstract Actionable Element with Simple Dynamic Data
+ * Base Content
  * @author Robert Koszewski
  */
-public abstract class BaseElementWithSimpleDynamicData<T> extends BaseElement implements ElementWithDynamicData {
+public class BasicContent extends BaseContent<BasicContent.ChildNodes, BasicContent.Data, String> {
 	
 	// Variables
-	protected T data; // Element Data
-	private long data_timestamp = Utils.getChangeTimestamp(); // Element Data Timestamp
-	
-	/**
-	 * Set Text Input Value
-	 * @param value
-	 */
-	protected void setData(T value) {
-		data = value;
-		updateDataTimestamp();
+	private Map<String, Object> shared_data = new HashMap<String, Object>();
+
+	// Constructors
+	public BasicContent() {
+		super(ChildNodes.class, Data.class);
 	}
 	
-	/**
-	 * Get Text Input Value
-	 * @return
-	 */
-	protected T getData() {
-		return data;
+	// Data
+	
+	public enum ChildNodes{
+		body
 	}
 	
-	// HTML Element Methods
+	public enum Data{
+		title
+	}
+	
+	// Methods
 
 	@Override
-	public Object getElementData() {
-		return data;
-	}
-	
-	// Time Methods
-	
-	@Override
-	public long getDataTimestamp() {
-		return data_timestamp;
+	public void setTitle(String title) {
+		data.put(Data.title, title);
 	}
 
 	@Override
-	public void updateDataTimestamp() {
-		this.data_timestamp = Utils.getChangeTimestamp();
-		triggerElementUpdate();
+	public String getTitle() {
+		return data.get(Data.title);
+	}
+
+	@Override
+	public void addElement(Element element) {
+		addElement(ChildNodes.body, element);
+	}
+
+	@Override
+	public void removeElement(Element element) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ElementTemplate getElementDefinition() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	// Data Methods
+	
+	@Override
+	public void setData(String name, Object obj) {
+		shared_data.put(name, obj);
+	}
+
+	@Override
+	public Object getData(String name) {
+		return shared_data.get(name);
+	}
+
+	@Override
+	public <T> T getData(String name, Class<T> classOfT) {
+		return classOfT.cast(shared_data.get(name));
 	}
 }

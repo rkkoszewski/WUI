@@ -21,14 +21,54 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.feature;
+package com.robertkoszewski.wui.ui.element.feature;
+
+import com.robertkoszewski.wui.utils.Utils;
 
 /**
- * Timestamp for Nested Elements
+ * Abstract Actionable Element with Simple Dynamic Data
  * @author Robert Koszewski
- *
  */
-public interface ElementWithNestingTimestamp {
-	public long getNestingTimestamp();
-	public void updateNestingTimestamp();
+public abstract class BaseElementWithSimpleDynamicData<T> extends BaseElement implements DynamicDataElement {
+	
+	// Variables
+	protected T data; // Element Data
+	private long data_timestamp = Utils.getChangeTimestamp(); // Element Data Timestamp
+	
+	/**
+	 * Set Text Input Value
+	 * @param value
+	 */
+	protected void setData(T value) {
+		data = value;
+		updateDataTimestamp();
+	}
+	
+	/**
+	 * Get Text Input Value
+	 * @return
+	 */
+	protected T getData() {
+		return data;
+	}
+	
+	// HTML Element Methods
+
+	@Override
+	public Object getElementData() {
+		return data;
+	}
+	
+	// Time Methods
+	
+	@Override
+	public long getDataTimestamp() {
+		return data_timestamp;
+	}
+
+	@Override
+	public void updateDataTimestamp() {
+		this.data_timestamp = Utils.getChangeTimestamp();
+		triggerElementUpdate();
+	}
 }

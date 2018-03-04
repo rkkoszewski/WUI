@@ -27,7 +27,7 @@ import java.io.IOException;
 
 import com.robertkoszewski.wui.Test;
 import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.ui.feature.BaseElementWithSimpleDynamicData;
+import com.robertkoszewski.wui.ui.element.feature.BaseElementWithSimpleDynamicData;
 
 /**
  * Text Label

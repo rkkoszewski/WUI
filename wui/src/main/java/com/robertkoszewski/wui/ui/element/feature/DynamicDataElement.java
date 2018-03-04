@@ -21,13 +21,13 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.feature;
+package com.robertkoszewski.wui.ui.element.feature;
 
 /**
  * Element with Dynamic Data
  * @author Robert Koszewski
  */
-public interface ElementWithDynamicData extends ElementWithData {
+public interface DynamicDataElement extends DataElement {
 	/**
 	 * Get Data Timestamp
 	 * @return Timestamp

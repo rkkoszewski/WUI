@@ -26,6 +26,7 @@ package com.robertkoszewski.wui;
 import com.robertkoszewski.wui.core.ViewInstance;
 import com.robertkoszewski.wui.core.ViewInterface;
 import com.robertkoszewski.wui.template.Content;
+import com.robertkoszewski.wui.template.ContentData;
 import com.robertkoszewski.wui.template.WindowTemplate;
 
 /**
@@ -51,13 +52,14 @@ public abstract class View implements ViewInterface{
 	 * @return
 	 */
 	public final ViewInstance getViewInstance(WindowTemplate template) {
-		Content content = template.getContentInstance();
+		ContentData content = template.getContentInstance();
 		// TODO: Change behavior based on Type
 		switch(type) {
 			default:
 		}
-		createView(content);
-		return new ViewInstance(content);
+		ViewInstance instance = new ViewInstance(content);
+		createView(content); // Populate View
+		return instance;
 	}
 	
 	/**

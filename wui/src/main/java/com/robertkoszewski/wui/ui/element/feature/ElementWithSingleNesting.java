@@ -21,27 +21,12 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.feature;
+package com.robertkoszewski.wui.ui.element.feature;
 
 /**
- * Interactive Element
+ * Element that has Nested Child Elements
  * @author Robert Koszewski
  */
-public interface ActionableElement {
-	/**
-	 * Trigger Action Performed
-	 */
-	public void actionPerformed();
-	
-	/**
-	 * Add a ActionListener
-	 * @param callback
-	 */
-	public void addActionListener(Runnable callback);
-	
-	/**
-	 * Remove a ActionListener
-	 * @param callback
-	 */
-	public void removeActionListener(Runnable callback);
+public interface ElementWithSingleNesting {
+	public BaseElement[] getChildElements();
 }

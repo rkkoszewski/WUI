@@ -21,58 +21,49 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.element;
+package com.robertkoszewski.wui.template;
 
-import java.io.IOException;
-
-import com.robertkoszewski.wui.Test;
-import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.ui.element.feature.BaseElementWithDynamicData;
+import com.robertkoszewski.wui.core.ViewInstance;
 
 /**
- * Button Element
+ * Content Data Interface
  * @author Robert Koszewski
  */
-public class Button extends BaseElementWithDynamicData<Button.Data, String>{
+public interface ContentData extends Content {
 
-	// Constructors
-
-	public Button(String value) {
-		super(Data.class);
-		setValue(value);
-	}
-	
 	/**
-	 * Set Text Input Value
-	 * @param value
+	 * Set Content Data
+	 * @param id
+	 * @param obj
 	 */
-	public void setValue(String value) {
-		data.put(Data.value, value);
-	}
+	//public void setData(String name, Object obj);
 	
 	/**
-	 * Get Text Input Value
+	 * Get Content Data
+	 * @param id
 	 * @return
 	 */
-	public String getValue() {
-		String v = data.get(Data.value);
-		return (v != null ? v : "");
-	}
-
-	@Override
-	public ElementTemplate getElementDefinition() {
-		try {
-			return new ElementTemplate(Test.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/Button.html"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+	//public Object getData(String name);
 	
 	/**
-	 * Button Data
+	 * Get Content Data with Type Definition
+	 * @param <T>
+	 * @param id
+	 * @param clazz
+	 * @return
 	 */
-	protected enum Data{
-		value
-	}
+	//public <T> T getData(String name, Class<T> classOfT);
+	
+	/**
+	 * Get Data Object
+	 * @return
+	 */
+	public Object getDataObject();
+
+	/**
+	 * Set View Instance
+	 * @param viewInstance
+	 */
+	public void setViewInstance(ViewInstance viewInstance); // TODO: This should not be accessible from the view
+
 }

@@ -23,14 +23,25 @@
 
 package com.robertkoszewski.wui.server;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * Node Definition
  * @author Robert Koszewski
  */
 public class Node {
+	@Expose
 	public String element;
+	
+	@Expose
 	public Object data;
+	
+	@Expose(serialize = false)
 	public long timestamp;
+	
+	@Expose
 	public String uuid;
+	
+	@Expose
 	public Object nodes;
 }

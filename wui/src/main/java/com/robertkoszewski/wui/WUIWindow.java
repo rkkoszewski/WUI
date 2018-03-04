@@ -29,7 +29,7 @@ import com.robertkoszewski.wui.core.WUIContentManager;
 import com.robertkoszewski.wui.server.Server;
 import com.robertkoszewski.wui.server.ServerFactory;
 import com.robertkoszewski.wui.server.ServerNotFoundException;
-import com.robertkoszewski.wui.template.BaseTemplate;
+import com.robertkoszewski.wui.template.BasicTemplate;
 import com.robertkoszewski.wui.template.WindowTemplate;
 
 /**
@@ -47,7 +47,7 @@ public class WUIWindow {
 	 */
 	
 	public WUIWindow() {
-		this(new BaseTemplate());
+		this(new BasicTemplate());
 	}
 	
 	public WUIWindow(WindowTemplate template) {

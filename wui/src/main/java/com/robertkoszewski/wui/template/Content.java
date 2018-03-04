@@ -25,16 +25,14 @@ package com.robertkoszewski.wui.template;
 
 import java.util.Map;
 
-import com.robertkoszewski.wui.ui.feature.BaseElement;
-import com.robertkoszewski.wui.ui.feature.ElementWithElementTimestamp;
+import com.robertkoszewski.wui.ui.element.Element;
+import com.robertkoszewski.wui.ui.element.RootElement;
 
-public interface Content extends ElementWithElementTimestamp{
-
-	/**
-	 * Get Page Content
-	 * @return
-	 */
-	public Map<String, BaseElement[]> getElements();
+/**
+ * Content Interface
+ * @author Robert Koszewski
+ */
+public interface Content extends RootElement{
 	
 	/**
 	 * Set Page Title
@@ -47,18 +45,18 @@ public interface Content extends ElementWithElementTimestamp{
 	 * @return
 	 */
 	public String getTitle();
-	
+
 	/**
-	 * Add Element to Page
+	 * Add Element to Body
 	 * @param element
 	 */
-	public void addElement(BaseElement element);
+	public void addElement(Element element);
 	
 	/**
-	 * Remove Element from Page
+	 * Remove Element from Body
 	 * @param element
 	 */
-	public void removeElement(BaseElement element);
+	public void removeElement(Element element);
 	
 	/**
 	 * Remove Element at Index
@@ -66,6 +64,12 @@ public interface Content extends ElementWithElementTimestamp{
 	 */
 	public void removeElementAt(int index);
 	
+	/**
+	 * Get Page Content
+	 * @return
+	 */
+	public Map<String, Element[]> getElements();
+
 	/**
 	 * Set Content Data
 	 * @param id

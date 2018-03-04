@@ -23,62 +23,75 @@
 
 package com.robertkoszewski.wui.template;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Vector;
-
-import com.robertkoszewski.wui.ui.feature.BaseElement;
-import com.robertkoszewski.wui.ui.feature.ElementWithData;
-import com.robertkoszewski.wui.ui.feature.ElementWithSingleNesting;
-import com.robertkoszewski.wui.ui.feature.NestedElement;
+import java.util.Map.Entry;
+import com.robertkoszewski.wui.core.ViewInstance;
+import com.robertkoszewski.wui.ui.element.Element;
+import com.robertkoszewski.wui.ui.element.feature.BaseElement;
+import com.robertkoszewski.wui.ui.element.feature.BaseRootElement;
 
 /**
  * Base Content
  * @author Robert Koszewski
  */
-public class BaseContent extends NestedElement<BaseContent.CNodes, String> implements Content, ElementWithData, ElementWithSingleNesting {
-	
-	public BaseContent() {
-		super(CNodes.class);
-	}
+public abstract class BaseContent<E extends Enum<E>, T extends Enum<T>, X> extends BaseRootElement implements Content, ContentData {
 
-	private String title;
-	private Vector<BaseElement> content = new Vector<BaseElement>();
-	private Map<String, Object> data = new HashMap<String, Object>();
-	
-	/**
-	 * Serialize a Page
-	 * @return
-	 */
-	public Map<String, BaseElement[]> getElements(){
-		Map<String, BaseElement[]> elements = new HashMap<String, BaseElement[]>();
-		elements.put("body", content.toArray(new BaseElement[content.size()])); // TDDO: Protect concurrency on "content"
-		return elements;
+	// Variables
+	protected ViewInstance viewInstance;
+	protected EnumMap<T, X> data;
+	protected EnumMap<E, List<Element>> children;
+
+	// Constructor
+	public BaseContent(Class<E> child_class, Class<T> data_class) {
+		children = new EnumMap<E, List<Element>>(child_class);
+		data = new EnumMap<T, X>(data_class);
 	}
 	
-	/**
-	 * Set Page Title
-	 * @param title
-	 */
-	public void setTitle(String title){
-		this.title = title;
-	}
+	
+	// Node Management
 	
 	/**
-	 * Get Page Title
-	 * @return
-	 */
-	public String getTitle(){
-		return title;
-	}
-	
-	/**
-	 * Add Element to Page
+	 * Add Element to Branch
+	 * @param id
 	 * @param element
 	 */
-	public void addElement(BaseElement element){
-		content.addElement(element);
-		updateNestingTimestamp();
+	protected void addElement(E id, Element element) {
+		List<Element> branch = children.get(id);
+		if(branch == null) { 
+			branch = new ArrayList<Element>();
+			children.put(id, branch);
+		}
+		// Add Element to View
+		element.addElementToView(viewInstance, this);
+				
+		branch.add(element); // TODO: DO something with viewInstance
+		
+	}
+	
+	/**
+	 * Add Child Element
+	 * @param key
+	 * @param element
+	 * @param instance
+	 */
+	protected void addChildElement(E key, Element element, ViewInstance instance) {
+		List<Element> branch = children.get(key);
+		// Instantiate Array if not available
+		if(branch == null) { 
+			branch = new ArrayList<Element>();
+			children.put(key, branch);
+		}
+		// Add Element to View
+		element.addElementToView(instance, this);
+		// Put into Array
+		branch.add(element);
+		// Update Nesting Timestamp
+//		updateNestingTimestamp();
 	}
 	
 	/**
@@ -86,9 +99,11 @@ public class BaseContent extends NestedElement<BaseContent.CNodes, String> imple
 	 * @param element
 	 */
 	public void removeElement(BaseElement element){
+		/*
 		content.remove(element);
 		updateElementTimestamp();
 		updateNestingTimestamp();
+		*/
 	}
 	
 	/**
@@ -96,47 +111,35 @@ public class BaseContent extends NestedElement<BaseContent.CNodes, String> imple
 	 * @param index
 	 */
 	public void removeElementAt(int index){
-		content.remove(index);
-	}
-
-	/**
-	 * Get Element Data
-	 */
-	@Override
-	public Object getElementData() {
-		return title;
-	}
-
-	/**
-	 * Get Child Elements
-	 */
-	@Override
-	public BaseElement[] getChildElements() {
-		return content.toArray(new BaseElement[content.size()]);
-	}
-
-	@Override
-	public ElementTemplate getElementDefinition() { // TODO: THIS IS NOT A HTML ELEMENT. REMOVE THIS.
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setData(String name, Object obj) {
-		data.put(name, obj);
-	}
-
-	@Override
-	public Object getData(String name) {
-		return data.get(name);
-	}
-
-	@Override
-	public <T> T getData(String name, Class<T> classOfT) {
-		return classOfT.cast(data.get(name));
+		//content.remove(index);
 	}
 	
-	protected enum CNodes {
-		
+	
+	@Override
+	public void setViewInstance(ViewInstance viewInstance) {
+		this.viewInstance = viewInstance;
+	}
+	
+	// Data Methods
+	
+	/**
+	 * Return Element Object
+	 */
+	public Map<String, Element[]> getElements() {
+		Map<String, Element[]> elements = new HashMap<String, Element[]>();
+		Iterator<Entry<E, List<Element>>> cit = children.entrySet().iterator();
+		while(cit.hasNext()) {
+			Entry<E, List<Element>> entry = cit.next();
+			List<Element> value = entry.getValue();
+			elements.put(entry.getKey().name(), value.toArray(new Element[value.size()]));
+		}
+		return elements;
+	}
+	
+	/**
+	 * Return Element Object
+	 */
+	public Object getDataObject() {
+		return data;
 	}
 }

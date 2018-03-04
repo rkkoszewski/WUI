@@ -43,16 +43,18 @@ import org.apache.commons.io.FilenameUtils;
 import org.imgscalr.Scalr;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.robertkoszewski.wui.View;
 import com.robertkoszewski.wui.server.*;
 import com.robertkoszewski.wui.server.response.*;
 import com.robertkoszewski.wui.template.Content;
 import com.robertkoszewski.wui.template.ElementTemplate;
 import com.robertkoszewski.wui.template.WindowTemplate;
-import com.robertkoszewski.wui.ui.feature.ActionableElement;
-import com.robertkoszewski.wui.ui.feature.BaseElement;
-import com.robertkoszewski.wui.ui.feature.ElementWithData;
-import com.robertkoszewski.wui.ui.feature.ElementWithDynamicData;
+import com.robertkoszewski.wui.ui.element.Element;
+import com.robertkoszewski.wui.ui.element.feature.ActionableElement;
+import com.robertkoszewski.wui.ui.element.feature.BaseElement;
+import com.robertkoszewski.wui.ui.element.feature.DataElement;
+import com.robertkoszewski.wui.ui.element.feature.DynamicDataElement;
 
 import net.sf.image4j.codec.ico.ICOEncoder;
 
@@ -75,7 +77,7 @@ public class WUIContentManager implements ContentManager {
 	private URL icon = null; // Define a more flexible Icon class to allow to define different icon sizes.
 	
 	// TODO: Temporary Variables. Move them where corresponds
-	private Map<String, BaseElement> element_cache = new HashMap<String, BaseElement>();
+	// private Map<String, BaseElement> element_cache = new HashMap<String, BaseElement>();
 	private Map<String, ElementTemplate> element_definition_cache = new HashMap<String, ElementTemplate>();
 	
 	// Constructor
@@ -143,14 +145,16 @@ public class WUIContentManager implements ContentManager {
 
 		if(requestType != null) { // WUI Request
 
+			ViewInstance view;
+			
 			switch (requestType) {
 			case ACTION: // Action Performed Request Type
-				response =  performAction(request);
+				response =  performAction(session.getViewInstance(request.getURL()), request);
 				break;
 
 			case CONTENT: // Content Request Type
 				// Serve View
-				ViewInstance view = session.getViewInstance(request.getURL());
+				view = session.getViewInstance(request.getURL());
 				
 				//WUIController controller = pages.get(request.getURL()); // TODO: Inline this if nowhere else required
 				
@@ -292,16 +296,19 @@ public class WUIContentManager implements ContentManager {
 	
 	/**
 	 * Perform Action
+	 * @param viewInstance 
 	 * @param request
 	 * @return
 	 */
-	private Response performAction(Request request) {
+	private Response performAction(ViewInstance viewInstance, Request request) {
 		
 		String elmentUUID = request.getHeader("x-wui-element");
 		
 		System.out.println("ACTION PERFORMED ON ELEMENT " + elmentUUID);
 		
+		viewInstance.performActionOnElement(elmentUUID);
 		
+		/*
 		BaseElement element = element_cache.get(elmentUUID);
 		
 		if(element != null) {
@@ -310,6 +317,7 @@ public class WUIContentManager implements ContentManager {
 				((ActionableElement) element).actionPerformed();
 			}
 		}
+		*/
 		
 		return new WUIStringResponse("text/html", "ACTION PERFORMED");
 	}
@@ -350,19 +358,13 @@ public class WUIContentManager implements ContentManager {
 		if(view == null) {
 			return new WUIStringResponse("text/html", "Content Not Found");
 		}
-		
-		// Element Cache - An Element needs to be part of the DOM in order to be able to be called
-		// TODO: Move Element Cache to Content Interface to be part of the Content (Decide?)
-		Map<String, BaseElement> element_cache = new HashMap<String, BaseElement>();
-		
-		
+
 		// Freeze request till data changes
-		Lock lock = view.getViewLock();
 		if(remote_timestamp != 0) {
-			synchronized (lock) {
-				try {
-					lock.wait();
-				} catch (InterruptedException e) {}
+			try {
+				view.waitForViewChange();
+			} catch (InterruptedException e) {
+				return null; // Abort any action when interrupted
 			}
 		}
 		
@@ -375,21 +377,19 @@ public class WUIContentManager implements ContentManager {
 		Vector<Node> updates = new Vector<Node>();
 
 		// Create Node Branch
-		Iterator<Entry<String, BaseElement[]>> bit = content.getElements().entrySet().iterator();
+		Iterator<Entry<String, Element[]>> bit = content.getElements().entrySet().iterator();
 		while(bit.hasNext()) {
 			// Branch Iteration
-			Entry<String, BaseElement[]> branch = bit.next();
-			BaseElement[] elements = branch.getValue();
+			Entry<String, Element[]> branch = bit.next();
+			Element[] elements = branch.getValue();
 			Node[] root = new Node[elements.length];
 			
 			// Build Node Array
 			int i = 0;
-			for(BaseElement e : branch.getValue()) {
-				
-				e.addElementUpdateLock(null, lock);
-				
+			for(Element e : branch.getValue()) {
+
 				Node n = new Node();
-				//n.timestamp = e.getElementTimestamp();
+				n.timestamp = e.getElementTimestamp();
 				n.element = e.getElementName();
 				n.uuid = e.getElementUUID().toString();
 				
@@ -397,14 +397,14 @@ public class WUIContentManager implements ContentManager {
 				if(n.timestamp > timestamp) timestamp = n.timestamp; // Element Timestamp
 
 				// Element with Data
-				if(e instanceof ElementWithData) {
-					n.data = ((ElementWithData) e).getElementData();
+				if(e instanceof DataElement) {
+					n.data = ((DataElement) e).getElementData();
 					
 				}
 				
 				// Element with Dynamic Data
-				if(e instanceof ElementWithDynamicData) {
-					long element_data_timestamp = ((ElementWithDynamicData) e).getDataTimestamp();
+				if(e instanceof DynamicDataElement) {
+					long element_data_timestamp = ((DynamicDataElement) e).getDataTimestamp();
 					if(element_data_timestamp > timestamp) timestamp = element_data_timestamp; // Element DataTimestamp
 					
 					if(remote_timestamp < element_data_timestamp) {
@@ -414,11 +414,7 @@ public class WUIContentManager implements ContentManager {
 				}
 
 				root[i++] = n;
-				
-				// Add to Element Cache
-				// TODO: Rewrite
-				element_cache.put(e.getElementUUID().toString(), e);
-				
+
 				// Add Element Definition
 				// TODO: Rewrite
 				if(!element_definition_cache.containsKey(e.getElementName())) {
@@ -452,11 +448,9 @@ public class WUIContentManager implements ContentManager {
 			metadata.isContentRequest = true;
 		}
 
-		// Update Element Cache
-		this.element_cache = element_cache;
-
 		//template.
-		return new WUIStringResponse("text/json", (new Gson()).toJson(content_response));
+		return new WUIStringResponse("text/json", (new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()).toJson(content_response));
+		//return new WUIStringResponse("text/json", (new Gson()).toJson(content_response));
 	}
 	
 	// Helper Methods

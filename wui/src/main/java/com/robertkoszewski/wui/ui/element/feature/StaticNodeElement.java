@@ -21,14 +21,16 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.feature;
+package com.robertkoszewski.wui.ui.element.feature;
 
 import java.util.Map;
+
+import com.robertkoszewski.wui.ui.element.Element;
 
 /**
  * Element that has Multiple Nested Child Elements with IDs
  * @author Robert Koszewski
  */
-public interface ElementWithMultipleNesting {
+public interface StaticNodeElement extends Element {
 	public Map<String, BaseElement[]> getChildElements();
 }

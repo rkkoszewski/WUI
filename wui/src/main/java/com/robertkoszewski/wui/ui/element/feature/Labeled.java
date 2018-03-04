@@ -21,43 +21,13 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.template;
-
-import com.robertkoszewski.wui.server.ResourceManager;
+package com.robertkoszewski.wui.ui.element.feature;
 
 /**
- * Base Template
+ * A Element with a Label
  * @author Robert Koszewski
  */
-public class BaseTemplate implements WindowTemplate{
-	
-	private String title = "";
-
-	@Override
-	public String getTemplateHTML(ResourceManager resources) {
-		String html = resources.getResourceAsString("/templates/base/template.html");
-		return (html != null ? html : "<html><body>ERROR: Unable to find Base Template</body></html>");
-	}
-
-	@Override
-	public String generateResponse(Content content, /*UIControl uicontrol,*/ long timestamp) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setAppName(String title) {
-		this.title = title;
-	}
-
-	@Override
-	public String getAppName() {
-		return this.title;
-	}
-
-	@Override
-	public Content getContentInstance() {
-		return new BaseContent();
-	}
-
+public interface Labeled {
+	public void setLabel(String label);
+	public String getLabel();
 }

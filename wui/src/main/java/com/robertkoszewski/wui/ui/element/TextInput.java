@@ -24,7 +24,7 @@
 package com.robertkoszewski.wui.ui.element;
 
 import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.ui.feature.BaseElementWithDynamicData;
+import com.robertkoszewski.wui.ui.element.feature.BaseElementWithDynamicData;
 
 /**
  * Text Input Element

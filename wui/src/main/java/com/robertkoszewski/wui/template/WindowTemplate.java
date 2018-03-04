@@ -65,6 +65,6 @@ public interface WindowTemplate {
 	 * Get Content Instance
 	 * @return 
 	 */
-	public Content getContentInstance();
+	public ContentData getContentInstance();
 
 }

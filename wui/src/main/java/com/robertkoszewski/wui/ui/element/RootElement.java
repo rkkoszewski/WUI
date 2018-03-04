@@ -21,84 +21,56 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.feature;
+package com.robertkoszewski.wui.ui.element;
 
-import java.util.EnumMap;
+import java.util.UUID;
 
-import com.robertkoszewski.wui.utils.Utils;
+import com.robertkoszewski.wui.template.ElementTemplate;
 
 /**
- * Abstract Actionable Element with Dynamic Data
+ * Root UI Element
  * @author Robert Koszewski
  */
-public abstract class BaseElementWithDynamicData<T extends Enum<T>, E> extends BaseElement implements ElementWithDynamicData {
-	
-	// Variables
-	protected EnumMap<T, E> data; // Element Data
-	private long data_timestamp = Utils.getChangeTimestamp(); // Element Data Timestamp
+public interface RootElement {
 	
 	/**
-	 * Constructor
-	 * @param clazz
+	 * Get Element Definition
+	 * @return Element Definition
 	 */
-	public BaseElementWithDynamicData(Class<T> clazz) {
-		data = new EnumMap<T, E>(clazz); 
-	}
+	public ElementTemplate getElementDefinition();
 	
 	/**
-	 * Set Text Input Value
-	 * @param value
-	 */
-	protected void setData(T key, E value) {
-		data.put(key, value);
-		updateDataTimestamp();
-	}
-	
-	/**
-	 * Get Text Input Value
+	 * Get Element Name
 	 * @return
 	 */
-	protected E getData(T key) {
-		return data.get(key);
-	}
+	public String getElementName();
 	
 	/**
-	 * Remove Data
-	 * @param key
+	 * Get Element UUID
+	 * @return
 	 */
-	protected void removeData(T key) {
-		data.remove(key);
-		updateDataTimestamp();
-	}
+	public UUID getElementUUID();
 	
 	/**
-	 * Clear Data
+	 * Get Element ID
+	 * @return id
 	 */
-	protected void clearData() {
-		data.clear();
-		updateDataTimestamp();
-	}
+	public String getID();
 	
-	// TODO: Implement a ChangeNotificable HashMap
+	/**
+	 * Set Element ID
+	 * @param id
+	 */
+	public void setID(String id);
 	
-	// HTML Element Methods
-
-	@Override
-	public Object getElementData() {
-		return data;
-	}
+	/**
+	 * Get Element Timestamp
+	 * @return
+	 */
+	public long getElementTimestamp();
 	
-	// Time Methods
-	
-	@Override
-	public long getDataTimestamp() {
-		return data_timestamp;
-	}
-
-	@Override
-	public void updateDataTimestamp() {
-		this.data_timestamp = Utils.getChangeTimestamp();
-		triggerElementUpdate();
-	}
-	
+	/**
+	 * Update Element Timestamp
+	 */
+	// public void updateElementTimestamp();
 }

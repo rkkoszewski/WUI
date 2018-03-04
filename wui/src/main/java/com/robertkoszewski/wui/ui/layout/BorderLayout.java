@@ -23,13 +23,11 @@
 
 package com.robertkoszewski.wui.ui.layout;
 
-import java.util.ArrayList;
-
 import com.robertkoszewski.wui.template.ElementTemplate;
 import com.robertkoszewski.wui.ui.element.Element;
-import com.robertkoszewski.wui.ui.feature.NestedElement;
+import com.robertkoszewski.wui.ui.element.feature.BaseNodeElement;
 
-public class BorderLayout extends NestedElement<BorderLayout.Position, ArrayList<Element>>{
+public class BorderLayout extends BaseNodeElement<BorderLayout.Position>{
 
 	public BorderLayout() {
 		super(Position.class);

@@ -96,7 +96,8 @@
 			headers: {'x-wui-request': 'content'},
 			data: {'t': timestamp}
 			
-		}).onReceive(function(data){
+		}, 'content')
+		.onReceive(function(data){
 			console.debug("GOT DATA: ", data);
 			timestamp = data.timestamp; // Update Timestamp
 			
@@ -184,103 +185,103 @@
 		// TODO: Implement on fail
 	}
 	
-	var wsConnection = null;
+	
+	// Format Parameters
+	function formatParameters(data){
+    	var parameters; // Undefined
+    	if(data){
+    		parameters = {};
+    		Object.keys(data).forEach(function(key) {
+    			parameters[key] = [data[key]];
+    		});
+    	}
+    	return parameters;
+	}
+	
+	
+	var wsConnectionPool = {};
 
-	function doRequest(request){
+	function doRequest(request, pool, ping_timeout = 0){
 		// request.url
 		// request.data
 		// request.headers
 
-		if (window.WebSocket){ // Browser with WebSocket Support
+		if (false /*window.WebSocket*/){ // Browser with WebSocket Support
 			console.log("BROWSER SUPPORTED");
 			
 			// Reuse Open Connection
-			if(wsConnection != null && wsConnection.readyState == 1){
-				console.debug("REUSING WS CONNECTION", wsConnection);
-				
-				// Format Parameters
-		    	var parameters;
-		    	// TODO: There was some better way to do this.. 
-		    	if(request.data){
-		    		parameters = {};
-		    		Object.keys(request.data).forEach(function(key) {
-		    			parameters[key] = [request.data[key]];
-		    		});
-		    	}
-				
-				wsConnection.send(JSON.stringify({
+			var connection = wsConnectionPool[pool];
+			if(typeof connection != 'undefined' && /*typeof connection.readyState != 'undefined' &&*/ connection.readyState == 1){
+				console.debug("REUSING WS CONNECTION", connection);
+
+				// Send Data
+				connection.send(JSON.stringify({
 					url: window.location.pathname,
 					headers: request.headers,
-					parameters: parameters
+					parameters: formatParameters(request.data)
 				}));
-				
+
 				// TODO: Implement Callbacks (And how and when to flush them)
 				
 				return;
 			}
-			
-			var ping;
-			
-			var loc = window.location, ws_uri;
-			if (loc.protocol === "https:") {
-				ws_uri = "wss:";
-			} else {
-				ws_uri = "ws:";
-			}
-			ws_uri += "//" + loc.host;
-			ws_uri += loc.pathname
-			
-		    wsConnection = new WebSocket(ws_uri);
-		    
+
+			// Build WebSocket Connection URL
+			var loc = window.location;
+			var ws_uri =
+				(loc.protocol === 'https:' ? 'wss:' : 'ws:') + // Protocol
+				'//' + loc.host + // Host
+				loc.pathname // Path Name
+	
+			// Initialize WebSocket Connection
+			connection = new WebSocket(ws_uri);
+				
+			// Callbacks
 		    var callbacks = {
 	    		onReceive: [],
 	    		onClose: []
 		    }
 		    
+		    
+		    var ping;
+		    
 			// Send Data
-		    wsConnection.addEventListener('open', function (event) {
-		    	
-		    	// Format Parameters
-		    	var parameters;
-		    	// TODO: There was some better way to do this.. 
-		    	if(request.data){
-		    		parameters = {};
-		    		Object.keys(request.data).forEach(function(key) {
-		    			parameters[key] = [request.data[key]];
-		    		});
-		    	}
+		    connection.addEventListener('open', function (event) {
 
-		    	console.debug("SEDING TO SERVER: " , JSON.stringify({
+		    	connection.send(JSON.stringify({
 					url: loc.pathname,
 					headers: request.headers,
-					parameters: parameters
-				}));
-		    	
-		    	wsConnection.send(JSON.stringify({
-					url: loc.pathname,
-					headers: request.headers,
-					parameters: parameters
+					parameters: formatParameters(request.data)
 				}));
 				
-				ping = setInterval(function(){ wsConnection.send(""); }, 1000); // Keep Alive Ping (TODO: May not be required by all servers)
+		    	if(ping_timeout != 0)
+		    		ping = setInterval(function(){ connection.send(""); }, ping_timeout); // Keep Alive Ping (TODO: May not be required by all servers)
 			});
 			
 			// Receive Data	
-		    wsConnection.addEventListener('message', function (event) {
+		    connection.addEventListener('message', function (event) {
 				console.log('Message from server', event.data);
 				callbacks.onReceive.forEach(function(callback){
 					callback(JSON.parse(event.data));
 				});
 			});
 			
+		    // Connection Error
+		    connection.addEventListener('error', function (event) {
+				console.debug("SERVER ERROR OCCURED", event);
+			});
+		    
 			// Connection Closed
-		    wsConnection.addEventListener('close', function (event) {
-				console.debug("SERVER CLSOED");
+		    connection.addEventListener('close', function (event) {
+				console.debug("SERVER CLOSED");
 				clearInterval(ping);
 				callbacks.onClose.forEach(function(callback){
 					callback();
 				});
 			});
+		    
+		    // Add Connection to Pool
+		    wsConnectionPool[pool] = connection;
 			
 			return new WSResponse(callbacks);
 
@@ -302,150 +303,15 @@
 		
 	}
 	
-	var wsConnection2 = null;
 	
 	
-	
-	
-	var ping2 = null
-	// TODO: Remove this
-	function doRequestNormal(request){
-		// request.url
-		// request.data
-		// request.headers
 
-		if (window.WebSocket){ // Browser with WebSocket Support
-			console.log("BROWSER SUPPORTED");
-			
-			// Reuse Open Connection
-			if(wsConnection2 != null && wsConnection2.readyState == 1){
-				console.debug("REUSING WS CONNECTION", wsConnection2);
-				
-				// Format Parameters
-		    	var parameters;
-		    	// TODO: There was some better way to do this.. 
-		    	if(request.data){
-		    		parameters = {};
-		    		Object.keys(request.data).forEach(function(key) {
-		    			parameters[key] = [request.data[key]];
-		    		});
-		    	}
-				
-		    	wsConnection2.send(JSON.stringify({
-					url: window.location.pathname,
-					headers: request.headers,
-					parameters: parameters
-				}));
-				
-				// TODO: Implement Callbacks (And how and when to flush them)
-				
-				return;
-			}
-			
-			var ping;
-			
-			var loc = window.location, ws_uri;
-			if (loc.protocol === "https:") {
-				ws_uri = "wss:";
-			} else {
-				ws_uri = "ws:";
-			}
-			ws_uri += "//" + loc.host;
-			ws_uri += loc.pathname
-			
-			wsConnection2 = new WebSocket(ws_uri);
-		    
-		    var callbacks = {
-	    		onReceive: [],
-	    		onClose: []
-		    }
-		    
-			// Send Data
-		    wsConnection2.addEventListener('open', function (event) {
-		    	
-		    	// Format Parameters
-		    	var parameters;
-		    	// TODO: There was some better way to do this.. 
-		    	if(request.data){
-		    		parameters = {};
-		    		Object.keys(request.data).forEach(function(key) {
-		    			parameters[key] = [request.data[key]];
-		    		});
-		    	}
-
-		    	console.debug("SEDING TO SERVER: " , JSON.stringify({
-					url: loc.pathname,
-					headers: request.headers,
-					parameters: parameters
-				}));
-		    	
-		    	wsConnection2.send(JSON.stringify({
-					url: loc.pathname,
-					headers: request.headers,
-					parameters: parameters
-				}));
-				
-		    	ping2 = setInterval(function(){ wsConnection2.send(""); }, 1000); // Keep Alive Ping (TODO: May not be required by all servers)
-			});
-			
-			// Receive Data	
-		    wsConnection2.addEventListener('message', function (event) {
-				console.log('Message from server', event.data);
-				callbacks.onReceive.forEach(function(callback){
-					callback(JSON.parse(event.data));
-				});
-			});
-			
-			// Connection Closed
-		    wsConnection2.addEventListener('close', function (event) {
-				console.debug("SERVER CLOSED");
-				clearInterval(ping2);
-				callbacks.onClose.forEach(function(callback){
-					callback();
-				});
-			});
-			
-			return new WSResponse(callbacks);
-
-		} else { // Legacy Fallback
-		     console.log("BROWSER NOT SUPPORTED");
-		     
-		     // Do HTTP Request
-			var jqrequest = $.ajax({
-				url: request.url,
-				headers: request.headers,
-				data: request.data
-			});
-			
-			return new JQResponse(jqrequest);
-		}
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	// Perform an Action
 	function performAction(uuid){
-		/*
-		$.ajax({
+		doRequest({
 			url: window.location.href,
 			headers: {'x-wui-request': 'action', 'x-wui-element': uuid}
-		});
-		*/
-		
-		doRequestNormal({
-			url: window.location.href,
-			headers: {'x-wui-request': 'action', 'x-wui-element': uuid}
-		});
+		}, 'action', 2000);
 	}
 	
 	

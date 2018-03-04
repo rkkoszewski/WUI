@@ -21,61 +21,29 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.feature;
+package com.robertkoszewski.wui.ui.element.feature;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 
+import com.robertkoszewski.wui.core.ViewInstance;
 import com.robertkoszewski.wui.ui.element.Element;
+import com.robertkoszewski.wui.ui.element.RootElement;
 import com.robertkoszewski.wui.utils.Utils;
 
 /**
  * Base Element
  * @author Robert Koszewski
  */
-public abstract class BaseElement implements Element, ElementWithElementTimestamp, ActionableElement {
+public abstract class BaseElement extends BaseRootElement implements Element, ActionableElement {
 
 	private ArrayList<Runnable> action_performed_callback;
 	//private ArrayList<Lock> container_locks = new ArrayList<Lock>();
-	private Lock lock;
+	private ViewInstance view;
 	
 	private long data_timestamp = Utils.getChangeTimestamp(); // Element UID	
-	private String element_name = this.getClass().getSimpleName();//.getName();
-	private UUID element_uuid = UUID.randomUUID();
-
-	/**
-	 * Get Element Name
-	 * @return
-	 */
-	public String getElementName() {
-		return element_name;
-	}
-	
-	/**
-	 * Element UUID
-	 * @return
-	 */
-	public UUID getElementUUID() {
-		return element_uuid;
-	}
-	
-	/**
-	 * Returns the Element Last Modified time stamp
-	 * @return Time stamp
-	 */
-	public long getElementTimestamp(){
-		return data_timestamp;
-	}
-	
-	/**
-	 * Update the Element time stamp
-	 */
-	public void updateElementTimestamp(){
-		this.data_timestamp = Utils.getChangeTimestamp();
-		triggerElementUpdate();
-	}
 
 	/**
 	 * Trigger Action Performed
@@ -109,14 +77,27 @@ public abstract class BaseElement implements Element, ElementWithElementTimestam
 	 * Notify Element Update
 	 */
 	public void triggerElementUpdate() {
-		if(lock == null) return;
+		if(view == null) return; // TODO: Iterate trough views
+		view.viewChanged();
 		System.out.println("ELEMENT UPDATE TRIGGERED");
-		synchronized(lock) {
-			lock.notifyAll();
-		}
 	}
 	
-	public void addElementUpdateLock(Object element, Lock lock) {
-		this.lock = lock;
+	@Override
+	public void setID(String id) {
+		// TODO Auto-generated method stub
+		
 	}
+	
+	@Override
+	public String getID() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public void addElementToView(ViewInstance view, RootElement parent_element) {
+		// TODO: Check if element is already in View, then eider throw exception or remove old position
+		this.view = view; // Get View Lock. TODO: This should be a Vector for multiple views
+		view.addElementToCache(this);
+	};
 }

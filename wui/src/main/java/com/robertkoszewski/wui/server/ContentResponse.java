@@ -26,20 +26,26 @@ package com.robertkoszewski.wui.server;
 import java.util.Map;
 import java.util.Vector;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * Content Response
  * @author Robert Koszewski
  */
 public class ContentResponse {
 
+	@Expose
 	public UpdateStrategy type;
+	@Expose
 	public String title;
+	@Expose
 	public long timestamp;
+	@Expose
 	public Map<String, Node[]> nodes;
+	@Expose
 	public Vector<Node> updates;
 	
 	// Constructors
-	
 	public ContentResponse() {}
 
 }

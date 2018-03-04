@@ -21,58 +21,43 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.element;
+package com.robertkoszewski.wui.template;
 
-import java.io.IOException;
-
-import com.robertkoszewski.wui.Test;
-import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.ui.element.feature.BaseElementWithDynamicData;
+import com.robertkoszewski.wui.server.ResourceManager;
 
 /**
- * Button Element
+ * Base Template
  * @author Robert Koszewski
  */
-public class Button extends BaseElementWithDynamicData<Button.Data, String>{
-
-	// Constructors
-
-	public Button(String value) {
-		super(Data.class);
-		setValue(value);
-	}
+public class BasicTemplate implements WindowTemplate{
 	
-	/**
-	 * Set Text Input Value
-	 * @param value
-	 */
-	public void setValue(String value) {
-		data.put(Data.value, value);
-	}
-	
-	/**
-	 * Get Text Input Value
-	 * @return
-	 */
-	public String getValue() {
-		String v = data.get(Data.value);
-		return (v != null ? v : "");
+	private String title = "";
+
+	@Override
+	public String getTemplateHTML(ResourceManager resources) {
+		String html = resources.getResourceAsString("/templates/base/template.html");
+		return (html != null ? html : "<html><body>ERROR: Unable to find Base Template</body></html>");
 	}
 
 	@Override
-	public ElementTemplate getElementDefinition() {
-		try {
-			return new ElementTemplate(Test.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/Button.html"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+	public String generateResponse(Content content, /*UIControl uicontrol,*/ long timestamp) {
+		// TODO Auto-generated method stub
+		return null;
 	}
-	
-	/**
-	 * Button Data
-	 */
-	protected enum Data{
-		value
+
+	@Override
+	public void setAppName(String title) {
+		this.title = title;
 	}
+
+	@Override
+	public String getAppName() {
+		return this.title;
+	}
+
+	@Override
+	public ContentData getContentInstance() {
+		return new BasicContent();
+	}
+
 }

@@ -29,7 +29,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.robertkoszewski.wui.template.Content;
-import com.robertkoszewski.wui.ui.feature.BaseElement;
+import com.robertkoszewski.wui.template.ContentData;
+import com.robertkoszewski.wui.ui.element.feature.BaseElement;
 
 /**
  * View Instance
@@ -37,11 +38,12 @@ import com.robertkoszewski.wui.ui.feature.BaseElement;
  */
 public class ViewInstance {
 	
-	private Map<String, BaseElement> element_uuid_to_element_cache = new HashMap<String, BaseElement>();
+	private Map<String, BaseElement> element_uuid_to_element = new HashMap<String, BaseElement>();
 	private Lock view_lock = new ReentrantLock();
-	private final Content content;
+	private final ContentData content;
 	
-	public ViewInstance(Content content) {
+	public ViewInstance(ContentData content) {
+		content.setViewInstance(this);
 		this.content = content;
 	}
 	
@@ -59,13 +61,36 @@ public class ViewInstance {
 	 * @return
 	 */
 	public boolean performActionOnElement(String element_uuid) {
-		BaseElement el = element_uuid_to_element_cache.get(element_uuid);
+		BaseElement el = element_uuid_to_element.get(element_uuid);
 		if(el == null) return false; // Return False if Element is not found
 		el.actionPerformed(); // Perform Action
 		return true; // Return True
 	}
 	
-	public Lock getViewLock() { // TODO: Change this to a waitForViewChange and viewChanged method
-		return view_lock;
+	/**
+	 * Notify that View has changed
+	 */
+	public void viewChanged() {
+		synchronized(view_lock){
+			view_lock.notifyAll();
+		}
+	}
+	
+	/**
+	 * Wait for View Change
+	 * @throws InterruptedException 
+	 */
+	public void waitForViewChange() throws InterruptedException {
+		synchronized (view_lock) {
+			view_lock.wait();
+		}
+	}
+
+	/**
+	 * Add Element to Cache
+	 * @param element
+	 */
+	public void addElementToCache(BaseElement element) {
+		element_uuid_to_element.put(element.getElementUUID().toString(), element);
 	}
 }

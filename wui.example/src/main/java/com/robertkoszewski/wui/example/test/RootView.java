@@ -86,7 +86,7 @@ public class RootView extends View{
 					cpu_label.setText("Total RAM: "+StringUtils.readableFileSize(info.totalMem()));
 					ram_label.setText("Used RAM: "+StringUtils.readableFileSize(info.usedMem()));
 					try {
-						Thread.sleep(3000);
+						Thread.sleep(500);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
