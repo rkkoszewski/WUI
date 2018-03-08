@@ -21,13 +21,23 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.element.feature;
+package com.robertkoszewski.wui.ui.element.type;
 
 /**
- * A Element with a Label
+ * Node with Data
  * @author Robert Koszewski
  */
-public interface Labeled {
-	public void setLabel(String label);
-	public String getLabel();
+public interface NodeData {
+	
+	/**
+	 * Get Element Data
+	 * @return Object
+	 */
+	public Object getElementData();
+	
+	/**
+	 * Get Element Data Timestamp
+	 * @return
+	 */
+	public long getElementDataTimestamp();
 }

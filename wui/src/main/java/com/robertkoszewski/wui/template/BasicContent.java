@@ -23,32 +23,20 @@
 
 package com.robertkoszewski.wui.template;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.Vector;
 
 import com.robertkoszewski.wui.core.ViewInstance;
-import com.robertkoszewski.wui.ui.element.Element;
-import com.robertkoszewski.wui.ui.element.feature.BaseElement;
-import com.robertkoszewski.wui.ui.element.feature.BaseNodeElement;
-import com.robertkoszewski.wui.ui.element.feature.DataElement;
-import com.robertkoszewski.wui.ui.element.feature.ElementWithSingleNesting;
+import com.robertkoszewski.wui.ui.element.Node;
 
 /**
  * Base Content
  * @author Robert Koszewski
  */
 public class BasicContent extends BaseContent<BasicContent.ChildNodes, BasicContent.Data, String> {
-	
-	// Variables
-	private Map<String, Object> shared_data = new HashMap<String, Object>();
 
 	// Constructors
-	public BasicContent() {
-		super(ChildNodes.class, Data.class);
+	public BasicContent(ViewInstance viewInstance) {
+		super(ChildNodes.class, Data.class, viewInstance);
 	}
 	
 	// Data
@@ -74,36 +62,23 @@ public class BasicContent extends BaseContent<BasicContent.ChildNodes, BasicCont
 	}
 
 	@Override
-	public void addElement(Element element) {
+	public void addElement(Node element) {
 		addElement(ChildNodes.body, element);
 	}
 
 	@Override
-	public void removeElement(Element element) {
+	public void removeElement(Node element) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public ElementTemplate getElementDefinition() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	// Data Methods
-	
-	@Override
-	public void setData(String name, Object obj) {
-		shared_data.put(name, obj);
+	public long getDataTimestamp() {
+		return data.getTimestamp();
 	}
 
 	@Override
-	public Object getData(String name) {
-		return shared_data.get(name);
-	}
-
-	@Override
-	public <T> T getData(String name, Class<T> classOfT) {
-		return classOfT.cast(shared_data.get(name));
+	public long getNestingTimestamp() {
+		return children.getTimestamp();
 	}
 }

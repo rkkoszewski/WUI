@@ -23,54 +23,65 @@
 
 package com.robertkoszewski.wui.ui.element;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import com.robertkoszewski.wui.template.ElementTemplate;
+import com.robertkoszewski.wui.core.ViewInstance;
+import com.robertkoszewski.wui.utils.Utils;
 
 /**
- * Root UI Element
+ * A Node is an Element that can have Child Elements and a Parent Element
  * @author Robert Koszewski
  */
-public interface RootElement {
+public abstract class Parent extends Node{
+	
+	// Variables
+	protected Map<String, List<Node>> children = new HashMap<String, List<Node>>();
+	private long children_timestamp = 0;
 	
 	/**
-	 * Get Element Definition
-	 * @return Element Definition
-	 */
-	public ElementTemplate getElementDefinition();
-	
-	/**
-	 * Get Element Name
+	 * Get Children
 	 * @return
 	 */
-	public String getElementName();
+	public Map<String, List<Node>> getChildren() {
+		return children;
+	};
 	
 	/**
-	 * Get Element UUID
+	 * Add Child Element
+	 * @param viewInstance
+	 * @param element
+	 */
+	protected void addChildren(ViewInstance viewInstance, Node element, String id) {
+		List<Node> branch = children.get(id);
+		if(branch == null) { 
+			branch = new ArrayList<Node>();
+			children.put(id, branch);
+		}
+		// Add Element to View
+		element.addElementToView(viewInstance, this);
+		// Add Element		
+		branch.add(element);
+		// Update Nesting Timestamp
+		updateNestingTimestamp();
+	}
+	
+	/**
+	 * Get Nesting Timestamp
 	 * @return
 	 */
-	public UUID getElementUUID();
+	public long getNestingTimestamp() {
+		return children_timestamp;
+	}
 	
 	/**
-	 * Get Element ID
-	 * @return id
+	 * Update Nesting Timestamp
 	 */
-	public String getID();
+	protected void updateNestingTimestamp() {
+		children_timestamp = Utils.getChangeTimestamp();
+		updateElement();
+	}
 	
-	/**
-	 * Set Element ID
-	 * @param id
-	 */
-	public void setID(String id);
-	
-	/**
-	 * Get Element Timestamp
-	 * @return
-	 */
-	public long getElementTimestamp();
-	
-	/**
-	 * Update Element Timestamp
-	 */
-	// public void updateElementTimestamp();
 }

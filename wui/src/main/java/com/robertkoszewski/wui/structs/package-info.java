@@ -5,4 +5,4 @@
  * @author Robert Koszewski
  *
  */
-package com.robertkoszewski.wui.ui.element.feature;
+package com.robertkoszewski.wui.structs;

@@ -30,7 +30,7 @@ public class App
         w.setIcon(RootView.class.getResource("icon.png")); // Set Icon
         
         // Class Based View
-        w.addView("/data", new RootView()); // Define Root View
+        w.addView("/", new RootView()); // Define Root View
         
         
         // Add View
@@ -40,7 +40,7 @@ public class App
 			}
         };
         
-        w.addView("/", new View(View.Type.PRIVATE) { // Default is global view
+        w.addView("/shutdown", new View(View.Type.PRIVATE) { // Default is global view
 			public void createView(Content content) {
 				content.addElement(new Label("ASD"));
 				Button button = new Button("Shutdown");

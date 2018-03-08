@@ -21,26 +21,36 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.element;
+package com.robertkoszewski.wui.structs;
 
-import java.util.List;
-import java.util.Map;
+import com.robertkoszewski.wui.core.ViewInstance;
 
 /**
- * Timestamp for Nested Elements
+ * Timestamped View Notifying EnumMap
  * @author Robert Koszewski
  *
+ * @param <K>
+ * @param <V>
  */
-public interface NodeElement extends Element{
-	/**
-	 * Get Nesting Timestamp
-	 * @return
-	 */
-	public long getNestingTimestamp();
+public class TimestampedViewNotifyingEnumMap<K extends Enum<K>, V> extends TimestampedEnumMap<K, V> {
 
-	/**
-	 * Get Child Nodes
-	 * @return
-	 */
-	public Map<?, List<Element>> getChildElements();
+	// Serial Number
+	private static final long serialVersionUID = -2470732693690785408L;
+	
+	// Variables
+	private final ViewInstance viewInstance;
+
+	public TimestampedViewNotifyingEnumMap(Class<K> clazz, ViewInstance viewInstance) {
+		super(clazz);
+		if(viewInstance == null) throw new NullPointerException(); // Null Objects not supported. Use TimestampedEnumMap instead.
+		this.viewInstance = viewInstance;
+	}
+
+	// Private Methods
+	
+	protected void contentChanged() {
+		super.contentChanged();
+		// Notify View
+		viewInstance.viewChanged();
+	}
 }

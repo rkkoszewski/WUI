@@ -21,27 +21,13 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.element.feature;
+package com.robertkoszewski.wui.ui.element.type;
 
 /**
- * Interactive Element
+ * A Element with a Label
  * @author Robert Koszewski
  */
-public interface ActionableElement {
-	/**
-	 * Trigger Action Performed
-	 */
-	public void actionPerformed();
-	
-	/**
-	 * Add a ActionListener
-	 * @param callback
-	 */
-	public void addActionListener(Runnable callback);
-	
-	/**
-	 * Remove a ActionListener
-	 * @param callback
-	 */
-	public void removeActionListener(Runnable callback);
+public interface Labeled {
+	public void setLabel(String label);
+	public String getLabel();
 }

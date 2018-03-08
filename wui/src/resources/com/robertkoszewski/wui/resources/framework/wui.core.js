@@ -4,6 +4,8 @@
 
 // WUI Core Self Contained Environment
 
+var useSockets = false; // Enable Websockets
+
 (function(){
 	
 	// Variables
@@ -35,58 +37,89 @@
 		// TODO: IF this fails. DO something.
 	}
 	
-	// Generate Element Node
-	function generateElement(data){
+	function readChildren(root, data){
+		// Iterate Child Nodes
+		console.debug("READING CHILDREN", data)
+		$.each(data, function(key, value) {
+		  console.debug("KEYVALUE: " + key + " :::: ", value);
+		  
+		  if(typeof root._wuidata.container[key] !== 'undefined'){
+			  console.log("Appending Child Nodes to '" + key +"' in node: ", root._wuidata.container[key]);
+			  
+			  $.each(value, function(index, element) {
+				  showElements(root, root._wuidata.container[key], element);
+			  });
+		  }
+		});
+	}
 
+	// Show Elements
+	function showElements(root, container, data){
 		var element = elements[data.element];
 		
 		if(typeof element === 'undefined'){
 			// Download Node
 			console.debug("NODE DEFINITITION NOT FOUND. Downloading!!!. NODE ID: " + data.element, elements)
-			var $node = $('<div/>');
+			var $node = $('<div>LOADING</div>');
 			
 			getElementDefinition(data.element, function(){
 				// Replace Node Callback
-				console.debug("REPLACING PLACEHOLDER NODE WITH NEW NODE");
-				element = elements[data.element];
-				var $new_node = $(element.html);
-				element.initialize($new_node[0], data.data, data, performAction);
-				element.setData($new_node[0], data.data, data, performAction);
-				$node.replaceWith($new_node);
-				
-				// Node Methods
-				var node = $new_node[0];
-				node._wuimethods = {
-					setData: function(data){
-						element.setData(node, data.data, data, performAction);
-					}
-				}
-				
-				element_cache[data.uuid] = node;
+				instantiateElement(root, container, data, $node[0]);
 			});
-			
-			return $node[0];
+
+			console.debug("Appending Element", $node[0])
+			$(container).append($node);
 		}else{
-			// Node exists in cache
 			console.debug("NODE DEFINITITION FOUND. NODE ID: " + data.element)
-			var $node = $(element.html);
-			element.initialize($node[0], data.data, data, performAction);
-			element.setData($node[0], data.data, data, performAction);
-			
-			// Node Methods
-			node._wuimethods = {
-				setData: function(data){
-					element.setData(node, data.data, data, performAction);
-				}
-			}
-			
-			element_cache[data.uuid] = $node[0];
-			return $node[0];
+			instantiateElement(root, container, data);
 		}
 	}
 	
+	// Instantiate Element
+	function instantiateElement(root, container, data, replace_node = null){
+		
+		var element = elements[data.element];
+		var $node = $(element.html);
+		element.initialize($node[0], data.data, data, performAction);
+		element.setData($node[0], data.data, data, performAction);
+		
+		// Node Methods
+		var node = $node[0];
+		node._wuimethods = {
+			setData: function(data){
+				element.setData(node, data.data, data, performAction);
+			}
+		}
+		
+		element_cache[data.uuid] = $node[0];
+		
+		// Append Element
+		if(replace_node != null){
+			//console.debug("Replacing Element", node)
+			console.debug("REPLACING PLACEHOLDER NODE "+ data.element +" WITH NEW NODE", node); //$node[0]
+			console.debug("HTML DEFINITION: ",  element)
+			$(replace_node).replaceWith(node);
+		}else{
+			console.debug("Appending Element", node)
+			$(container).append(node);
+		}
+		
+		
+		// Populate Children
+		if(typeof data.children !== 'undefined'){
+			// Element has children
+			console.debug("Node Has CHildren: ")
+			readChildren(node, data.children);
+		}
+	}
 	
-	
+	// Prepare Body Node
+	document.body._wuidata = {
+		container: {
+			body: document.body
+		}
+	}
+
 	// Get Page Content
 	function getPageContent(){
 		// Get Page Content
@@ -104,16 +137,21 @@
 			switch(data.type.toUpperCase()){
 			case 'FULL': // Full Page Update
 				$(document.body).empty();
+				
+				readChildren(document.body, data.nodes);
+				
+				/*
 				$.each(data.nodes.body, function(key, value) {
 				  console.debug(key, value);
 				  
-				  var el = generateElement(value);
+				  var el = showElements(document.body, value);
 
 				  console.debug("Appending Element", el)
 
-				  $(document.body).append(el);
+				  //$(document.body).append(el);
 				  
 				});
+				*/
 				break;
 				
 			case 'PARTIALDATA': // Partial Data Only Update
@@ -125,6 +163,7 @@
 				  if(typeof element === 'undefined'){
 					  // ERROR: Unexpected state. Existing element is being updated but is not found in the DOM. Something went completely wrong.
 					  console.error("ERROR: Element with UUID " + value.uuid + " does not exists. Inconsistent state. Requires full page update.");
+					  // location.reload(); // TODO: Maybe there is a more elegant way to do this?
 					  
 				  }else{
 					  // Update Element
@@ -206,7 +245,7 @@
 		// request.data
 		// request.headers
 
-		if (false /*window.WebSocket*/){ // Browser with WebSocket Support
+		if (useSockets && window.WebSocket){ // Browser with WebSocket Support
 			console.log("BROWSER SUPPORTED");
 			
 			// Reuse Open Connection

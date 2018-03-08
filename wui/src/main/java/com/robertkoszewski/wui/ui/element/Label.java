@@ -27,21 +27,19 @@ import java.io.IOException;
 
 import com.robertkoszewski.wui.Test;
 import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.ui.element.feature.BaseElementWithSimpleDynamicData;
 
 /**
  * Text Label
  * @author Robert Koszewski
  */
-public class Label extends BaseElementWithSimpleDynamicData<String>{
+public class Label extends Node{
 
-	// Constructors
 	public Label() {
-		setData("");
+		setText("");
 	}
 	
 	public Label(String label) {
-		setData(label);
+		setText(label);
 	}
 	
 	/**
@@ -49,7 +47,8 @@ public class Label extends BaseElementWithSimpleDynamicData<String>{
 	 * @param value
 	 */
 	public void setText(String value) {
-		setData(value);
+		data.put("value", value);
+		updateElementDataTimestamp();
 	}
 	
 	/**
@@ -57,7 +56,7 @@ public class Label extends BaseElementWithSimpleDynamicData<String>{
 	 * @return
 	 */
 	public String getValue() {
-		return getData();
+		return data.get("value");
 	}
 
 	@Override

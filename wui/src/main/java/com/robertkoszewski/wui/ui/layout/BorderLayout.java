@@ -23,25 +23,28 @@
 
 package com.robertkoszewski.wui.ui.layout;
 
+import java.io.IOException;
+
+import com.robertkoszewski.wui.Test;
+import com.robertkoszewski.wui.core.ViewInstance;
 import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.ui.element.Element;
-import com.robertkoszewski.wui.ui.element.feature.BaseNodeElement;
+import com.robertkoszewski.wui.ui.element.Node;
+import com.robertkoszewski.wui.ui.element.Parent;
 
-public class BorderLayout extends BaseNodeElement<BorderLayout.Position>{
-
-	public BorderLayout() {
-		super(Position.class);
-		// TODO Auto-generated constructor stub
-	}
+public class BorderLayout extends Parent{
 
 	@Override
 	public ElementTemplate getElementDefinition() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return new ElementTemplate(Test.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/BorderLayout.html"));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
-	public void addChildren(Element e, Position p) {
-		//children.
+	public void addElement(ViewInstance viewInstance, Node e, Position p) {
+		addChildren(viewInstance, e, p.name());
 	}
 
 	/**

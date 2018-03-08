@@ -23,6 +23,7 @@
 
 package com.robertkoszewski.wui.template;
 
+import com.robertkoszewski.wui.core.ViewInstance;
 import com.robertkoszewski.wui.server.ResourceManager;
 
 /**
@@ -63,8 +64,9 @@ public interface WindowTemplate {
 	
 	/**
 	 * Get Content Instance
+	 * @param viewInstance 
 	 * @return 
 	 */
-	public ContentData getContentInstance();
+	public BaseContent<?, ?, ?> getContentInstance(ViewInstance viewInstance);
 
 }

@@ -21,16 +21,27 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.element;
+package com.robertkoszewski.wui.server;
 
-import com.robertkoszewski.wui.core.ViewInstance;
-import com.robertkoszewski.wui.ui.element.feature.BaseElement;
+import com.google.gson.annotations.Expose;
 
 /**
- * UI Element
+ * Node Definition
  * @author Robert Koszewski
  */
-public interface Element extends RootElement {
-	// getParentNode (ViewInstance)
-	public void addElementToView(ViewInstance view, RootElement parent_element); // Add Element to View
+public class NodeObject {
+	@Expose
+	public String element;
+	
+	@Expose
+	public Object data;
+	
+	@Expose(serialize = false)
+	public long timestamp;
+	
+	@Expose
+	public String uuid;
+	
+	@Expose
+	public Object children;
 }

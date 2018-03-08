@@ -24,27 +24,20 @@
 package com.robertkoszewski.wui.ui.element;
 
 import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.ui.element.feature.BaseElementWithDynamicData;
 
 /**
  * Text Input Element
  * @author Robert Koszewski
  */
-public class TextInput extends BaseElementWithDynamicData<TextInput.Data, String>{
+public class TextInput extends Node{
 
-	/**
-	 * Constructor
-	 */
-	public TextInput() {
-		super(Data.class);
-	}
-	
 	/**
 	 * Set Text Input Value
 	 * @param value
 	 */
 	protected void setValue(String value) {
-		data.put(Data.value, value);
+		data.put("value", value);
+		updateElementDataTimestamp();
 	}
 	
 	/**
@@ -52,20 +45,12 @@ public class TextInput extends BaseElementWithDynamicData<TextInput.Data, String
 	 * @return
 	 */
 	protected String getValue() {
-		String v = data.get(Data.value);
+		String v = data.get("value");
 		return (v != null ? v : "");
 	}
 
 	@Override
 	public ElementTemplate getElementDefinition() {
-		// TODO Auto-generated method stub
 		return null;
-	}
-	
-	/**
-	 * TextInput Data
-	 */
-	protected enum Data{
-		value
 	}
 }

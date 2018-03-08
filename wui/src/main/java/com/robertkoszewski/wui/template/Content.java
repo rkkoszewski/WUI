@@ -25,14 +25,14 @@ package com.robertkoszewski.wui.template;
 
 import java.util.Map;
 
-import com.robertkoszewski.wui.ui.element.Element;
-import com.robertkoszewski.wui.ui.element.RootElement;
+import com.robertkoszewski.wui.core.ViewInstance;
+import com.robertkoszewski.wui.ui.element.Node;
 
 /**
  * Content Interface
  * @author Robert Koszewski
  */
-public interface Content extends RootElement{
+public interface Content{
 	
 	/**
 	 * Set Page Title
@@ -50,13 +50,13 @@ public interface Content extends RootElement{
 	 * Add Element to Body
 	 * @param element
 	 */
-	public void addElement(Element element);
+	public void addElement(Node element);
 	
 	/**
 	 * Remove Element from Body
 	 * @param element
 	 */
-	public void removeElement(Element element);
+	public void removeElement(Node element);
 	
 	/**
 	 * Remove Element at Index
@@ -68,21 +68,21 @@ public interface Content extends RootElement{
 	 * Get Page Content
 	 * @return
 	 */
-	public Map<String, Element[]> getElements();
+	// public Map<String, Node[]> getElements(); // TODO: Replace with GETCHILDREN
 
 	/**
 	 * Set Content Data
 	 * @param id
 	 * @param obj
 	 */
-	public void setData(String name, Object obj);
+	public void setSharedData(String name, Object obj);
 	
 	/**
 	 * Get Content Data
 	 * @param id
 	 * @return
 	 */
-	public Object getData(String name);
+	public Object getSharedData(String name);
 	
 	/**
 	 * Get Content Data with Type Definition
@@ -90,6 +90,9 @@ public interface Content extends RootElement{
 	 * @param clazz
 	 * @return
 	 */
-	public <T> T getData(String name, Class<T> classOfT);
+	public <T> T getSharedData(String name, Class<T> classOfT);
 
+	
+	// TODO: Remove this. TEMPORARY: Get ViewInstance to be able to access the current ViewContext
+	public ViewInstance getViewInstance();
 }

@@ -27,18 +27,16 @@ import java.io.IOException;
 
 import com.robertkoszewski.wui.Test;
 import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.ui.element.feature.BaseElementWithDynamicData;
 
 /**
  * Button Element
  * @author Robert Koszewski
  */
-public class Button extends BaseElementWithDynamicData<Button.Data, String>{
+public class Button extends Node{
 
 	// Constructors
 
 	public Button(String value) {
-		super(Data.class);
 		setValue(value);
 	}
 	
@@ -47,7 +45,8 @@ public class Button extends BaseElementWithDynamicData<Button.Data, String>{
 	 * @param value
 	 */
 	public void setValue(String value) {
-		data.put(Data.value, value);
+		data.put("value", value);
+		updateElementDataTimestamp();
 	}
 	
 	/**
@@ -55,7 +54,7 @@ public class Button extends BaseElementWithDynamicData<Button.Data, String>{
 	 * @return
 	 */
 	public String getValue() {
-		String v = data.get(Data.value);
+		String v = data.get("value");
 		return (v != null ? v : "");
 	}
 
@@ -67,12 +66,5 @@ public class Button extends BaseElementWithDynamicData<Button.Data, String>{
 			e.printStackTrace();
 			return null;
 		}
-	}
-	
-	/**
-	 * Button Data
-	 */
-	protected enum Data{
-		value
 	}
 }

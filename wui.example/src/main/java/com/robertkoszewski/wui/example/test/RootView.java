@@ -27,6 +27,7 @@ import com.robertkoszewski.wui.View;
 import com.robertkoszewski.wui.template.Content;
 import com.robertkoszewski.wui.ui.element.Button;
 import com.robertkoszewski.wui.ui.element.Label;
+import com.robertkoszewski.wui.ui.layout.BorderLayout;
 import com.robertkoszewski.wui.utils.StringUtils;
 import com.robertkoszewski.wui.utils.SystemInfo;
 
@@ -41,21 +42,26 @@ public class RootView extends View{
 	}
 
 	public void createView(final Content content) {
+		
+		// Add BorderLayout
+		final BorderLayout layout = new BorderLayout();
+		content.addElement(layout);
+		
+		
 		// Set Data (Pretty much like variables)
-		content.setData("press", 0);
-		content.setData("i", 0);
+		content.setSharedData("press", 0);
+		content.setSharedData("i", 0);
+		content.setSharedData("x", 0);
 		
 		final Label label = new Label();
 		final Label label_press = new Label("BUTTON NEVER PRESSED");
 		
 		final Label cpu_label = new Label();
 		final Label ram_label = new Label();
-		
-		content.addElement(label);
-		content.addElement(label_press);
-		content.addElement(cpu_label);
-		content.addElement(ram_label);
-		
+
+		layout.addElement(content.getViewInstance(), cpu_label, BorderLayout.Position.west);
+		layout.addElement(content.getViewInstance(), ram_label, BorderLayout.Position.west);
+
 		/*
 		content.createSharedElement("cpu_label", Label.class, 1, 2);
 		
@@ -65,23 +71,27 @@ public class RootView extends View{
 		*/
 		
 		// Button Test
-		Button b = new Button("Press Me!!");
+		layout.addElement(content.getViewInstance(), label_press, BorderLayout.Position.east);
+		Button b = new Button("Press Me!! (Counter)");
 		b.addActionListener(new Runnable() {
 			public void run() {
-				int press = content.getData("press", Integer.class);
+				int press = content.getSharedData("press", Integer.class);
 				label_press.setText("COUNTING PRESSES: " + press++ );
-				content.setData("press", press);
+				content.setSharedData("press", press);
 			}
 		});
+		layout.addElement(content.getViewInstance(), b, BorderLayout.Position.east);
+
+		
 		
 		// Controller Logic
 		
-		// System Info Thread
+		// System Info Thread & Realtime Counter
 		final SystemInfo info = new SystemInfo();
 		
-		new Thread() {
+		final Thread cthread = new Thread() {
 			public void run() {
-				while(true) {
+				while(!interrupted()) {
 					System.out.println("# Updating System Info");
 					cpu_label.setText("Total RAM: "+StringUtils.readableFileSize(info.totalMem()));
 					ram_label.setText("Used RAM: "+StringUtils.readableFileSize(info.usedMem()));
@@ -90,17 +100,46 @@ public class RootView extends View{
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						return;
 					} // Wait 3 Seconds
 					
-					int i = content.getData("i", Integer.class);
+					int i = content.getSharedData("i", Integer.class);
 					label.setText("IT WORKS. COUNTING: " + i++); // And a counter
-					content.setData("i", i);
+					content.setSharedData("i", i);
 				}
 				
 			};
-		}.start();
+		};
 		
-		content.addElement(b);
+		layout.addElement(content.getViewInstance(), label, BorderLayout.Position.center);
+		
+		// Realtime Counter
+		Button bstart = new Button("Start Realtime Counter");
+		bstart.addActionListener(new Runnable() {
+			public void run() {
+				if(!cthread.isAlive()) {
+					cthread.start();
+					System.out.println("Counter Started");
+				}else{
+					cthread.interrupt();
+					System.out.println("Counter Stopped");
+				}
+			}
+		});
+		layout.addElement(content.getViewInstance(), bstart, BorderLayout.Position.center);
+
+		
+		// Button Test
+		layout.addElement(content.getViewInstance(), new Label("--- ADD A NEW ELEMENT DYNAMICALLY ---"), BorderLayout.Position.center);
+		Button addbtn = new Button("Add new Node");
+		addbtn.addActionListener(new Runnable() {
+			public void run() {
+				int x = content.getSharedData("x", Integer.class);
+				layout.addElement(content.getViewInstance(), new Label("Adding new dynamic element " + x), BorderLayout.Position.east);
+				content.setSharedData("x", x);
+			}
+		});
+		layout.addElement(content.getViewInstance(), addbtn, BorderLayout.Position.center);
 	}
 	
 	

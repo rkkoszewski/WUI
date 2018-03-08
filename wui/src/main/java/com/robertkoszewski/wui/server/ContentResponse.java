@@ -41,9 +41,9 @@ public class ContentResponse {
 	@Expose
 	public long timestamp;
 	@Expose
-	public Map<String, Node[]> nodes;
+	public Map<String, NodeObject[]> nodes;
 	@Expose
-	public Vector<Node> updates;
+	public Vector<NodeObject> updates;
 	
 	// Constructors
 	public ContentResponse() {}

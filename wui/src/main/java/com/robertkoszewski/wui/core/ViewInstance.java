@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.robertkoszewski.wui.template.Content;
-import com.robertkoszewski.wui.template.ContentData;
-import com.robertkoszewski.wui.ui.element.feature.BaseElement;
+import com.robertkoszewski.wui.template.BaseContent;
+import com.robertkoszewski.wui.template.WindowTemplate;
+import com.robertkoszewski.wui.ui.element.Node;
 
 /**
  * View Instance
@@ -38,20 +38,19 @@ import com.robertkoszewski.wui.ui.element.feature.BaseElement;
  */
 public class ViewInstance {
 	
-	private Map<String, BaseElement> element_uuid_to_element = new HashMap<String, BaseElement>();
+	private Map<String, Node> element_uuid_to_element = new HashMap<String, Node>();
 	private Lock view_lock = new ReentrantLock();
-	private final ContentData content;
+	private final BaseContent<?, ?, ?> content;
 	
-	public ViewInstance(ContentData content) {
-		content.setViewInstance(this);
-		this.content = content;
+	public ViewInstance(WindowTemplate template) {
+		this.content = template.getContentInstance(this);
 	}
 	
 	/**
 	 * Get View Content
 	 * @return
 	 */
-	public Content getContent() {
+	public BaseContent<?, ?, ?> getContent() {
 		return content;
 	}
 	
@@ -61,7 +60,7 @@ public class ViewInstance {
 	 * @return
 	 */
 	public boolean performActionOnElement(String element_uuid) {
-		BaseElement el = element_uuid_to_element.get(element_uuid);
+		Node el = element_uuid_to_element.get(element_uuid);
 		if(el == null) return false; // Return False if Element is not found
 		el.actionPerformed(); // Perform Action
 		return true; // Return True
@@ -90,7 +89,7 @@ public class ViewInstance {
 	 * Add Element to Cache
 	 * @param element
 	 */
-	public void addElementToCache(BaseElement element) {
-		element_uuid_to_element.put(element.getElementUUID().toString(), element);
+	public void addElementToCache(Node element) {
+		element_uuid_to_element.put(element.getUUID().toString(), element);
 	}
 }

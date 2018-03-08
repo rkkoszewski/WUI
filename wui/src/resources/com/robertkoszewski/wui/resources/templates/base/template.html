@@ -12,6 +12,42 @@
 		<!--[if lt IE 9]>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
 		<![endif]-->
+		
+		<style>
+			/* TODO: Use style.css instead of this. We need this workaround because the CSS file is delivered with wrong headers and is treated as Javascript.*/
+			/* Base Style */
+			html, body{
+			    display: flex;
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				padding: 0;
+			}
+			
+			
+			/* Border Layout */
+			.wui-border-layout{
+				display: flex;
+				flex-direction: column;
+				width: 100%;
+			}
+			
+			.wui-border-layout > div, .wui-border-layout > div.center > div{
+				display: flex;
+				flex-direction: column;
+			}
+			
+			.wui-border-layout > div.center{
+			    flex-direction: row;
+				flex-grow: 1;
+			}
+			
+			.wui-border-layout > div.center > div.center{
+				flex-grow: 1;
+			}
+			
+			
+		</style>
 	</head>
 	<body>
 		Loading..

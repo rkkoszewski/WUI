@@ -35,26 +35,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.Map.Entry;
-import java.util.concurrent.locks.Lock;
-
 import javax.imageio.ImageIO;
-
 import org.apache.commons.io.FilenameUtils;
 import org.imgscalr.Scalr;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.robertkoszewski.wui.View;
 import com.robertkoszewski.wui.server.*;
 import com.robertkoszewski.wui.server.response.*;
+import com.robertkoszewski.wui.template.BaseContent;
 import com.robertkoszewski.wui.template.Content;
 import com.robertkoszewski.wui.template.ElementTemplate;
 import com.robertkoszewski.wui.template.WindowTemplate;
-import com.robertkoszewski.wui.ui.element.Element;
-import com.robertkoszewski.wui.ui.element.feature.ActionableElement;
-import com.robertkoszewski.wui.ui.element.feature.BaseElement;
-import com.robertkoszewski.wui.ui.element.feature.DataElement;
-import com.robertkoszewski.wui.ui.element.feature.DynamicDataElement;
+import com.robertkoszewski.wui.ui.element.Node;
+import com.robertkoszewski.wui.ui.element.Parent;
+import com.robertkoszewski.wui.ui.element.type.NodeData;
 
 import net.sf.image4j.codec.ico.ICOEncoder;
 
@@ -369,40 +364,105 @@ public class WUIContentManager implements ContentManager {
 		}
 		
 		// Build Node Tree
-		Content content = view.getContent(); // TODO: Improve this.
-		Map<String, Node[]> nodes = new HashMap<String, Node[]>();
-		long timestamp = 0;
+		BaseContent<?, ?, ?> content = view.getContent(); // TODO: Improve this.
 		
-		// Element Updates
-		Vector<Node> updates = new Vector<Node>();
+		BuilderData bdata = new BuilderData();
+		bdata.remote_timestamp = remote_timestamp;
+		Map<String, NodeObject[]> nodes = buildResponseTree(content.getChildren(), bdata);
 
-		// Create Node Branch
-		Iterator<Entry<String, Element[]>> bit = content.getElements().entrySet().iterator();
+		// Check Content Data
+		/*
+		if(remote_timestamp < content.getDataTimestamp()) {
+			// Store New Updated Data
+			updates.add(n);
+		}
+		*/
+		long content_nesting_timestamp = content.getNestingTimestamp();
+		if(content_nesting_timestamp > remote_timestamp) { 
+			bdata.timestamp = content_nesting_timestamp;
+			System.out.println("NODE UPDATE HAPPEND");
+			bdata.nesting_changed = true;
+		} 
+		
+		// Build Content Response
+		ContentResponse content_response = new ContentResponse();
+		content_response.title = content.getTitle();
+		content_response.timestamp = bdata.timestamp;
+		
+		if(remote_timestamp == 0 || bdata.nesting_changed) {
+			content_response.type = UpdateStrategy.FULL;
+			content_response.nodes = nodes; // Full Content Update
+		}else {
+			// Partial Data Change Response
+			content_response.type = UpdateStrategy.PARTIALDATA;
+			content_response.updates = bdata.updates; // TODO: If updates.size == 0 then do EMPTY RESPONSE (Should not happen though, as we're locking the thread while no updates occur)
+		}
+		
+		// Update Metadata
+		if(metadata != null) {
+			metadata.latestTimestamp = bdata.timestamp;
+			metadata.isContentRequest = true;
+		}
+
+		//template.
+		return new WUIStringResponse("text/json", (new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()).toJson(content_response));
+		//return new WUIStringResponse("text/json", (new Gson()).toJson(content_response));
+	}
+	
+	
+	
+	/**
+	 * Content Response Class
+	 */
+	private class BuilderData {
+		// public Map<String, NodeObject[]> nodes = new HashMap<String, NodeObject[]>();
+		public long remote_timestamp = 0;
+		public long timestamp = 0;
+		public boolean nesting_changed = false;
+		public Vector<NodeObject> updates = new Vector<NodeObject>(); // Element Updates
+	}
+
+	
+	/**
+	 * Build Response Tree
+	 * @param parent
+	 * @param current
+	 * @param bdata
+	 * @return
+	 */
+	private Map<String, NodeObject[]> buildResponseTree(Map<String, List<Node>> current, BuilderData bdata) {
+		
+		// Nodes Object
+		Map<String, NodeObject[]> nodes = new HashMap<String, NodeObject[]>();
+		
+		// Iterate trough all Child Nodes
+		Iterator<Entry<String, List<Node>>> bit = current.entrySet().iterator(); 
 		while(bit.hasNext()) {
 			// Branch Iteration
-			Entry<String, Element[]> branch = bit.next();
-			Element[] elements = branch.getValue();
-			Node[] root = new Node[elements.length];
+			Entry<String, List<Node>> branch = bit.next();
+			List<Node> elements = branch.getValue();
+			NodeObject[] root = new NodeObject[elements.size()];
 			
 			// Build Node Array
 			int i = 0;
-			for(Element e : branch.getValue()) {
+			for(Node e : branch.getValue()) {
 
-				Node n = new Node();
+				NodeObject n = new NodeObject();
 				n.timestamp = e.getElementTimestamp();
 				n.element = e.getElementName();
-				n.uuid = e.getElementUUID().toString();
+				n.uuid = e.getUUID().toString();
 				
 				// Store Last Timestamp
-				if(n.timestamp > timestamp) timestamp = n.timestamp; // Element Timestamp
+				if(n.timestamp > bdata.timestamp) bdata.timestamp = n.timestamp; // Element Timestamp
 
 				// Element with Data
-				if(e instanceof DataElement) {
-					n.data = ((DataElement) e).getElementData();
+				if(e instanceof NodeData) {
+					n.data = ((NodeData) e).getElementData();
 					
 				}
 				
 				// Element with Dynamic Data
+				/*
 				if(e instanceof DynamicDataElement) {
 					long element_data_timestamp = ((DynamicDataElement) e).getDataTimestamp();
 					if(element_data_timestamp > timestamp) timestamp = element_data_timestamp; // Element DataTimestamp
@@ -412,11 +472,35 @@ public class WUIContentManager implements ContentManager {
 						updates.add(n);
 					}
 				}
+				*/
+				
+				// Update Data
+				if(bdata.remote_timestamp < e.getElementDataTimestamp()) {
+					// Store New Updated Data
+					bdata.updates.add(n);
+				}
+				
+				// Element with Dynamic Data
+				if(e instanceof Parent) {
+					Parent parent = (Parent) e;
+					
+					n.children = buildResponseTree(parent.getChildren(), bdata); // Build Child Tree
+					
+					long nesting_timestamp = parent.getNestingTimestamp();
+					if(nesting_timestamp > bdata.timestamp) bdata.timestamp = nesting_timestamp; // Element DataTimestamp
+					
+					if(bdata.remote_timestamp < nesting_timestamp) {
+						// Store New Updated Data
+						//updates.add(n);
+						System.out.println("NODE UPDATE HAPPEND");
+						bdata.nesting_changed = true;
+					}
+				}
 
 				root[i++] = n;
 
 				// Add Element Definition
-				// TODO: Rewrite
+				// TODO: Rewrite (Add Element Definition Cache to Window?)
 				if(!element_definition_cache.containsKey(e.getElementName())) {
 					element_definition_cache.put(e.getElementName(), e.getElementDefinition()); 
 				}
@@ -427,30 +511,8 @@ public class WUIContentManager implements ContentManager {
 			nodes.put(branch.getKey(), root);
 		}
 		
-		
-		// Build Content Response
-		ContentResponse content_response = new ContentResponse();
-		content_response.title = content.getTitle();
-		content_response.timestamp = timestamp;
-		
-		if(remote_timestamp == 0) {
-			content_response.type = UpdateStrategy.FULL;
-			content_response.nodes = nodes; // Full Content Update
-		}else {
-			// Partial Data Change Response
-			content_response.type = UpdateStrategy.PARTIALDATA;
-			content_response.updates = updates; // TODO: If updates.size == 0 then do EMPTY RESPONSE
-		}
-		
-		// Update Metadata
-		if(metadata != null) {
-			metadata.latestTimestamp = timestamp;
-			metadata.isContentRequest = true;
-		}
 
-		//template.
-		return new WUIStringResponse("text/json", (new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()).toJson(content_response));
-		//return new WUIStringResponse("text/json", (new Gson()).toJson(content_response));
+		return nodes;
 	}
 	
 	// Helper Methods

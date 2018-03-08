@@ -21,19 +21,36 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.element.feature;
-
-import com.robertkoszewski.wui.ui.element.Element;
+package com.robertkoszewski.wui.structs;
 
 /**
- * Element with Data (Without Timestamp = Static Data)
+ * Timestamped Notifying EnumMap
  * @author Robert Koszewski
+ *
+ * @param <K>
+ * @param <V>
  */
-public interface DataElement extends Element {
+public class TimestampedNotifyingEnumMap<K extends Enum<K>, V> extends TimestampedEnumMap<K, V> {
+
+	// Serial Number
+	private static final long serialVersionUID = -2470731693690785408L;
 	
-	/**
-	 * Get Element Data
-	 * @return Object
-	 */
-	public Object getElementData();
+	// Variables
+	private final Object notifyTarget;
+
+	public TimestampedNotifyingEnumMap(Class<K> clazz, Object notifyTarget) {
+		super(clazz);
+		if(notifyTarget == null) throw new NullPointerException(); // Null Objects not supported. Use TimestampedEnumMap instead.
+		this.notifyTarget = notifyTarget;
+	}
+
+	// Private Methods
+	
+	protected void contentChanged() {
+		super.contentChanged();
+		// Notify Object
+		synchronized(notifyTarget) {
+			notifyTarget.notifyAll();
+		}
+	}
 }

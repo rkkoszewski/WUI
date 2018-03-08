@@ -23,6 +23,7 @@
 
 package com.robertkoszewski.wui.template;
 
+import com.robertkoszewski.wui.core.ViewInstance;
 import com.robertkoszewski.wui.server.ResourceManager;
 
 /**
@@ -56,8 +57,8 @@ public class BasicTemplate implements WindowTemplate{
 	}
 
 	@Override
-	public ContentData getContentInstance() {
-		return new BasicContent();
+	public BaseContent<?, ?, ?> getContentInstance(ViewInstance viewInstance) {
+		return new BasicContent(viewInstance);
 	}
 
 }
