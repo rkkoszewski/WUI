@@ -57,6 +57,11 @@ public class Button extends Node{
 		String v = data.get("value");
 		return (v != null ? v : "");
 	}
+	
+	public void setColor(String value) {
+		data.put("color", value);
+		updateElementDataTimestamp();
+	}
 
 	@Override
 	public ElementTemplate getElementDefinition() {

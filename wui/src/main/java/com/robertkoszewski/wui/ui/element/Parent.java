@@ -25,6 +25,7 @@ package com.robertkoszewski.wui.ui.element;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -54,14 +55,15 @@ public abstract class Parent extends Node{
 	 * @param viewInstance
 	 * @param element
 	 */
-	protected void addChildren(ViewInstance viewInstance, Node element, String id) {
+	protected void addChildren(Node element, String id) {
 		List<Node> branch = children.get(id);
 		if(branch == null) { 
 			branch = new ArrayList<Node>();
 			children.put(id, branch);
 		}
 		// Add Element to View
-		element.addElementToView(viewInstance, this);
+		Iterator<ViewInstance> vit = views.keySet().iterator();
+		while(vit.hasNext()) element.addElementToView(vit.next(), this);
 		// Add Element		
 		branch.add(element);
 		// Update Nesting Timestamp

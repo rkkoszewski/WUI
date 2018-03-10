@@ -4,7 +4,7 @@
 
 // WUI Core Self Contained Environment
 
-var useSockets = false; // Enable Websockets
+var useSockets = true; // Enable Websockets
 
 (function(){
 	

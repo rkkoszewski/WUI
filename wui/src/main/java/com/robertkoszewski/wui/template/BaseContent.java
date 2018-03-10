@@ -185,8 +185,10 @@ public abstract class BaseContent<E extends Enum<E>, T extends Enum<T>, X> imple
 	}
 	
 	// TODO: Remove this. This is just a temporary workaround to keep the ViewContext
+	/*
 	@Override
 	public ViewInstance getViewInstance() {
 		return viewInstance;
 	}
+	*/
 }

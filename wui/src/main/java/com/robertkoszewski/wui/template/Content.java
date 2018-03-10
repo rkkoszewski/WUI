@@ -94,5 +94,5 @@ public interface Content{
 
 	
 	// TODO: Remove this. TEMPORARY: Get ViewInstance to be able to access the current ViewContext
-	public ViewInstance getViewInstance();
+	// public ViewInstance getViewInstance();
 }

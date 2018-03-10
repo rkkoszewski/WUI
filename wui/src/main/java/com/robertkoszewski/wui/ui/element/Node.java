@@ -48,7 +48,7 @@ public abstract class Node implements EventTarget, NodeData, HTMLElement{
 	private String id; // Element ID
 	private ArrayList<Runnable> action_performed_callback; // Action Performed Callbacks
 	private long element_timestamp = Utils.getChangeTimestamp(); // Element UID	
-	private final Map<ViewInstance, Node> views = new HashMap<ViewInstance, Node>(); // Views Container
+	protected final Map<ViewInstance, Node> views = new HashMap<ViewInstance, Node>(); // Views Container
 	
 	// Element Data
 	protected Map<String, String> data = new HashMap<String, String>();

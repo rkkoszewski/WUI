@@ -26,7 +26,6 @@ package com.robertkoszewski.wui.ui.layout;
 import java.io.IOException;
 
 import com.robertkoszewski.wui.Test;
-import com.robertkoszewski.wui.core.ViewInstance;
 import com.robertkoszewski.wui.template.ElementTemplate;
 import com.robertkoszewski.wui.ui.element.Node;
 import com.robertkoszewski.wui.ui.element.Parent;
@@ -43,8 +42,8 @@ public class BorderLayout extends Parent{
 		}
 	}
 	
-	public void addElement(ViewInstance viewInstance, Node e, Position p) {
-		addChildren(viewInstance, e, p.name());
+	public void addElement(Node e, Position p) {
+		addChildren(e, p.name());
 	}
 
 	/**

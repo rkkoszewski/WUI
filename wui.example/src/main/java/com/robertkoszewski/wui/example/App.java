@@ -42,10 +42,12 @@ public class App
         
         w.addView("/shutdown", new View(View.Type.PRIVATE) { // Default is global view
 			public void createView(Content content) {
+				
 				content.addElement(new Label("ASD"));
 				Button button = new Button("Shutdown");
 				button.addActionListener(callback);
 				content.addElement(button);
+				
 			}
         });
 

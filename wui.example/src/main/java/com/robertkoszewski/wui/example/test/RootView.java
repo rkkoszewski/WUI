@@ -59,8 +59,8 @@ public class RootView extends View{
 		final Label cpu_label = new Label();
 		final Label ram_label = new Label();
 
-		layout.addElement(content.getViewInstance(), cpu_label, BorderLayout.Position.west);
-		layout.addElement(content.getViewInstance(), ram_label, BorderLayout.Position.west);
+		layout.addElement(cpu_label, BorderLayout.Position.west);
+		layout.addElement(ram_label, BorderLayout.Position.west);
 
 		/*
 		content.createSharedElement("cpu_label", Label.class, 1, 2);
@@ -71,7 +71,7 @@ public class RootView extends View{
 		*/
 		
 		// Button Test
-		layout.addElement(content.getViewInstance(), label_press, BorderLayout.Position.east);
+		layout.addElement(label_press, BorderLayout.Position.east);
 		Button b = new Button("Press Me!! (Counter)");
 		b.addActionListener(new Runnable() {
 			public void run() {
@@ -80,7 +80,7 @@ public class RootView extends View{
 				content.setSharedData("press", press);
 			}
 		});
-		layout.addElement(content.getViewInstance(), b, BorderLayout.Position.east);
+		layout.addElement(b, BorderLayout.Position.east);
 
 		
 		
@@ -111,7 +111,7 @@ public class RootView extends View{
 			};
 		};
 		
-		layout.addElement(content.getViewInstance(), label, BorderLayout.Position.center);
+		layout.addElement(label, BorderLayout.Position.center);
 		
 		// Realtime Counter
 		Button bstart = new Button("Start Realtime Counter");
@@ -126,20 +126,20 @@ public class RootView extends View{
 				}
 			}
 		});
-		layout.addElement(content.getViewInstance(), bstart, BorderLayout.Position.center);
+		layout.addElement(bstart, BorderLayout.Position.center);
 
 		
 		// Button Test
-		layout.addElement(content.getViewInstance(), new Label("--- ADD A NEW ELEMENT DYNAMICALLY ---"), BorderLayout.Position.center);
+		layout.addElement(new Label("--- ADD A NEW ELEMENT DYNAMICALLY ---"), BorderLayout.Position.center);
 		Button addbtn = new Button("Add new Node");
 		addbtn.addActionListener(new Runnable() {
 			public void run() {
 				int x = content.getSharedData("x", Integer.class);
-				layout.addElement(content.getViewInstance(), new Label("Adding new dynamic element " + x), BorderLayout.Position.east);
+				layout.addElement(new Label("Adding new dynamic element " + x), BorderLayout.Position.east);
 				content.setSharedData("x", x);
 			}
 		});
-		layout.addElement(content.getViewInstance(), addbtn, BorderLayout.Position.center);
+		layout.addElement(addbtn, BorderLayout.Position.center);
 	}
 	
 	
