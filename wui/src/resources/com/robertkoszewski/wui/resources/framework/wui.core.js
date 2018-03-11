@@ -4,7 +4,7 @@
 
 // WUI Core Self Contained Environment
 
-var useSockets = true; // Enable Websockets
+var useSockets = false; // Enable WebSockets
 
 (function(){
 	
@@ -12,39 +12,62 @@ var useSockets = true; // Enable Websockets
 	var elements = {};
 	var element_cache = {};
 	var timestamp = 0;
+	var element_download_queue = {};
+	
+	// Prepare Body Node
+	document.body._wuidata = {
+		container: {
+			body: document.body
+		}
+	}
 
 	// Get Element Definition
 	function getElementDefinition(element_name, callback_done){
 		// Get Element Definition
-		$.ajax({
-			url: window.location.href,
-			headers: {'x-wui-request': 'element'},
-			data: {element: element_name}
 		
-		}).done(function(data){
-			console.debug("GOT ELEMENT DATA: ", data);
+		if(typeof element_download_queue[element_name] === 'undefined'){
+			// Create Callback Queue
+			element_download_queue[element_name] = [callback_done];
 			
-			// Register Element
-			elements[element_name] = {
-					"html": data.html,
-					"initialize": new Function("node, data, element, performAction", data['js-initialize']),
-					"setData": new Function("node, data, element, performAction", data['js-set-data'])
-			}
+			// Start Element Definition Request
+			$.ajax({
+				url: window.location.href,
+				headers: {'x-wui-request': 'element'},
+				data: {element: element_name}
 			
-			callback_done();
+			}).done(function(data){
+				// console.debug("GOT ELEMENT DATA: ", data);
+				
+				// Register Element
+				elements[element_name] = {
+						"html": data.html,
+						"initialize": new Function("node, data, element, performAction", data['js-initialize']),
+						"setData": new Function("node, data, element, performAction", data['js-set-data'])
+				}
+				
+				// Run all Callbacks
+				element_download_queue[element_name].forEach(function(callback){
+					callback();
+				});
+			});
+			
+		}else{
+			// Element is in process of downloading
+			element_download_queue[element_name].push(callback_done);
+		}
 
-		});
 		// TODO: IF this fails. DO something.
 	}
 	
+	// Read all Child Elements
 	function readChildren(root, data){
 		// Iterate Child Nodes
-		console.debug("READING CHILDREN", data)
+		//console.debug("READING CHILDREN", data)
 		$.each(data, function(key, value) {
-		  console.debug("KEYVALUE: " + key + " :::: ", value);
+		  //console.debug("KEYVALUE: " + key + " :::: ", value);
 		  
 		  if(typeof root._wuidata.container[key] !== 'undefined'){
-			  console.log("Appending Child Nodes to '" + key +"' in node: ", root._wuidata.container[key]);
+			  //console.log("Appending Child Nodes to '" + key +"' in node: ", root._wuidata.container[key]);
 			  
 			  $.each(value, function(index, element) {
 				  showElements(root, root._wuidata.container[key], element);
@@ -59,7 +82,7 @@ var useSockets = true; // Enable Websockets
 		
 		if(typeof element === 'undefined'){
 			// Download Node
-			console.debug("NODE DEFINITITION NOT FOUND. Downloading!!!. NODE ID: " + data.element, elements)
+			//console.debug("NODE DEFINITITION NOT FOUND. Downloading!!!. NODE ID: " + data.element, elements)
 			var $node = $('<div>LOADING</div>');
 			
 			getElementDefinition(data.element, function(){
@@ -67,10 +90,10 @@ var useSockets = true; // Enable Websockets
 				instantiateElement(root, container, data, $node[0]);
 			});
 
-			console.debug("Appending Element", $node[0])
+			//console.debug("Appending Element", $node[0])
 			$(container).append($node);
 		}else{
-			console.debug("NODE DEFINITITION FOUND. NODE ID: " + data.element)
+			//console.debug("NODE DEFINITITION FOUND. NODE ID: " + data.element)
 			instantiateElement(root, container, data);
 		}
 	}
@@ -88,6 +111,9 @@ var useSockets = true; // Enable Websockets
 		node._wuimethods = {
 			setData: function(data){
 				element.setData(node, data.data, data, performAction);
+			},
+			setChildElements: function(data){
+				element.setData(node, data.data, data, performAction);
 			}
 		}
 		
@@ -96,11 +122,11 @@ var useSockets = true; // Enable Websockets
 		// Append Element
 		if(replace_node != null){
 			//console.debug("Replacing Element", node)
-			console.debug("REPLACING PLACEHOLDER NODE "+ data.element +" WITH NEW NODE", node); //$node[0]
-			console.debug("HTML DEFINITION: ",  element)
+			//console.debug("REPLACING PLACEHOLDER NODE "+ data.element +" WITH NEW NODE", node); //$node[0]
+			//console.debug("HTML DEFINITION: ",  element)
 			$(replace_node).replaceWith(node);
 		}else{
-			console.debug("Appending Element", node)
+			//console.debug("Appending Element", node)
 			$(container).append(node);
 		}
 		
@@ -108,17 +134,12 @@ var useSockets = true; // Enable Websockets
 		// Populate Children
 		if(typeof data.children !== 'undefined'){
 			// Element has children
-			console.debug("Node Has CHildren: ")
+			//console.debug("Node Has CHildren: ")
 			readChildren(node, data.children);
 		}
 	}
 	
-	// Prepare Body Node
-	document.body._wuidata = {
-		container: {
-			body: document.body
-		}
-	}
+	
 
 	// Get Page Content
 	function getPageContent(){
@@ -136,25 +157,11 @@ var useSockets = true; // Enable Websockets
 			
 			switch(data.type.toUpperCase()){
 			case 'FULL': // Full Page Update
-				$(document.body).empty();
-				
+				$(document.body).empty(); // Reset Body
 				readChildren(document.body, data.nodes);
-				
-				/*
-				$.each(data.nodes.body, function(key, value) {
-				  console.debug(key, value);
-				  
-				  var el = showElements(document.body, value);
-
-				  console.debug("Appending Element", el)
-
-				  //$(document.body).append(el);
-				  
-				});
-				*/
 				break;
 				
-			case 'PARTIALDATA': // Partial Data Only Update
+			case 'PARTIAL': // Partial Data Only Update
 				$.each(data.updates, function(key, value) {
 				  console.debug(key, value);
 				  
@@ -185,8 +192,6 @@ var useSockets = true; // Enable Websockets
 
 	}
 
-	
-	
 	
 	// Responses
 	
@@ -341,9 +346,6 @@ var useSockets = true; // Enable Websockets
 		//JSON.stringify({url:"/data",headers:{"x-wui-request":"content"},parameters:{"t":[999999999999999]}})
 		
 	}
-	
-	
-	
 
 	// Perform an Action
 	function performAction(uuid){
@@ -352,10 +354,6 @@ var useSockets = true; // Enable Websockets
 			headers: {'x-wui-request': 'action', 'x-wui-element': uuid}
 		}, 'action', 2000);
 	}
-	
-	
-	
-	
-	
+
 	getPageContent(); // Initial Run
 })();

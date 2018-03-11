@@ -30,8 +30,5 @@ package com.robertkoszewski.wui.server;
  */
 public enum UpdateStrategy {
 	FULL, // Full Page Update
-	PARTIALDATA, // Data Only Update
-	PARTIALDOM, // DOM Only Update
-	PARTIALDATANDOM // Mixed Data and DOM Update
-	// EMPTY -> Is Implicit
+	PARTIAL // Partial Update
 }

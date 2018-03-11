@@ -27,6 +27,7 @@ import java.io.IOException;
 
 import com.robertkoszewski.wui.Test;
 import com.robertkoszewski.wui.template.ElementTemplate;
+import com.robertkoszewski.wui.ui.element.Button;
 import com.robertkoszewski.wui.ui.element.Node;
 import com.robertkoszewski.wui.ui.element.Parent;
 
@@ -43,7 +44,11 @@ public class BorderLayout extends Parent{
 	}
 	
 	public void addElement(Node e, Position p) {
-		addChildren(e, p.name());
+		addChild(e, p.name());
+	}
+	
+	public void removeElement(Node e) {
+		removeChild(e);
 	}
 
 	/**
@@ -57,4 +62,6 @@ public class BorderLayout extends Parent{
 		west,
 		center
 	}
+
+	
 }

@@ -140,6 +140,29 @@ public class RootView extends View{
 			}
 		});
 		layout.addElement(addbtn, BorderLayout.Position.center);
+		
+		
+		// Button Test
+		content.setSharedData("moveleft", true);
+		layout.addElement(new Label("--- MOVE A ELEMENT IN REALTIME ---"), BorderLayout.Position.center);
+		final Button movebtn = new Button("CLICK ME TO MOVE ME");
+		movebtn.addActionListener(new Runnable() {
+			public void run() {
+				
+				boolean moveleft = content.getSharedData("moveleft", Boolean.class);
+				if(moveleft) {
+					layout.removeElement(movebtn);
+					layout.addElement(movebtn, BorderLayout.Position.west);
+					moveleft = false;
+				}else {
+					layout.removeElement(movebtn);
+					layout.addElement(movebtn, BorderLayout.Position.center);
+					moveleft = true;
+				}
+				content.setSharedData("moveleft", moveleft);
+			}
+		});
+		layout.addElement(movebtn, BorderLayout.Position.center);
 	}
 	
 	

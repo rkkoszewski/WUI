@@ -43,16 +43,15 @@ import com.robertkoszewski.wui.utils.Utils;
 public abstract class Node implements EventTarget, NodeData, HTMLElement{
 	
 	// Variables
-	private String element_name = this.getClass().getSimpleName();//.getName(); // TODO: Really needs to be a String??
-	private UUID element_uuid = UUID.randomUUID();
+	private UUID element_uuid = UUID.randomUUID(); // Element Unique Identifiable ID
 	private String id; // Element ID
 	private ArrayList<Runnable> action_performed_callback; // Action Performed Callbacks
 	private long element_timestamp = Utils.getChangeTimestamp(); // Element UID	
 	protected final Map<ViewInstance, Node> views = new HashMap<ViewInstance, Node>(); // Views Container
 	
 	// Element Data
-	protected Map<String, String> data = new HashMap<String, String>();
-	private long element_data_timestamp = 0; // Element UID	
+	protected final Map<String, String> data = new HashMap<String, String>(); // Element Data
+	private long element_data_timestamp = 0; // Element Data Timestamp
 	
 	
 	/**
@@ -60,7 +59,7 @@ public abstract class Node implements EventTarget, NodeData, HTMLElement{
 	 * @return
 	 */
 	public String getElementName() {
-		return element_name;
+		return this.getClass().getSimpleName(); //.getName(); // TODO: Change this to a Full Path
 	}
 	
 	/**
@@ -142,6 +141,15 @@ public abstract class Node implements EventTarget, NodeData, HTMLElement{
 	};
 	
 	/**
+	 * Remove Element from View
+	 * @param view
+	 */
+	public void removeElementFromView(ViewInstance view) {
+		views.remove(view);
+		view.removeElementFromCache(getUUID().toString());
+	}	
+	
+	/**
 	 * Element UUID
 	 * @return
 	 */
@@ -164,5 +172,5 @@ public abstract class Node implements EventTarget, NodeData, HTMLElement{
 	 */
 	public String getID() {
 		return id;
-	}	
+	}
 }

@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.robertkoszewski.wui.core.ViewInstance;
 import com.robertkoszewski.wui.utils.Utils;
@@ -55,7 +56,7 @@ public abstract class Parent extends Node{
 	 * @param viewInstance
 	 * @param element
 	 */
-	protected void addChildren(Node element, String id) {
+	protected void addChild(Node element, String id) {
 		List<Node> branch = children.get(id);
 		if(branch == null) { 
 			branch = new ArrayList<Node>();
@@ -66,6 +67,26 @@ public abstract class Parent extends Node{
 		while(vit.hasNext()) element.addElementToView(vit.next(), this);
 		// Add Element		
 		branch.add(element);
+		// Update Nesting Timestamp
+		updateNestingTimestamp();
+	}
+	
+	/**
+	 * Remove a existing Child Element
+	 * @param element
+	 * @param id
+	 */
+	protected void removeChild(Node element) {
+		// Remove Element from View
+		Iterator<ViewInstance> vit = views.keySet().iterator();
+		while(vit.hasNext()) element.removeElementFromView(vit.next());
+		
+		// Remove Element		
+		Iterator<Entry<String, List<Node>>> bit = children.entrySet().iterator();
+		while(bit.hasNext()) {
+			bit.next().getValue().remove(element);
+		}
+		
 		// Update Nesting Timestamp
 		updateNestingTimestamp();
 	}
@@ -85,5 +106,21 @@ public abstract class Parent extends Node{
 		children_timestamp = Utils.getChangeTimestamp();
 		updateElement();
 	}
+	
+	/**
+	 * Add Element to View inclusive all Child Elements
+	 */
+	public void addElementToView(ViewInstance view, Node parent_element) {
+		// Add Element to View
+		super.addElementToView(view, parent_element); 
+		// Add Child Elements to View
+		Iterator<List<Node>> cit = children.values().iterator();
+		while(cit.hasNext()) {
+			List<Node> branch = cit.next();
+			Iterator<Node> bit = branch.iterator();
+			while(bit.hasNext())
+				bit.next().addElementToView(view, parent_element);
+		}
+	};
 	
 }

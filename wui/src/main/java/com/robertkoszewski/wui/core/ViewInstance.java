@@ -25,6 +25,7 @@ package com.robertkoszewski.wui.core;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -91,5 +92,13 @@ public class ViewInstance {
 	 */
 	public void addElementToCache(Node element) {
 		element_uuid_to_element.put(element.getUUID().toString(), element);
+	}
+
+	/**
+	 * Remove Element from Cache
+	 * @param node_uuid
+	 */
+	public void removeElementFromCache(String node_uuid) {
+		element_uuid_to_element.remove(node_uuid);
 	}
 }

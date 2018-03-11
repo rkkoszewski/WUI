@@ -394,7 +394,7 @@ public class WUIContentManager implements ContentManager {
 			content_response.nodes = nodes; // Full Content Update
 		}else {
 			// Partial Data Change Response
-			content_response.type = UpdateStrategy.PARTIALDATA;
+			content_response.type = UpdateStrategy.PARTIAL;
 			content_response.updates = bdata.updates; // TODO: If updates.size == 0 then do EMPTY RESPONSE (Should not happen though, as we're locking the thread while no updates occur)
 		}
 		
@@ -404,9 +404,8 @@ public class WUIContentManager implements ContentManager {
 			metadata.isContentRequest = true;
 		}
 
-		//template.
+		// Return Response
 		return new WUIStringResponse("text/json", (new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()).toJson(content_response));
-		//return new WUIStringResponse("text/json", (new Gson()).toJson(content_response));
 	}
 	
 	
@@ -415,7 +414,6 @@ public class WUIContentManager implements ContentManager {
 	 * Content Response Class
 	 */
 	private class BuilderData {
-		// public Map<String, NodeObject[]> nodes = new HashMap<String, NodeObject[]>();
 		public long remote_timestamp = 0;
 		public long timestamp = 0;
 		public boolean nesting_changed = false;
@@ -447,6 +445,7 @@ public class WUIContentManager implements ContentManager {
 			int i = 0;
 			for(Node e : branch.getValue()) {
 
+				// Full Node
 				NodeObject n = new NodeObject();
 				n.timestamp = e.getElementTimestamp();
 				n.element = e.getElementName();
@@ -458,26 +457,19 @@ public class WUIContentManager implements ContentManager {
 				// Element with Data
 				if(e instanceof NodeData) {
 					n.data = ((NodeData) e).getElementData();
-					
 				}
-				
-				// Element with Dynamic Data
-				/*
-				if(e instanceof DynamicDataElement) {
-					long element_data_timestamp = ((DynamicDataElement) e).getDataTimestamp();
-					if(element_data_timestamp > timestamp) timestamp = element_data_timestamp; // Element DataTimestamp
-					
-					if(remote_timestamp < element_data_timestamp) {
-						// Store New Updated Data
-						updates.add(n);
-					}
-				}
-				*/
+
+				// Register Update
+				boolean update_added = false;
 				
 				// Update Data
 				if(bdata.remote_timestamp < e.getElementDataTimestamp()) {
 					// Store New Updated Data
-					bdata.updates.add(n);
+					if(e instanceof NodeData) {
+						//pn.data = ((NodeData) e).getElementData();
+					}
+					//bdata.updates.add(pn);
+					update_added = true;
 				}
 				
 				// Element with Dynamic Data
@@ -491,8 +483,12 @@ public class WUIContentManager implements ContentManager {
 					
 					if(bdata.remote_timestamp < nesting_timestamp) {
 						// Store New Updated Data
-						//updates.add(n);
+						//
 						System.out.println("NODE UPDATE HAPPEND");
+						
+						//if(update_added == false) updates.add(n);
+						
+						
 						bdata.nesting_changed = true;
 					}
 				}
