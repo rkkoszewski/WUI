@@ -25,7 +25,6 @@ package com.robertkoszewski.wui.server.nanohttpd;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.CharacterCodingException;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -37,6 +36,7 @@ import com.robertkoszewski.wui.server.response.StringResponse;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
+import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
 
 /**
@@ -95,6 +95,11 @@ public class HTTPServer extends NanoWSD{
 	protected WebSocket openWebSocket(IHTTPSession handshake) {
 		return new DebugWebSocket(responseManager, handshake);
 	}
+	
+	@Override
+	protected boolean useGzipWhenAccepted(Response r) {
+		return r.getMimeType() != null && (r.getMimeType().toLowerCase().contains("text/") || r.getMimeType().toLowerCase().contains("/json"));
+    }
 	
 	private static class DebugWebSocket extends WebSocket {
 

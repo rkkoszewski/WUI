@@ -24,7 +24,7 @@
 package com.robertkoszewski.wui.server;
 
 import java.util.Map;
-import java.util.Vector;
+import java.util.UUID;
 
 import com.google.gson.annotations.Expose;
 
@@ -35,17 +35,17 @@ import com.google.gson.annotations.Expose;
 public class ContentResponse {
 
 	@Expose
-	public UpdateStrategy type;
+	public String title; // Page Title
 	@Expose
-	public String title;
+	public long timestamp; // Global Timestamp (Alwas Latest)
 	@Expose
-	public long timestamp;
+	public Map<UUID, NodeObject> nodes; // Child Nodes
 	@Expose
-	public Map<String, NodeObject[]> nodes;
+	public Map<String, UUID[]> root; // Root Node Children
 	@Expose
-	public Vector<NodeObject> updates;
+	public Object data; // Root Node Data
 	
-	// Constructors
+	// Constructors (For GSON)
 	public ContentResponse() {}
 
 }

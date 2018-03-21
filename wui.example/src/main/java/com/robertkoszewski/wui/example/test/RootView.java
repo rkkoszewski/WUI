@@ -96,7 +96,7 @@ public class RootView extends View{
 					cpu_label.setText("Total RAM: "+StringUtils.readableFileSize(info.totalMem()));
 					ram_label.setText("Used RAM: "+StringUtils.readableFileSize(info.usedMem()));
 					try {
-						Thread.sleep(500);
+						Thread.sleep(1500);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -110,6 +110,8 @@ public class RootView extends View{
 				
 			};
 		};
+		
+		//cthread.start(); // Start Thread
 		
 		layout.addElement(label, BorderLayout.Position.center);
 		

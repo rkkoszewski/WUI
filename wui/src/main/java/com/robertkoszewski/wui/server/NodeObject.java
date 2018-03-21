@@ -23,6 +23,9 @@
 
 package com.robertkoszewski.wui.server;
 
+import java.util.Map;
+import java.util.UUID;
+
 import com.google.gson.annotations.Expose;
 
 /**
@@ -40,8 +43,8 @@ public class NodeObject {
 	public long timestamp;
 	
 	@Expose
-	public String uuid;
+	public UUID uuid;
 	
 	@Expose
-	public Object children;
+	public Map<String, UUID[]> children;
 }

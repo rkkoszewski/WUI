@@ -13,12 +13,127 @@ var useSockets = false; // Enable WebSockets
 	var element_cache = {};
 	var timestamp = 0;
 	var element_download_queue = {};
+	var new_nodes = {}; // New Nodes
+	var placeholder_html = "<div>Loading...</div>"; // Placeholder Element
 	
 	// Prepare Body Node
 	document.body._wuidata = {
 		container: {
 			body: document.body
 		}
+	}
+
+	// Process Child Nodes
+	function processChildNodes(root_nodes, child_nodes){
+		// root_nodes = Array of nodes = {body: BODYNODE, }
+		// child_nodes = Array of Element UUIDS
+
+		// Process Each Branch
+		Object.keys(child_nodes).map(function(key, index) {
+		    var branch = child_nodes[key];
+		    var index = 0;
+		    branch.forEach(function(node_uuid){
+				console.debug(key + " @ " + node_uuid, root_nodes[key]);
+				if(typeof root_nodes[key] !== 'undefined'){
+					appendNode(node_uuid, root_nodes[key], index++); // Append Node
+				}else{
+					// Error: The Root is missing a branch that has been defined on the server side. Deviation. Reload page?
+					console.error("ERROR: Expected Child Branch '" + key + "' in Root Node, but it desn't exist.");
+				}
+			})
+		});
+	}
+
+	// Append Node At Position
+	function appendNodeAt(root, index, node, uuid){
+		if(root.childNodes.length >= index){
+			// Inside Bounds
+			if(root.childNodes[index] !== node){
+				root.insertBefore(node, root.childNodes[index]);
+			}
+		}else{
+			// Must Append
+			root.appendChild(node);  
+		}
+	}
+	
+	// Append Node
+	function appendNode(node_uuid, root, index){
+		console.log("APPENDING NODE: " + node_uuid + " AT INDEX: " + index);
+		// Check Active Nodes
+		if(typeof element_cache[node_uuid] !== 'undefined'){
+			console.debug("[UPDATE] FOUND ACTIVE NODE: ", element_cache[node_uuid]);
+			appendNodeAt(root, index, element_cache[node_uuid]);
+		} else
+		// Check New Nodes
+		if(typeof new_nodes[node_uuid] !== 'undefined'){
+			console.debug("[NEW] FOUND <NEW> NODE: ", new_nodes[node_uuid]);
+
+			if(typeof elements[new_nodes[node_uuid].element] !== 'undefined'){
+				// Element Definition Exists
+				console.log("ELEMENT DEFINITION EXISTS: "+ new_nodes[node_uuid].element);
+				createNode(new_nodes[node_uuid], root, index);
+			}else{
+				// Element Definition Does not Exists
+				var $placeholder = $(placeholder_html); // TODO: Inherit this from Template
+				$(root).append($placeholder);
+				getElementDefinition(new_nodes[node_uuid].element, function(){
+					console.log("DOWNLOADED ELEMENT DEFINITION FOR: " + new_nodes[node_uuid].element)
+					createNode(new_nodes[node_uuid], root, index, $placeholder[0]);
+				});
+			}
+			return 
+		} else
+		// Exception
+		console.error("ERROR: Node with UUID '" + node_uuid + "' is unknown. Something is wrong.")
+	}
+	
+	// Create Node
+	function createNode(data, root, index, replace_node = null){
+		var element = elements[data.element];
+		var $node = $(element.html);
+		// $node.attr('uuid', data.uuid);
+		element.initialize($node[0], data.data, data, performAction);
+		element.setData($node[0], data.data, data, performAction);
+		
+		// Node Methods
+		var node = $node[0];
+		node._wuimethods = { // WUI Methods
+			setData: function(data){
+				element.setData(node, data.data, data, performAction);
+			},
+			setChildElements: function(data){
+				processChildNodes(node._wuidata.container, data.children);
+			}
+		}
+		
+		//node._wuidata = {}; // WUI Data
+		
+		element_cache[data.uuid] = $node[0];
+		
+		// Append Element
+		if(replace_node != null){
+			console.debug("Replacing Element (PREVIOUS)", replace_node)
+			console.debug("Replacing Element", node)
+			$(replace_node).replaceWith(node);
+		}else{
+			console.debug("Appending Element", node)
+			appendNodeAt(root, index, node, "uuid");
+		}
+		
+		
+		// Populate Children
+		if(typeof data.children !== 'undefined'){
+			// Element has children
+			console.debug("Node Has Children: ", data.children)
+			console.debug("Node Has Containers: ", node._wuidata)
+			processChildNodes(node._wuidata.container, data.children)
+		}
+		
+		// Remove Element from New Nodes List
+		delete new_nodes[data.uuid];
+		
+		console.debug("## NEW NODES LEFT: ", new_nodes)
 	}
 
 	// Get Element Definition
@@ -59,88 +174,6 @@ var useSockets = false; // Enable WebSockets
 		// TODO: IF this fails. DO something.
 	}
 	
-	// Read all Child Elements
-	function readChildren(root, data){
-		// Iterate Child Nodes
-		//console.debug("READING CHILDREN", data)
-		$.each(data, function(key, value) {
-		  //console.debug("KEYVALUE: " + key + " :::: ", value);
-		  
-		  if(typeof root._wuidata.container[key] !== 'undefined'){
-			  //console.log("Appending Child Nodes to '" + key +"' in node: ", root._wuidata.container[key]);
-			  
-			  $.each(value, function(index, element) {
-				  showElements(root, root._wuidata.container[key], element);
-			  });
-		  }
-		});
-	}
-
-	// Show Elements
-	function showElements(root, container, data){
-		var element = elements[data.element];
-		
-		if(typeof element === 'undefined'){
-			// Download Node
-			//console.debug("NODE DEFINITITION NOT FOUND. Downloading!!!. NODE ID: " + data.element, elements)
-			var $node = $('<div>LOADING</div>');
-			
-			getElementDefinition(data.element, function(){
-				// Replace Node Callback
-				instantiateElement(root, container, data, $node[0]);
-			});
-
-			//console.debug("Appending Element", $node[0])
-			$(container).append($node);
-		}else{
-			//console.debug("NODE DEFINITITION FOUND. NODE ID: " + data.element)
-			instantiateElement(root, container, data);
-		}
-	}
-	
-	// Instantiate Element
-	function instantiateElement(root, container, data, replace_node = null){
-		
-		var element = elements[data.element];
-		var $node = $(element.html);
-		element.initialize($node[0], data.data, data, performAction);
-		element.setData($node[0], data.data, data, performAction);
-		
-		// Node Methods
-		var node = $node[0];
-		node._wuimethods = {
-			setData: function(data){
-				element.setData(node, data.data, data, performAction);
-			},
-			setChildElements: function(data){
-				element.setData(node, data.data, data, performAction);
-			}
-		}
-		
-		element_cache[data.uuid] = $node[0];
-		
-		// Append Element
-		if(replace_node != null){
-			//console.debug("Replacing Element", node)
-			//console.debug("REPLACING PLACEHOLDER NODE "+ data.element +" WITH NEW NODE", node); //$node[0]
-			//console.debug("HTML DEFINITION: ",  element)
-			$(replace_node).replaceWith(node);
-		}else{
-			//console.debug("Appending Element", node)
-			$(container).append(node);
-		}
-		
-		
-		// Populate Children
-		if(typeof data.children !== 'undefined'){
-			// Element has children
-			//console.debug("Node Has CHildren: ")
-			readChildren(node, data.children);
-		}
-	}
-	
-	
-
 	// Get Page Content
 	function getPageContent(){
 		// Get Page Content
@@ -152,38 +185,55 @@ var useSockets = false; // Enable WebSockets
 			
 		}, 'content')
 		.onReceive(function(data){
+			
 			console.debug("GOT DATA: ", data);
 			timestamp = data.timestamp; // Update Timestamp
 			
-			switch(data.type.toUpperCase()){
-			case 'FULL': // Full Page Update
-				$(document.body).empty(); // Reset Body
-				readChildren(document.body, data.nodes);
-				break;
-				
-			case 'PARTIAL': // Partial Data Only Update
-				$.each(data.updates, function(key, value) {
-				  console.debug(key, value);
-				  
-				  // Get from cache
-				  var element = element_cache[value.uuid]
-				  if(typeof element === 'undefined'){
-					  // ERROR: Unexpected state. Existing element is being updated but is not found in the DOM. Something went completely wrong.
-					  console.error("ERROR: Element with UUID " + value.uuid + " does not exists. Inconsistent state. Requires full page update.");
-					  // location.reload(); // TODO: Maybe there is a more elegant way to do this?
-					  
-				  }else{
-					  // Update Element
-					  console.debug("UPDATING ELEMENT: ", element);
-					  element._wuimethods.setData(value);
-
-				  }
-				  
-				});
-
-				break;
+			// $(document.body).empty(); // Reset Body
 			
-			}			
+			// Template Child Nodes (TODO: To be inherited from the template)
+			var template_child_nodes = {
+					body: document.body
+			}
+			
+			new_nodes = data.nodes; // Set New Nodes
+			
+			// TODO: Implement Root Data Updating
+			if(typeof data.root != 'undefined'){
+				// Root Updates
+				processChildNodes(template_child_nodes, data.root); // Process Child Nodes
+			}
+			
+			// Update Existing Nodes
+			Object.keys(new_nodes).forEach(function(uuid) {
+				
+				// Check if Element Exists in Element Cache
+				var element = element_cache[uuid];
+				if(typeof element !== 'undefined'){
+					
+					if(typeof new_nodes[uuid] === 'undefined') return; // TODO: This is a workaround. WHy is this happening?
+					
+					// Update Data
+					if(typeof new_nodes[uuid].data !== 'undefined'){
+						element._wuimethods.setData(new_nodes[uuid]);
+					}
+					
+					// Update Children
+					if(typeof new_nodes[uuid].children !== 'undefined'){
+						element._wuimethods.setChildElements(new_nodes[uuid]);
+					}
+					
+					delete new_nodes[uuid]; // Delete New Node Entry
+				}
+
+				// console.debug("MISSING NODES: " + uuid);
+    		});
+			
+			// At this point there should be no more New Nodes Left
+			if(Object.keys(new_nodes).length != 0){
+				console.error("ERROR: There are still New Nodes left. Wrong state.", new_nodes);
+				console.debug(new_nodes)
+			}
 
 		}).onClose(function(){
 			getPageContent(); // Get Page Update
@@ -285,8 +335,7 @@ var useSockets = false; // Enable WebSockets
 	    		onReceive: [],
 	    		onClose: []
 		    }
-		    
-		    
+
 		    var ping;
 		    
 			// Send Data
@@ -341,10 +390,6 @@ var useSockets = false; // Enable WebSockets
 			
 			return new JQResponse(jqrequest);
 		}
-
-		
-		//JSON.stringify({url:"/data",headers:{"x-wui-request":"content"},parameters:{"t":[999999999999999]}})
-		
 	}
 
 	// Perform an Action
