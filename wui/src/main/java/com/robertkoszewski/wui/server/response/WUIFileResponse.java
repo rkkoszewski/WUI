@@ -66,7 +66,7 @@ public class WUIFileResponse extends BaseResponse implements FileResponse{
 	 * @param inputStream
 	 * @throws FileNotFoundException
 	 */
-	public WUIFileResponse(String mimeType, InputStream inputStream) throws FileNotFoundException {
+	public WUIFileResponse(String mimeType, InputStream inputStream) {
 		super(mimeType);
 		try {
 			size = inputStream.available();

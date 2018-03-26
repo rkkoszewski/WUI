@@ -98,7 +98,8 @@ public class HTTPServer extends NanoWSD{
 	
 	@Override
 	protected boolean useGzipWhenAccepted(Response r) {
-		return r.getMimeType() != null && (r.getMimeType().toLowerCase().contains("text/") || r.getMimeType().toLowerCase().contains("/json"));
+		return false;
+		//return r.getMimeType() != null && (r.getMimeType().toLowerCase().contains("text/") || r.getMimeType().toLowerCase().contains("/json"));
     }
 	
 	private static class DebugWebSocket extends WebSocket {

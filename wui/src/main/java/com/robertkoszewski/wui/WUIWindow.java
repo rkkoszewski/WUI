@@ -23,14 +23,24 @@
 
 package com.robertkoszewski.wui;
 
+import java.awt.GraphicsEnvironment;
 import java.net.URL;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.robertkoszewski.wui.core.ContentManager;
 import com.robertkoszewski.wui.core.WUIContentManager;
+import com.robertkoszewski.wui.renderer.Renderer;
+import com.robertkoszewski.wui.renderer.RendererFactory;
+import com.robertkoszewski.wui.renderer.RendererHeadless;
+import com.robertkoszewski.wui.renderer.RendererNative;
 import com.robertkoszewski.wui.server.Server;
 import com.robertkoszewski.wui.server.ServerFactory;
 import com.robertkoszewski.wui.server.ServerNotFoundException;
 import com.robertkoszewski.wui.template.BasicTemplate;
 import com.robertkoszewski.wui.template.WindowTemplate;
+import com.robertkoszewski.wui.utils.SocketUtils;
 
 /**
  * WUI Window Implementation
@@ -40,46 +50,81 @@ public class WUIWindow {
 	
 	//private final WindowTemplate template;
 	private final Server server;
+	private final Renderer renderer;
 	private final ContentManager contentManager;
+	private final Preferences preferences;
+	
+	// Logger
+	protected final Logger log = LoggerFactory.getLogger(WUIWindow.class);
 	
 	/*
 	 * Constructors 
 	 */
-	
-	public WUIWindow() {
-		this(new BasicTemplate());
+	public WUIWindow() throws InstantiationException, IllegalAccessException, ServerNotFoundException {
+		this(null);
 	}
 	
-	public WUIWindow(WindowTemplate template) {
-		//this.template = template;
-		//this.resources = new WUIResourceManager();
+	public WUIWindow(Preferences settings) throws InstantiationException, IllegalAccessException, ServerNotFoundException {
+		this(settings, new BasicTemplate());
+	}
+	
+	public WUIWindow(Preferences preferences, WindowTemplate template) throws InstantiationException, IllegalAccessException, ServerNotFoundException {
 		this.contentManager = new WUIContentManager(template);
-		this.server = initializeServer();
+		this.server = getServerInstance();
+		this.renderer = getRendererInstance();
+		// Process Preferences
+		if(preferences == null) preferences = new Preferences();
+		this.preferences = preferences;
 	}
 	
-	private Server initializeServer() {
+	/**
+	 * Initialize Server
+	 * @return
+	 * @throws ServerNotFoundException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 */
+	private Server getServerInstance() throws InstantiationException, IllegalAccessException, ServerNotFoundException {
+		return ServerFactory.getServerInstance();
+	}
+	
+	/**
+	 * Initialize Renderer
+	 * @return
+	 */
+	private Renderer getRendererInstance() {
 		try {
-			return ServerFactory.getServerInstance();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ServerNotFoundException e) {
-			// TODO Auto-generated catch block
+			return RendererFactory.getRendererInstance();
+		} catch (Exception e) {
+			System.err.println("ERROR: Could not instantiate Renderer. Defaulting to Native Browser.");
 			e.printStackTrace();
 		};
-		return null; // TODO: Handle this better. We don't want to catch exceptions, but we don't want unexpected nulls
+		
+		// Check if we're running in a Headless Environment
+		if (GraphicsEnvironment.isHeadless()) {
+			return new RendererHeadless(); // Defaults to Headless Renderer (In Headless Environment)
+		}else {
+			return new RendererNative(); // Defaults to Native Renderer
+		}
 	}
 	
+	
+
 	/*
 	 * Methods
 	 */
 	
 	public void open() {
 		try {
-			this.server.startServer(8080, contentManager);
+			Integer port = parseInt(preferences.getSetting("port"));
+			// Get Port Number
+			if(port == null) {
+				port = SocketUtils.getOpenPort();
+			}
+			
+			this.server.startServer(port, contentManager); // Start Server
+			
+			renderer.open("http://localhost:"+port+"/", "App Title", null, false, null, null);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -92,5 +137,21 @@ public class WUIWindow {
 
 	public void setIcon(URL resource) {
 		contentManager.setIcon(resource);
+	}
+	
+	
+	// Helper Methods
+	
+	/**
+	 * Parse Integer
+	 * @param number
+	 * @return
+	 */
+	private Integer parseInt(String number) {
+		try {
+			return Integer.parseInt(number);
+		}catch(Exception e) {
+			return null;
+		}
 	}
 }

@@ -26,6 +26,8 @@ package com.robertkoszewski.wui.example.test;
 import com.robertkoszewski.wui.View;
 import com.robertkoszewski.wui.template.Content;
 import com.robertkoszewski.wui.ui.element.Button;
+import com.robertkoszewski.wui.ui.element.Container;
+import com.robertkoszewski.wui.ui.element.Image;
 import com.robertkoszewski.wui.ui.element.Label;
 import com.robertkoszewski.wui.ui.layout.BorderLayout;
 import com.robertkoszewski.wui.utils.StringUtils;
@@ -165,6 +167,22 @@ public class RootView extends View{
 			}
 		});
 		layout.addElement(movebtn, BorderLayout.Position.center);
+		
+		// Image Showcase
+		Container image_container = new Container();
+
+		Image image = new Image("image/jpeg", RootView.class.getResource("example.jpg"));
+		image_container.addElement(image);
+		
+		layout.addElement(image_container, BorderLayout.Position.center);
+		
+		//content.addElement(image);
+		System.out.println("POST IMAGE: "+image.getID() + " / " + image.getElementName());
+		
+		
+		Button navbtn = new Button("GO TO DATA VIEW");
+		navbtn.setLink("/data");
+		layout.addElement(navbtn, BorderLayout.Position.south);
 	}
 	
 	

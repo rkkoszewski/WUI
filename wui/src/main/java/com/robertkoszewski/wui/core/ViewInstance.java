@@ -25,7 +25,6 @@ package com.robertkoszewski.wui.core;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -65,6 +64,15 @@ public class ViewInstance {
 		if(el == null) return false; // Return False if Element is not found
 		el.actionPerformed(); // Perform Action
 		return true; // Return True
+	}
+	
+	/**
+	 * Get Element by UUID
+	 * @param element_uuid
+	 * @return
+	 */
+	public Node getElement(String element_uuid) {
+		return element_uuid_to_element.get(element_uuid);
 	}
 	
 	/**

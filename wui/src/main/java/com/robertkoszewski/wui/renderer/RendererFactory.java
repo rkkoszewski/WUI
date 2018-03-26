@@ -21,42 +21,53 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.renderer;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Server Factory
+ * Renderer Factory
  * @author Robert Koszewski
  */
-public class ServerFactory {
+public class RendererFactory {
 	
-	protected final static Logger log = LoggerFactory.getLogger(ServerFactory.class);
-	
-	/**
-	 * Get Server Instance
-	 * @return
-	 * @throws ServerNotFoundException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 */
-	public static Server getServerInstance() throws ServerNotFoundException, InstantiationException, IllegalAccessException {
-		Reflections reflections = new Reflections("com.robertkoszewski.wui.server");
-		Set<Class<? extends Server>> modules = reflections.getSubTypesOf(Server.class);
+	public static Renderer getRendererInstance() throws RendererNotFoundException, InstantiationException, IllegalAccessException {
+		Reflections reflections = new Reflections("com.robertkoszewski.wui.renderer");
+		Set<Class<? extends Renderer>> modules = reflections.getSubTypesOf(Renderer.class);
 		
 		if(modules.size() == 0) {
-			log.error("Could not find any server implementations. WUI won't be able to start.");
-			throw new ServerNotFoundException();
+			throw new RendererNotFoundException();
 		}
 		
-		// Log Server Count
-		log.info("FOUND " + modules.size() + " SERVER IMPLEMENTATIONS");
+		System.out.println("FOUND " + modules.size() + " RENDERER IMPLEMENTATIONS");
 		
-		return modules.iterator().next().newInstance();
+		String prefered_renderer = System.getProperty("wui.renderer");
+		prefered_renderer = prefered_renderer.toLowerCase(); // Make it Lower Case
+		
+		if(prefered_renderer != null) { 
+			
+			Iterator<Class<? extends Renderer>> rit = modules.iterator();
+			while(rit.hasNext()) {
+				Class<? extends Renderer> rendererClass = rit.next();
+				
+				if(rendererClass.getName().toLowerCase().contains(prefered_renderer)) { // TODO: This is very spartan. Maybe do a full class path check first, then compare most similar name.
+					System.out.println("FOUND RENDERER WITH NAME '" + rendererClass.getName() + "' similar to prefered renderer's name '" + prefered_renderer + "'");
+					try {
+						return rendererClass.newInstance();
+					}catch(Exception e) {
+						System.err.println("ERROR: Could not instantiate the Renderer. Trying another one. Stack Trace will follow:");
+						e.printStackTrace();
+						
+					}
+				}
+			}
+
+		}
+
+		return modules.iterator().next().newInstance(); // No Preferred Renderer - Use first renderer found.
 	}
 	
 }

@@ -1,5 +1,8 @@
 package com.robertkoszewski.wui.example;
 
+import java.util.Collections;
+import com.google.devtools.common.options.OptionsParser;
+import com.robertkoszewski.wui.Preferences;
 import com.robertkoszewski.wui.View;
 import com.robertkoszewski.wui.WUIWindow;
 import com.robertkoszewski.wui.example.test.RootView;
@@ -13,19 +16,51 @@ import com.robertkoszewski.wui.ui.element.Label;
  */
 public class App 
 {
+	
+	/*
+	static {
+	    System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "trace");
+	    System.setProperty("org.slf4j.simpleLogger.showShortLogName", "true");
+
+	}
+	*/
+
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
+
+        // Running the JAR with this command seems to have a pretty decent RAM usage with JavaFX
+        // java -jar WUITest.JavaFX.jar -XX:GCTimeRatio=19 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30
+    	
         
-        /*
-        Server s = ServerFactory.getServerInstance();
-        s.startServer(8080);
+        // Parse Arguments
+        OptionsParser parser = OptionsParser.newOptionsParser(Options.class);
+        parser.parseAndExitUponError(args);
+        Options options = parser.getOptions(Options.class);
         
-        s.addPage("/", "IT UTTERLY WORKS!");
-        */
+        // Show Help
+        if(options.help) {
+        	 System.out.println("Usage: java -jar server.jar OPTIONS");
+        	 System.out.println(parser.describeOptions(Collections.<String, String>emptyMap(), OptionsParser.HelpVerbosity.LONG));
+        	 return;
+        }
+
         
+        // Setup Renderer
+        System.setProperty("wui.renderer", "javafx");
         
-        WUIWindow w = new WUIWindow(); // TODO: Add configuration options to this
+        WUIWindow w = null;
+		try {
+			
+			Preferences settings = new Preferences();
+			if(options.port > 0) settings.setSetting("Port", options.port + "");
+			settings.setSetting("Headless", options.headless + "");
+			
+			w = new WUIWindow(settings); // TODO: Add configuration options to this
+		} catch (Exception e) {
+			System.err.println("ERROR: An exception found during start of the Server system.");
+			e.printStackTrace();
+			System.exit(1);
+		} 
         
         w.setIcon(RootView.class.getResource("icon.png")); // Set Icon
         
@@ -40,14 +75,17 @@ public class App
 			}
         };
         
-        w.addView("/shutdown", new View(View.Type.PRIVATE) { // Default is global view
+        w.addView("/data", new View(View.Type.PRIVATE) { // Default is global view
 			public void createView(Content content) {
 				
 				content.addElement(new Label("ASD"));
 				Button button = new Button("Shutdown");
 				button.addActionListener(callback);
 				content.addElement(button);
-				
+
+				Button button2 = new Button("GO BACK TO ROOT VIEW");
+				button2.setLink("/");
+				content.addElement(button2);
 			}
         });
 

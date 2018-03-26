@@ -24,6 +24,7 @@ package com.robertkoszewski.wui.renderer;
 
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.net.URI;
 
 import javax.swing.JOptionPane;
@@ -58,10 +59,15 @@ public class RendererNative implements Renderer{
         }
 		
 		if(!isOpen){
-			JOptionPane.showMessageDialog(null, "Could not open browser interface. Please go manually to the URL: "+url, "Error Opening Browser Interface", JOptionPane.ERROR_MESSAGE);
+			if (GraphicsEnvironment.isHeadless()) {
+			     // Non GUI Mode
+				System.err.println("Error Opening Browser Interface: Could not open browser interface as the software is running in a Headless Environment. Please go manually to the URL: " + url);
+			} else {
+				// GUI Mode
+				JOptionPane.showMessageDialog(null, "Could not open browser interface. Please go manually to the URL: "+url, "Error Opening Browser Interface", JOptionPane.ERROR_MESSAGE);
+			}
 		}
-		
-		
+
 		return new WindowNative();
 	}
 	

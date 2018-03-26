@@ -23,6 +23,13 @@
 
 package com.robertkoszewski.wui.ui.element;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,7 +39,9 @@ import java.util.UUID;
 import com.robertkoszewski.wui.core.ViewInstance;
 import com.robertkoszewski.wui.ui.element.type.EventTarget;
 import com.robertkoszewski.wui.ui.element.type.HTMLElement;
+import com.robertkoszewski.wui.ui.element.type.Linkable;
 import com.robertkoszewski.wui.ui.element.type.NodeData;
+import com.robertkoszewski.wui.ui.element.type.StreamedResource;
 import com.robertkoszewski.wui.utils.Utils;
 
 /**
@@ -40,7 +49,7 @@ import com.robertkoszewski.wui.utils.Utils;
  * Any Node can have a parent Node, but if it is the root node then NULL will be returned.
  * @author Robert Koszewski
  */
-public abstract class Node implements EventTarget, NodeData, HTMLElement{
+public abstract class Node implements EventTarget, NodeData, Linkable, StreamedResource, HTMLElement{
 	
 	// Variables
 	private UUID element_uuid = UUID.randomUUID(); // Element Unique Identifiable ID
@@ -172,5 +181,59 @@ public abstract class Node implements EventTarget, NodeData, HTMLElement{
 	 */
 	public String getID() {
 		return id;
+	}
+	
+	// Linkable Feature
+	
+	/**
+	 * Set Link
+	 */
+	@Override
+	public void setLink(String url) {
+		data.put("SYSTEM:WUI:LINKABLE", url);
+	}
+	
+	/**
+	 * Get Link
+	 */
+	@Override
+	public String getLink() {	
+		return data.get("SYSTEM:WUI:LINKABLE");
+	}
+	
+	// Streamed Resource Feature
+	
+	private URL streamedResource = null;
+	private String streamedResourceMime = null;
+	
+	@Override
+	public void setStreamedResource(String mime, File file) throws FileNotFoundException {
+		streamedResourceMime = mime;
+		try {
+			streamedResource = file.toURI().toURL();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void setStreamedResource(String mime, URL resource) {
+		streamedResourceMime = mime;
+		streamedResource = resource;
+	}
+	
+	@Override
+	public boolean hasStreamedResource() {
+		return streamedResource != null;
+	}
+	
+	@Override
+	public InputStream getStreamedResource() throws IOException {
+		return streamedResource.openStream();
+	}
+	
+	@Override
+	public String getStreamedResourceMimeType() {
+		return streamedResourceMime;
 	}
 }

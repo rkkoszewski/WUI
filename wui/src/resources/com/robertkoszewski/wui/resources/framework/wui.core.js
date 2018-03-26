@@ -94,13 +94,21 @@ var useSockets = false; // Enable WebSockets
 		var $node = $(element.html);
 		// $node.attr('uuid', data.uuid);
 		element.initialize($node[0], data.data, data, performAction);
-		element.setData($node[0], data.data, data, performAction);
+		var element_data = data.data;
+		if(typeof element_data === 'undefined'){
+			element_data = {};
+		}
+		element.setData($node[0], element_data, data, performAction);
 		
 		// Node Methods
 		var node = $node[0];
 		node._wuimethods = { // WUI Methods
 			setData: function(data){
-				element.setData(node, data.data, data, performAction);
+				var element_data = data.data;
+				if(typeof element_data === 'undefined'){
+					element_data = {};
+				}
+				element.setData(node, element_data, data, performAction);
 			},
 			setChildElements: function(data){
 				processChildNodes(node._wuidata.container, data.children);

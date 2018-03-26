@@ -23,7 +23,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/wui"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/wui.renderer"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/wui.renderer.javafx"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/wui.server.nanohttpd"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

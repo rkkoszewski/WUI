@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 Robert Koszewski
+ * Copyright (c) 2016 Robert Koszewski
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -20,33 +20,29 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package com.robertkoszewski.wui.utils;
+package com.robertkoszewski.wui.renderer;
 
-import java.io.IOException;
-import java.net.ServerSocket;
+import java.awt.Dimension;
 
 /**
- * Socket Related Utilities
+ * Headless Renderer (NULL Renderer)
  * @author Robert Koszewski
  */
-public class SocketUtils {
+public class RendererHeadless implements Renderer{
+
+	public Window open(String url, String title, Dimension window_size, boolean window_maximized, String icon_path, Runnable onCloseAction) {
+		System.out.println("WINDOW: The window has been opened.");
+		return new WindowHeadless();
+	}
 	
 	/**
-	 * Returns a open port
-	 * @return Port Number
+	 * Window Implementation
+	 * @author Robert Koszewski
 	 */
-	public static int getOpenPort(){
-		ServerSocket socket;
-		try {
-			// Try to find an open port
-			socket = new ServerSocket(0);
-			socket.close();
-			return socket.getLocalPort();
-		} catch (IOException e) {
-			e.printStackTrace();
+	public class WindowHeadless implements Window{
+		public void close() {
+			System.out.println("WINDOW: The window has been closed.");
 		}
-		
-		// If previous has failed just generate a random number (Hopefully it will be free) (10000-65535)
-		return (int) (Math.random() * (65535 - 10000)) + 10000;		
 	}
+
 }

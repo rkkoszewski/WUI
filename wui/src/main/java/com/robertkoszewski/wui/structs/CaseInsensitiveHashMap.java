@@ -21,42 +21,55 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.structs;
 
-import java.util.Set;
-
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
- * Server Factory
+ * Hash Map with Case Insensitive Keys
  * @author Robert Koszewski
  */
-public class ServerFactory {
-	
-	protected final static Logger log = LoggerFactory.getLogger(ServerFactory.class);
-	
-	/**
-	 * Get Server Instance
-	 * @return
-	 * @throws ServerNotFoundException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 */
-	public static Server getServerInstance() throws ServerNotFoundException, InstantiationException, IllegalAccessException {
-		Reflections reflections = new Reflections("com.robertkoszewski.wui.server");
-		Set<Class<? extends Server>> modules = reflections.getSubTypesOf(Server.class);
-		
-		if(modules.size() == 0) {
-			log.error("Could not find any server implementations. WUI won't be able to start.");
-			throw new ServerNotFoundException();
-		}
-		
-		// Log Server Count
-		log.info("FOUND " + modules.size() + " SERVER IMPLEMENTATIONS");
-		
-		return modules.iterator().next().newInstance();
+public class CaseInsensitiveHashMap<T> extends HashMap<String, T>{
+
+	private static final long serialVersionUID = 1144995035716213368L;
+
+	@Override
+	public boolean containsKey(Object key) {
+		if(key instanceof String)
+			return super.containsKey(((String) key).toLowerCase());
+		return super.containsKey(key);
 	}
-	
+
+	@Override
+	public T get(Object key) {
+		if(key instanceof String)
+			return super.get(((String) key).toLowerCase());
+		return super.get(key);
+	}
+
+	@Override
+	public T put(String key, T value) {
+		return super.put(key.toLowerCase(), value);
+	}
+
+	@Override
+	public void putAll(Map<? extends String, ? extends T> values) {
+		Map<String, T> map = new HashMap<String, T>();
+		Iterator<?> vit = values.entrySet().iterator();
+		while(vit.hasNext()) {
+			@SuppressWarnings("unchecked")
+			Entry<String, T> entry = (Entry<String, T>) vit.next();
+			map.put(entry.getKey().toLowerCase(), entry.getValue());
+		}
+		super.putAll(map);
+	}
+
+	@Override
+	public T remove(Object key) {
+		if(key instanceof String)
+			return super.remove(((String) key).toLowerCase());
+		return super.remove(key);
+	}
 }

@@ -45,12 +45,12 @@ public class WSRequest implements Request{
 	private Map<String, List<String>> parameters = new HashMap<String, List<String>>();;
 
 	// Private Variables
-	private Request handshake_request;
+	// private Request handshake_request;
 	
 	// Constructor
 	public WSRequest(Request request) {
 		//this();
-		this.handshake_request = request;
+		//this.handshake_request = request;
 	}
 	
 	/*
@@ -81,9 +81,11 @@ public class WSRequest implements Request{
 	 * Set Original Request during Handshake
 	 * @param handshake_request
 	 */
+	/*
 	public void setHandshakeRequest(Request handshake_request) {
 		this.handshake_request = handshake_request;
 	}
+	*/
 
 	@Override
 	public String getURL() {

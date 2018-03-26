@@ -112,7 +112,7 @@ public class NanoHTTPDRequest implements Request{
 	 */
 	public String getFirstParameter(String id) {
 		List<String> p = getParameter(id);
-		return (p.size() == 0 ? null : p.get(0));
+		return (p == null || p.size() == 0 ? null : p.get(0));
 	}
 	
 	// Client Data

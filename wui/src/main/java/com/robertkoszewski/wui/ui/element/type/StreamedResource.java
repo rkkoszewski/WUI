@@ -21,42 +21,22 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.ui.element.type;
 
-import java.util.Set;
-
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 /**
- * Server Factory
+ * Node with a Streamed Resource
  * @author Robert Koszewski
  */
-public class ServerFactory {
-	
-	protected final static Logger log = LoggerFactory.getLogger(ServerFactory.class);
-	
-	/**
-	 * Get Server Instance
-	 * @return
-	 * @throws ServerNotFoundException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 */
-	public static Server getServerInstance() throws ServerNotFoundException, InstantiationException, IllegalAccessException {
-		Reflections reflections = new Reflections("com.robertkoszewski.wui.server");
-		Set<Class<? extends Server>> modules = reflections.getSubTypesOf(Server.class);
-		
-		if(modules.size() == 0) {
-			log.error("Could not find any server implementations. WUI won't be able to start.");
-			throw new ServerNotFoundException();
-		}
-		
-		// Log Server Count
-		log.info("FOUND " + modules.size() + " SERVER IMPLEMENTATIONS");
-		
-		return modules.iterator().next().newInstance();
-	}
-	
+public interface StreamedResource {
+	public void setStreamedResource(String mime, URL resource);
+	public void setStreamedResource(String mime, File file) throws FileNotFoundException;
+	public boolean hasStreamedResource();
+	public String getStreamedResourceMimeType();
+	public InputStream getStreamedResource() throws IOException;
 }

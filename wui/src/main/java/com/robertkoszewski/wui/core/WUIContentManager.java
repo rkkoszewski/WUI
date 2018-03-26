@@ -27,31 +27,32 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
 import org.apache.commons.io.FilenameUtils;
 import org.imgscalr.Scalr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.robertkoszewski.wui.View;
 import com.robertkoszewski.wui.server.*;
 import com.robertkoszewski.wui.server.response.*;
 import com.robertkoszewski.wui.template.BaseContent;
-import com.robertkoszewski.wui.template.Content;
 import com.robertkoszewski.wui.template.ElementTemplate;
 import com.robertkoszewski.wui.template.WindowTemplate;
 import com.robertkoszewski.wui.ui.element.Node;
 import com.robertkoszewski.wui.ui.element.Parent;
-import com.robertkoszewski.wui.ui.element.type.NodeData;
 
 import net.sf.image4j.codec.ico.ICOEncoder;
 
@@ -63,6 +64,9 @@ public class WUIContentManager implements ContentManager {
 
 	// Static Variables
 	private static final int MAX_ICON_SIZE_PX = 64;
+	
+	// Logger
+	protected Logger log = LoggerFactory.getLogger(WUIContentManager.class);
 	
 	// Variables
 	private final WindowTemplate template;
@@ -138,7 +142,7 @@ public class WUIContentManager implements ContentManager {
 		}
 
 		// Debug
-		System.out.println("SERVING CONTENT: " + request.getURL() + " (REQUEST TYPE: " + requestType + ")");
+		log.debug("SERVING CONTENT: " + request.getURL() + " (REQUEST TYPE: " + requestType + ")");
 
 		if(requestType != null) { // WUI Request
 
@@ -152,13 +156,11 @@ public class WUIContentManager implements ContentManager {
 			case CONTENT: // Content Request Type
 				// Serve View
 				view = session.getViewInstance(request.getURL());
-				
-				//WUIController controller = pages.get(request.getURL()); // TODO: Inline this if nowhere else required
-				
+
 				long timestamp = 0;
 				try {
-					timestamp = Long.parseUnsignedLong(request.getParameter("t").get(0));
-				}catch(Exception e) {}
+					timestamp = Long.parseUnsignedLong(request.getFirstParameter("t"));
+				}catch(Exception e) { /* Ignore */ }
 				
 				response = toContentResponse(view, timestamp, metadata);
 				break;
@@ -177,48 +179,58 @@ public class WUIContentManager implements ContentManager {
 			}
 
 		} else { // Regular Request	
-		
-			String url = request.getURL();
-			
-			// Predefined URLs
-			switch(url) {
-			
-				// SERVE: Application Icon
-				case "/favicon.ico":
-					try {
-						response = new WUIFileResponse("image/x-icon", imageToICO(icon));
-					} catch (Exception e) {}
-					break;
-					
-				case "/favicon.png":
-					try {
-						response = new WUIFileResponse("image/png", imageToFormat(icon, "png"));
-					} catch (Exception e) {}
-					break;
-					
-				default: // Everything Else
-					
-					// Show Current Template or Resource
-					ViewInstance view = session.getViewInstance(request.getURL()); // TODO: Inline this if nowhere else required
-					
-					if(view != null) {
-						response = new WUIStringResponse("text/html", template.getTemplateHTML(resourceManager));
-						
-					}else {
-						
-						// Serve Resource
-						InputStream resource = resourceManager.getResource(url);
 
-						if(resource != null) {
-							try {
-								System.out.println("SERVING RESOURCE: "+request.getURL());
+			String staticRequestType = request.getFirstParameter("requestType");
+			
+			
+			if(staticRequestType != null) {
+				switch(staticRequestType) {
+				case "streamedElement":
+					response = getStreamedElementData(request, session);
+					break;
+				}
+				
+				
+			}else {
+				
+				// STATIC REQUEST
+				String url = request.getURL();
+			
+				// Predefined URLs
+				switch(url) {
+				
+					// SERVE: Application Icon
+					case "/favicon.ico":
+						try {
+							response = new WUIFileResponse("image/x-icon", imageToICO(icon));
+						} catch (Exception e) {}
+						break;
+						
+					case "/favicon.png":
+						try {
+							response = new WUIFileResponse("image/png", imageToFormat(icon, "png"));
+						} catch (Exception e) {}
+						break;
+						
+					default: // Everything Else
+						
+						// Show Current Template or Resource
+						ViewInstance view = session.getViewInstance(request.getURL()); // TODO: Inline this if nowhere else required
+						
+						if(view != null) {
+							response = new WUIStringResponse("text/html", template.getTemplateHTML(resourceManager));
+							
+						}else {
+							
+							// Serve Resource
+							InputStream resource = resourceManager.getResource(url);
+	
+							if(resource != null) {
+								if(log.isDebugEnabled()) log.debug("SERVING RESOURCE: "+request.getURL());
 								response = new WUIFileResponse("text/javascript", resource);
-								
-							} catch (FileNotFoundException e) {
-								// Ignore Error
 							}
 						}
-					}
+				}
 			}
 			
 			// No Response Content (ERROR 404)
@@ -298,23 +310,11 @@ public class WUIContentManager implements ContentManager {
 	 * @return
 	 */
 	private Response performAction(ViewInstance viewInstance, Request request) {
-		
 		String elmentUUID = request.getHeader("x-wui-element");
 		
-		System.out.println("ACTION PERFORMED ON ELEMENT " + elmentUUID);
+		if(log.isDebugEnabled()) log.debug("ACTION PERFORMED ON ELEMENT " + elmentUUID);	
 		
 		viewInstance.performActionOnElement(elmentUUID);
-		
-		/*
-		BaseElement element = element_cache.get(elmentUUID);
-		
-		if(element != null) {
-			if(element instanceof ActionableElement) {
-				// Perform Action
-				((ActionableElement) element).actionPerformed();
-			}
-		}
-		*/
 		
 		return new WUIStringResponse("text/html", "ACTION PERFORMED");
 	}
@@ -338,7 +338,33 @@ public class WUIContentManager implements ContentManager {
 		
 	}
 	
-	int l = 0;
+	/**
+	 * Get Streamed Element
+	 * @param request
+	 * @param session
+	 * @return
+	 */
+	private Response getStreamedElementData(Request request, Session session) {
+		ViewInstance view = session.getViewInstance(request.getURL());
+		
+		String elementID = request.getFirstParameter("element");
+		
+		if(elementID == null) {
+			return new WUIJsonResponse(null); // TODO: Return error.
+		}
+		
+		Node element = view.getElement(elementID);
+		
+		if(element == null) {
+			return new WUIJsonResponse(null); // TODO: Return error.
+		}
+
+		try {
+			return new WUIFileResponse(element.getStreamedResourceMimeType(), element.getStreamedResource());
+		} catch (IOException e) {
+			return new WUIJsonResponse(null); // TODO: Return error. 404 not found.
+		}
+	}
 
 	/**
 	 * Content Response Generator
@@ -506,6 +532,13 @@ public class WUIContentManager implements ContentManager {
 					}
 					
 					buildResponseTree(children, bdata); // Build Child Tree
+				}
+				
+				// Element Changed
+				if(update_added == false && bdata.remote_timestamp < e.getElementTimestamp()) {
+					// Store New Updated Data
+					bdata.nodes.put(n.uuid, n); // Add Updated Element
+					//update_added = true;
 				}
 
 				root[i++] = n;

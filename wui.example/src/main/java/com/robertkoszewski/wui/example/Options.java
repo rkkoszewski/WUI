@@ -1,4 +1,5 @@
 /**************************************************************************\
+
  * Copyright (c) 2018 Robert Koszewski                                    *
  *                                                                        *
  * Permission is hereby granted, free of charge, to any person obtaining  *
@@ -21,42 +22,40 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.example;
 
-import java.util.Set;
-
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.devtools.common.options.Option;
+import com.google.devtools.common.options.OptionsBase;
 
 /**
- * Server Factory
+ * Settings
  * @author Robert Koszewski
  */
-public class ServerFactory {
+public class Options extends OptionsBase {
 	
-	protected final static Logger log = LoggerFactory.getLogger(ServerFactory.class);
+	@Option(
+		name = "help",
+		abbrev = 'h',
+		help = "Prints usage info.",
+		defaultValue = "false"
+	)
+	public boolean help;
 	
-	/**
-	 * Get Server Instance
-	 * @return
-	 * @throws ServerNotFoundException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 */
-	public static Server getServerInstance() throws ServerNotFoundException, InstantiationException, IllegalAccessException {
-		Reflections reflections = new Reflections("com.robertkoszewski.wui.server");
-		Set<Class<? extends Server>> modules = reflections.getSubTypesOf(Server.class);
-		
-		if(modules.size() == 0) {
-			log.error("Could not find any server implementations. WUI won't be able to start.");
-			throw new ServerNotFoundException();
-		}
-		
-		// Log Server Count
-		log.info("FOUND " + modules.size() + " SERVER IMPLEMENTATIONS");
-		
-		return modules.iterator().next().newInstance();
-	}
+	@Option(
+	    name = "port",
+	    abbrev = 'p',
+	    help = "The server port.",
+	    category = "startup",
+	    defaultValue = "-1"
+    )
+    public int port;
 	
+	@Option(
+	    name = "server",
+	    abbrev = 's',
+	    help = "The server port.",
+	    category = "startup",
+	    defaultValue = "true"
+    )
+	public boolean headless;
 }

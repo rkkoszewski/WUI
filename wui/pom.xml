@@ -36,6 +36,19 @@
 	    <version>2.6</version>
 	    <scope>compile</scope>
 	</dependency>
+	<!-- SLF4J Logger Facade -->
+	<dependency>
+	    <groupId>org.slf4j</groupId>
+	    <artifactId>slf4j-api</artifactId>
+	    <version>1.7.25</version>
+	</dependency>
+	<!-- SLF4J Simple Logger (Test Only)-->
+	<dependency>
+	    <groupId>org.slf4j</groupId>
+	    <artifactId>slf4j-simple</artifactId>
+	    <version>1.7.25</version>
+	    <scope>test</scope>
+	</dependency>
 	<!-- Image4J - To Generate Icons -->
 	<dependency>
 	    <groupId>org.jclarion</groupId>

@@ -25,9 +25,7 @@ package com.robertkoszewski.wui.ui.layout;
 
 import java.io.IOException;
 
-import com.robertkoszewski.wui.Test;
 import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.ui.element.Button;
 import com.robertkoszewski.wui.ui.element.Node;
 import com.robertkoszewski.wui.ui.element.Parent;
 
@@ -36,7 +34,7 @@ public class BorderLayout extends Parent{
 	@Override
 	public ElementTemplate getElementDefinition() {
 		try {
-			return new ElementTemplate(Test.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/BorderLayout.html"));
+			return new ElementTemplate(Node.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/BorderLayout.html"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

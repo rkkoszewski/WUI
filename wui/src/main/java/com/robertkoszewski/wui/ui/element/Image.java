@@ -21,42 +21,38 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.ui.element;
 
-import java.util.Set;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
 
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.robertkoszewski.wui.template.ElementTemplate;
 
 /**
- * Server Factory
+ * Image Element
  * @author Robert Koszewski
  */
-public class ServerFactory {
-	
-	protected final static Logger log = LoggerFactory.getLogger(ServerFactory.class);
-	
-	/**
-	 * Get Server Instance
-	 * @return
-	 * @throws ServerNotFoundException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 */
-	public static Server getServerInstance() throws ServerNotFoundException, InstantiationException, IllegalAccessException {
-		Reflections reflections = new Reflections("com.robertkoszewski.wui.server");
-		Set<Class<? extends Server>> modules = reflections.getSubTypesOf(Server.class);
-		
-		if(modules.size() == 0) {
-			log.error("Could not find any server implementations. WUI won't be able to start.");
-			throw new ServerNotFoundException();
-		}
-		
-		// Log Server Count
-		log.info("FOUND " + modules.size() + " SERVER IMPLEMENTATIONS");
-		
-		return modules.iterator().next().newInstance();
+public class Image extends Node{
+
+	// Constructors
+
+	public Image(String mime, File file) throws FileNotFoundException {
+		setStreamedResource(mime, file);
 	}
 	
+	public Image(String mime, URL resource){
+		setStreamedResource(mime, resource);
+	}
+	
+	@Override
+	public ElementTemplate getElementDefinition() {
+		try {
+			return new ElementTemplate(Node.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/Image.html"));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 }

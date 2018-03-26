@@ -2,7 +2,7 @@
 <!DOCTYPE element PUBLIC "WUI Element Definition" "http://www.robertkoszewski.com/dtd/element.alpha.4.dtd">
 <element>
 	<html>
-		<button></button>
+		<img/>
 	</html>
 	
 	<initialize>
@@ -19,7 +19,8 @@
 	<set-data>
 		<script>
 			console.debug("DATA", data);
-			$(node).text(data.value);
+			//$(node).text(data.value);
+			node.src = window.location.href + '?requestType=streamedElement&element=' + element.uuid;
 			
 			node._data = {};
 			node._data.linkable = data["SYSTEM:WUI:LINKABLE"];
