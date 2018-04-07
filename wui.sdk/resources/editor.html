@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+
+	<title>Element Editor</title>
+	<meta name="description" content="The HTML5 Herald">
+	<meta name="author" content="SitePoint">
+
+	<link rel="stylesheet" href="styles.css">
+	<link rel="stylesheet" href="codemirror.css">
+	
+	<style>
+		html, body, body > div{
+			height: 100%;
+			padding: 0;
+			margin: 0;
+		}
+		
+		.padding {
+			box-sizing: border-box;
+			padding: 16px;
+		}
+		
+		.card-container:last-child {
+			padding-right: 16px;
+		}
+		
+		.card-container {
+			padding: 16px 0 0 16px;
+		}
+	
+		.horizontal, .editor, .preview_container{
+			display: flex;
+			width: 100%;
+			flex: 1;
+			flex-direction: column;
+		}
+		
+		.vertical{
+			display: flex;
+			width: 100%;
+			flex: 1;
+		}
+		
+		.card{
+			box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+			margin-bottom: 16px;
+			display: flex;
+			flex-direction: column;
+		}
+		
+		.card > h3{
+			margin: 0;
+			background-color: #607D8B;
+			padding: 16px;
+			color: white;
+		}
+		
+		.grow{
+			flex-grow: 1;
+		}
+		
+		.editor > .CodeMirror{
+			width: 100%;
+			height: 100%;
+		}
+		
+		.preview_container{
+			flex-grow: 1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		
+		.data_element{
+			padding-bottom: 6px;
+			display: flex;
+			font-weight: 900;
+			padding-bottom: 16px;
+		}
+		
+		.data_element:last-child{
+			padding-bottom: 0;
+		}
+		
+		.data_element > input{
+			flex-grow: 1;
+			margin-left: 16px;
+		}
+		
+		.error_log{
+			color: #ff8383;
+			font-weight: 500;
+			font-size: 12px;
+		}
+		
+		
+	</style>
+	<style id="preview_style"></style>
+
+	<!--[if lt IE 9]>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+	<![endif]-->
+</head>
+
+<body>
+	<div class="vertical">
+		<!-- General Styling and Design Column -->
+		<div class="horizontal card-container"> <!-- Left  Side-->
+			<div class="editor card"> <!-- HTML Editor-->
+				<h3>HTML</h3>
+				<textarea id="element_html"><div>
+  <div class="label" wui-data="@text:label"></div>
+  <div wui-data="@text:text"></div>
+</div></textarea>
+			</div> 
+			<div class="editor card"> <!-- HTML Editor-->
+				<h3>CSS <span id="cssErrorLog" class="error_log"></span></h3>
+				<textarea id="element_css">> div {
+  box-shadow: 0px 4px 5px -2px rgba(0, 0, 0, 0.2), 0px 7px 10px 1px rgba(0, 0, 0, 0.14), 0px 2px 16px 1px rgba(0, 0, 0, 0.12);
+  padding: 16px;
+  border-radius: 3px;
+  
+  > .label{
+  	font-weight: 900;
+  }
+}</textarea>
+			</div> 
+		</div> 
+		<!-- Javascript Column -->
+		<div class="horizontal card-container"> <!-- Left  Side-->
+			<div class="editor card"> <!-- JS: Element Initialize Before added to DOM -->
+				<h3>JS: Element-Initialize-Before <span id="jsElementIinitializeBeforeErrorLog" class="error_log"></span></h3>
+				<textarea id="element_initialize_before_js"></textarea>
+			</div> 
+			<div class="editor card"> <!-- JS: Element Initialize After added to DOM-->
+				<h3>JS: Element-Initialize-After <span id="jsElementIinitializeAfterErrorLog" class="error_log"></span></h3>
+				<textarea id="element_initialize_after_js"></textarea>
+			</div> 
+			<div class="editor card"> <!-- JS: Element Set Data -->
+				<h3>JS: Element-Set-Data <span id="jsElementSetDataErrorLog" class="error_log"></span></h3>
+				<textarea id="element_set_data_js">node.querySelector(".label").innerText = data['label2'];</textarea>
+			</div> 
+		</div> 
+		<!-- Preview Column -->
+		<div class="horizontal card-container">
+			<div class="card grow"><!-- Preview Container -->
+				<h3>PREVIEW</h3>
+				<div class="preview_container padding"> <!-- Right Side -->
+					<div class="preview" id="preview">PREVIEW</div>
+				</div> 
+			</div> 
+			<!-- Data Container -->
+			<div class="card">
+				<h3>TEST DATA</h3>
+				<div class="padding" id="testData">
+					<div>test: <input type="text"/></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script>
+		var data = {
+			'label': 'Card Label',
+			'label2': 'Card Label 2',
+			'text': 'This is the card content. This can be dynamically changed as necesary. Isn\'t that great!?',
+			'color': 'color:blue;'
+		}
+		
+		// Element Object
+		function WUIElement(definition){
+			this.definition = definition;
+			this.node = this.createNode(); // Create Node
+			
+			// Auto Data
+			this.autoDataRefrences = {}; // Auto Data References
+			this._parseAutoData(); // Parse Auto Data
+			
+			// Export WUIElement instance in DOM Node
+			this.node.WUIElement = this;
+		}
+		
+		// WUIElement Prototypes
+		WUIElement.prototype = {
+			// Create DOM Node
+			createNode: function(){
+				var wrapper = document.createElement('div');
+				wrapper.innerHTML = this.definition.html;
+				if(wrapper.childNodes.length === 1){ // No need for wrapper;
+					var firstChild = wrapper.firstChild;
+					if(firstChild.nodeType === Node.ELEMENT_NODE){
+						// console.debug('Returning Non-Wrapped Node', firstChild);
+						return firstChild; // Return non-wrapped node
+					}
+				}
+				// console.debug('Returning Wrapped Node', wrapper);
+				return wrapper;
+			},
+			// Call Element Definition Method Helper with AutoCompile
+			_callMethod: function(definitionBranch, definitionLeafID, parameterDefinition, parameterData){
+				var callback = definitionBranch[definitionLeafID];
+				switch(typeof callback){
+					case 'string': // Uncompiled State (Do compilation)
+						callback = new Function(parameterDefinition, callback);
+						definitionBranch[definitionLeafID] = callback; // Cache it for next time
+						// 'break' left out intentionally to run the compiled function afterwards
+					case 'function': // Compiled Function
+						callback.apply(this, parameterData);
+						break;
+					default: // Handles 'undefined', null and unknown values
+					// Do Nothing
+				}	
+			},
+			// Initialize Element Before node is added to DOM
+			initializeBefore: function(){
+				var params = [this.node, data, this, function(){alert("ACTION PERFORMED")}];
+				return this._callMethod(this.definition.js, 'initialize-before', 'node, data, element, performAction', params);
+			},
+			// Initialize Element After node is added to DOM
+			initializeAfter: function(){
+				var params = [this.node, data, this, function(){alert("ACTION PERFORMED")}];
+				return this._callMethod(this.definition.js, 'initialize-after', 'node, data, element, performAction', params);
+			},
+			// Set Data (Call order: 2)
+			setData: function(data){
+				var params = [this.node, data, this, function(){alert("ACTION PERFORMED")}];
+				return this._callMethod(this.definition.js, 'set-data', 'node, data, element, performAction', params);
+			},
+			// Parse Auto Data Node
+			_parseAutoDataNode: function(self, dnode){
+				var data_content = dnode.getAttribute('wui-data'); // Get Data from wui-data attribute
+				dnode.removeAttribute('wui-data'); // Remove the wui-data attribute from node
+				// console.log("DATA CONTENT: "+data_content);
+
+				data_content.split(',').forEach(function(data_value){
+					var data_split_index = data_value.indexOf(':');
+					if(data_split_index !== -1){
+						var data_target = data_value.substring(0, data_split_index).trim();
+						var data_id = data_value.substring(data_split_index + 1, data_value.length).trim();
+						// console.debug("DATA TARGET: " +data_target + " / DATA ID: "+data_id);
+	
+							// Node References
+							var ref = self.autoDataRefrences[data_id];
+							if(typeof ref === 'undefined'){
+								ref = self.autoDataRefrences[data_id] = {};
+							}
+							
+							// Data Targets
+							if(typeof ref[data_target] === 'undefined'){
+								ref[data_target] = [];
+							}
+							
+							ref[data_target].push(dnode);
+
+							// Set Data
+							self._setNodeAutoData(dnode, data, data_id, data_target);
+					}else{
+						console.error("INVALID ELEMENT DATA TYPE: " + data_value);
+					}
+				});
+			},
+			// Parse Auto Data
+			_parseAutoData: function(){
+				var self = this;
+				// Find all Child nodes with wui-data attribute
+				var wui_data_nodes = this.node.querySelectorAll('[wui-data]');
+				wui_data_nodes.forEach(function(node){
+					self._parseAutoDataNode(self, node);
+				});
+				// Check root node for wui-data attribute
+				if(this.node.hasAttribute('wui-data')){
+					this._parseAutoDataNode(this, this.node);
+				}
+			},
+			// Set Node Auto Data
+			_setNodeAutoData: function(tnode, data, data_id, data_target){
+				if(typeof data[data_id] !== 'undefined'){
+					if(data_target.startsWith('@')){ // Pseudo Element
+						// console.debug('Debug: Using Pseudo Element ' + data_target.substring(1));
+						switch(data_target.substring(1)){
+							case 'text': 
+								tnode.innerText = data[data_id]; 
+							break; // Set Text
+							default: console.error('ERROR: Invalid Pseudo Element ' + data[data_id].substring(1));
+						}
+					}else{ // Raw Attribute
+						// console.debug('Debug: Using Raw Element ' + data_target);
+						tnode[data_target] = data[data_id];
+					}
+				}
+			},
+			// Set Auto Data (Call order: 1)
+			setAutoData: function(data){
+				var ref = this.autoDataRefrences;
+				var self = this;
+				Object.keys(ref).forEach(function(data_id) { // Iterate Data ID
+					Object.keys(ref[data_id]).forEach(function(data_target) { // Iterate Data Target
+						ref[data_id][data_target].forEach(function(dnode){
+							self._setNodeAutoData(dnode, data, data_id, data_target);
+						});
+						// console.debug(data_target, ref[data_id][data_target]);
+					});
+				});
+			}
+		}
+
+		function buildTestDataElements(data, element, onInputCallback){
+			var ref = element.autoDataRefrences;
+			var node = document.createElement('div');
+			
+			console.debug(element.autoDataRefrences);
+			
+			Object.keys(ref).forEach(function(data_id) {
+			
+				var container = document.createElement('div');
+				container.className = 'data_element';
+				container.innerText = data_id + ': ';
+				
+				var dataInput = document.createElement('input');
+				dataInput.type = 'text';
+				dataInput.value = (typeof data[data_id] !== 'undefined' ? data[data_id] : '');
+				dataInput.oninput = function(){
+					data[data_id] = dataInput.value;
+					onInputCallback();
+				};
+				container.appendChild(dataInput);
+				
+				node.appendChild(container);
+			});
+
+			// Append Node
+			emptyNode(testData);
+			testData.appendChild(node);
+			return node;
+		}
+		
+		function emptyNode(node){
+			while (node.firstChild) {
+				node.removeChild(node.firstChild);
+			}
+		}
+	</script>
+	
+	<script src="codemirror-5.36.0/lib/codemirror.js"></script>
+	<script src="codemirror-5.36.0/mode/xml/xml.js"></script>
+	<script src="codemirror-5.36.0/mode/javascript/javascript.js"></script>
+	<script src="codemirror-5.36.0/mode/css/css.js"></script>
+	<script src="codemirror-5.36.0/mode/htmlmixed/htmlmixed.js"></script>
+	<script src="codemirror-5.36.0/addon/edit/matchbrackets.js"></script>
+	<script src="less.js"></script>
+	<script src="scripts.js"></script>
+	<script>
+	var preview = document.getElementById('preview');
+	var preview_css = document.getElementById('preview_style');
+	var testData = document.getElementById('testData');
+	var cssErrorLog = document.getElementById('cssErrorLog');
+	var jsElementIinitializeErrorLog = document.getElementById('jsElementIinitializeErrorLog');
+	
+	// Current Element Definition
+	var elementDefinition = {
+		name: 'Example',
+		version: '1.0.0',
+		html: '',
+		css: {
+			format: 'lesscss',
+			style: ''
+		},
+		js:{
+			'initialize-before': '',
+			'initialize-after': '',
+			'set-data': ''
+		},
+		dependencies:{ // TODO: To be implementeds
+			'jquery': '3.*'
+		}
+	}
+	
+	var preview_element;
+	
+	// Update Element Data
+	function updateElement(){
+		console.debug("UPDATING ELEMENT DATA", preview.firstChild);
+		preview_element.setAutoData(data); // Update Auto Data
+		preview_element.setData(data); // Update Data
+	}
+	
+	// Create Element (From Zero)
+	function createElement(){
+		emptyNode(preview);
+		
+		preview_element = new WUIElement(elementDefinition); // Generate WUI Element
+		preview_element.initializeBefore(); // Initialize Before
+		preview.appendChild(preview_element.node); // Append Child Node
+		preview_element.initializeAfter(); // Initialize After
+		preview_element.setAutoData(data); // Set Auto Data
+		preview_element.setData(data); // Set Data
+
+		buildTestDataElements(data, preview_element, updateElement); // Build Test Data Editor
+	}
+	
+	// HTML Editor
+	var editor_html = CodeMirror.fromTextArea(document.getElementById('element_html'), {
+		lineNumbers: true,
+		mode: "text/html",
+		matchBrackets: true,
+		indentWithTabs: true,
+		lineWrapping : true 
+	});
+	// Change Listener
+	editor_html.on('change', function(editor, change){
+		elementDefinition.html = editor.getValue(); // Set HTML Data
+		createElement(); // Regenerate Element
+	});
+	elementDefinition.html = editor_html.getValue(); // Update Element Definition
+	
+	// CSS Editor
+	var editor_css = CodeMirror.fromTextArea(document.getElementById('element_css'), {
+		lineNumbers: true,
+		mode: "text/css",
+		matchBrackets: true,
+		indentWithTabs: true,
+		lineWrapping : true  
+	});
+	// Change Listener
+	editor_css.on('change', function(editor, change){
+		elementDefinition.css = editor.getValue();
+	
+		less.render('#preview{' + editor.getValue() + '}')
+		.then(function(output) {
+			console.debug(output.css);
+			cssErrorLog.innerText = '';
+			elementDefinition.css = output.css;
+			
+			preview_css.innerHTML = output.css;
+			// output.css = string of css
+			// output.map = string of sourcemap
+			// output.imports = array of string filenames of the imports referenced
+		},
+		function(error) {
+			cssErrorLog.innerText = "ERROR: " + error;
+			console.error("ERROR: " + error);
+		});
+		
+	});
+	elementDefinition.css = editor_css.getValue(); // Update Element Definition
+	
+	// JS: Element Initialize Before
+	var editor_initialize_before_js = CodeMirror.fromTextArea(document.getElementById('element_initialize_before_js'), {
+		lineNumbers: true,
+		mode: "text/javascript"
+	});
+	elementDefinition.js['initialize-before'] = editor_initialize_before_js.getValue(); // Update Element Definition
+	
+	// JS: Element Initialize After
+	var editor_initialize_after_js = CodeMirror.fromTextArea(document.getElementById('element_initialize_after_js'), {
+		lineNumbers: true,
+		mode: "text/javascript"
+	});
+	elementDefinition.js['initialize-after'] = editor_initialize_after_js.getValue(); // Update Element Definition
+	
+	// JS: Element Set Data
+	var editor_set_data_js = CodeMirror.fromTextArea(document.getElementById('element_set_data_js'), {
+		lineNumbers: true,
+		mode: "text/javascript"
+	});
+	// Change Listener
+	editor_set_data_js.on('change', function(editor, change){
+		elementDefinition.js['set-data'] = editor.getValue();
+		//try{
+			createElement();
+		//}catch(e){
+		
+		//}
+
+	});
+	elementDefinition.js['set-data'] = editor_set_data_js.getValue(); // Update Element Definition
+
+	// Initial Setup
+	createElement();
+	
+	</script>
+</body>
+</html>
