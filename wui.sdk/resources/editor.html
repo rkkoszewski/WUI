@@ -55,8 +55,13 @@
 			background-color: #607D8B;
 			padding: 16px;
 			color: white;
+			transition: background-color 0.2s ease-in-out;
 		}
 		
+		.card > h3.error{
+			background-color: #8b6060;
+		}
+
 		.grow{
 			flex-grow: 1;
 		}
@@ -113,6 +118,8 @@
 				<textarea id="element_html"><div>
   <div class="label" wui-data="@text:label"></div>
   <div wui-data="@text:text"></div>
+  <div wui-container="content"></div>
+  <div class="container"></div>
 </div></textarea>
 			</div> 
 			<div class="editor card"> <!-- HTML Editor-->
@@ -131,16 +138,17 @@
 		<!-- Javascript Column -->
 		<div class="horizontal card-container"> <!-- Left  Side-->
 			<div class="editor card"> <!-- JS: Element Initialize Before added to DOM -->
-				<h3>JS: Element-Initialize-Before <span id="jsElementIinitializeBeforeErrorLog" class="error_log"></span></h3>
+				<h3>JS: Element-Initialize-Before <span id="jsElementInitializeBeforeErrorLog" class="error_log"></span></h3>
 				<textarea id="element_initialize_before_js"></textarea>
 			</div> 
 			<div class="editor card"> <!-- JS: Element Initialize After added to DOM-->
-				<h3>JS: Element-Initialize-After <span id="jsElementIinitializeAfterErrorLog" class="error_log"></span></h3>
+				<h3>JS: Element-Initialize-After <span id="jsElementInitializeAfterErrorLog" class="error_log"></span></h3>
 				<textarea id="element_initialize_after_js"></textarea>
 			</div> 
 			<div class="editor card"> <!-- JS: Element Set Data -->
-				<h3>JS: Element-Set-Data <span id="jsElementSetDataErrorLog" class="error_log"></span></h3>
-				<textarea id="element_set_data_js">node.querySelector(".label").innerText = data['label2'];</textarea>
+				<h3>JS: Element-Set-Data <span id="jsSetDataErrorLog" class="error_log"></span></h3>
+				<textarea id="element_set_data_js">node.querySelector(".label").innerText = data['label2']; 
+setContainer("asd", node.querySelector(".container"));</textarea>
 			</div> 
 		</div> 
 		<!-- Preview Column -->
@@ -170,13 +178,34 @@
 		}
 		
 		// Element Object
-		function WUIElement(definition){
-			this.definition = definition;
-			this.node = this.createNode(); // Create Node
+		function WUIElement(definition, configuration = {}){
+			// Correct Instantiation Guard
+			if (!(this instanceof WUIElement)) 
+				return new WUIElement(definition, debug);
 			
+			// Element Data and Metadata
+			this.definition = definition;
+			this.isWrapped = false;
+			this._configuration = configuration;
+			
+			// WUI Element Debug: Enables some aditional audit data
+			this._debug = (typeof configuration.debug !== 'undefined' ? configuration.debug : false);
+			if(this._debug){
+				this._debugAccessedData = {};
+				this._debugCSSError;
+			}
+			
+			this.node = this.createNode(); // Create Node
+			this._renderCSS(); // Render CSS
+
 			// Auto Data
 			this.autoDataRefrences = {}; // Auto Data References
 			this._parseAutoData(); // Parse Auto Data
+			
+			// Child Node Containers
+			this.childNodeContainer = {};
+			this._parseChildNodeContainers();
+			// console.debug("POST CHILD NODE CONTAINER", this.childNodeContainer)
 			
 			// Export WUIElement instance in DOM Node
 			this.node.WUIElement = this;
@@ -184,18 +213,99 @@
 		
 		// WUIElement Prototypes
 		WUIElement.prototype = {
+			// Render CSS
+			_renderCSS: function(force = false){
+				var self = this;
+				// Make Sure WUIEngine is Available
+				if(typeof document.body.WUIEngine === 'undefined'){
+					document.body.WUIEngine = {};
+				}
+				// Make Sure CSSCache is available in WUIEngine
+				if(typeof document.body.WUIEngine.CSSCache === 'undefined'){
+					document.body.WUIEngine.CSSCache = {};
+				}
+				// Fore Re-Render of CSS
+				if(force){
+					if(typeof document.body.WUIEngine.CSSCache[this.definition.name] !== 'undefined'){
+						// console.log("REMOVING CSS NODE FOR RERENDERING");
+						if(typeof document.body.WUIEngine.CSSCache[this.definition.name].styleNode !== 'undefined'){
+							var styleNode = document.body.WUIEngine.CSSCache[this.definition.name].styleNode;
+							styleNode.parentNode.removeChild(styleNode); // Remove Style DOM Node
+						}
+						delete document.body.WUIEngine.CSSCache[this.definition.name]; // Delete Cache Object
+					}
+				}
+				
+				// Create Style Element
+				if(typeof document.body.WUIEngine.CSSCache[this.definition.name] === 'undefined'){
+					if(typeof this.definition.css !== 'undefined'){ 
+						// Create Style node
+						var style = document.createElement('style'); 
+						var elementUID = this.definition.name;
+						
+						// Render Style
+						var format = (typeof this.definition.css.format !== 'undefined' ?  this.definition.css.format.toLowerCase() : '???');
+						switch(format){
+						case 'lesscss':
+							// Create Style node
+							console.log("CSS: RENDERING LESSCSS");
+							less.render('.' + elementUID + (this.isWrapped ? '&' : '>') + '{' + this.definition.css.style + '}')
+							.then(function(output) {
+								// console.debug(output.css);
+								style.innerHTML = output.css;
+								if(self._debug && typeof self._configuration.debugCompileCSSSuccess === 'function'){
+									self._configuration.debugCompileCSSSuccess(output.css, output.map, output.imports);
+								}
+								// output.css = string of css
+								// output.map = string of sourcemap
+								// output.imports = array of string filenames of the imports referenced
+							},
+							function(error) {
+								console.error("ERROR: " + error);
+								if(self._debug && typeof self._configuration.debugCompileCSSFail === 'function'){
+									self._configuration.debugCompileCSSFail(error);
+								}
+							});
+							break;
+							
+						default: // Defaults to regular CSS
+							console.log("CSS: RENDERING REGULAR");
+							style.innerHTML = this.definition.css.style;
+						}
+						
+						// Cache Style
+						document.body.WUIEngine.CSSCache[this.definition.name] = { 
+							styleNode: style,
+							uid: elementUID
+						}; 
+						document.head.appendChild(style); // Append style to DOM
+						this.node.classList.add(document.body.WUIEngine.CSSCache[this.definition.name].uid);
+					}else{
+						// Non existent CSS
+						document.body.WUIEngine.CSSCache[this.definition.name] = {};
+						console.log("CSS: CSS NON EXISTENT");
+					}
+				}else{
+					// Found already processed CSS
+					if(typeof document.body.WUIEngine.CSSCache[this.definition.name].uid !== 'undefined'){
+						this.node.classList.add(document.body.WUIEngine.CSSCache[this.definition.name].uid);
+					}
+				}
+			},
 			// Create DOM Node
 			createNode: function(){
 				var wrapper = document.createElement('div');
 				wrapper.innerHTML = this.definition.html;
-				if(wrapper.childNodes.length === 1){ // No need for wrapper;
+				if(wrapper.childNodes.length === 1 && false){ // No need for wrapper -> TODO: '&& false' always wrap due to wrong LESSCSS compiler when .class&div produces .classdiv instead of div.class. Remove this once it's fixed.
 					var firstChild = wrapper.firstChild;
 					if(firstChild.nodeType === Node.ELEMENT_NODE){
 						// console.debug('Returning Non-Wrapped Node', firstChild);
+						this.isWrapped = false;
 						return firstChild; // Return non-wrapped node
 					}
 				}
 				// console.debug('Returning Wrapped Node', wrapper);
+				this.isWrapped = true;
 				return wrapper;
 			},
 			// Call Element Definition Method Helper with AutoCompile
@@ -213,20 +323,52 @@
 					// Do Nothing
 				}	
 			},
+			// Data Access Debug
+			_dataDebug: function(data){
+				var self = this;
+				return new Proxy(data, {
+					get: function(obj, prop) {
+						// console.debug("REQUESTING " + prop, obj)
+						self._debugAccessedData[prop] = true; // Mark data as accessed
+						return obj[prop];
+				    }
+				});
+			},
+			// Shared Data Parameters
+			_dataParameters: function(){
+				var self = this;
+				return {
+					definition: 'node, element, setContainer, performAction',
+					parameters: [ // Default Elements: 'node, element, setContainer, performAction'
+						this.node, // Element DOM Node
+						this,  // Element Object
+						function(id, node){ 
+							var id = id.trim();
+							if(id === '') throw 'Container ID Empty';
+							if(typeof node === 'undefined' || node == null) throw 'Selected invalid Node';
+							self._addChildNodeContainer(self, id, node); 
+						}, // Set Container Node
+						function(){ alert("ACTION PERFORMED") } // Action Performed Callback
+					]
+				}
+			},
 			// Initialize Element Before node is added to DOM
 			initializeBefore: function(){
-				var params = [this.node, data, this, function(){alert("ACTION PERFORMED")}];
-				return this._callMethod(this.definition.js, 'initialize-before', 'node, data, element, performAction', params);
+				var dataParameters = this._dataParameters();
+				return this._callMethod(this.definition.js, 'initialize-before', dataParameters.definition, dataParameters.parameters);
 			},
 			// Initialize Element After node is added to DOM
 			initializeAfter: function(){
-				var params = [this.node, data, this, function(){alert("ACTION PERFORMED")}];
-				return this._callMethod(this.definition.js, 'initialize-after', 'node, data, element, performAction', params);
+				var dataParameters = this._dataParameters();
+				return this._callMethod(this.definition.js, 'initialize-after', dataParameters.definition, dataParameters.parameters);
 			},
 			// Set Data (Call order: 2)
 			setData: function(data){
-				var params = [this.node, data, this, function(){alert("ACTION PERFORMED")}];
-				return this._callMethod(this.definition.js, 'set-data', 'node, data, element, performAction', params);
+				console.debug("THIS??", this)
+				var dataParameters = this._dataParameters();
+				dataParameters.definition += ', data';
+				dataParameters.parameters.push(this._debug ? this._dataDebug(data) :data);
+				return this._callMethod(this.definition.js, 'set-data', dataParameters.definition, dataParameters.parameters);
 			},
 			// Parse Auto Data Node
 			_parseAutoDataNode: function(self, dnode){
@@ -276,6 +418,7 @@
 			},
 			// Set Node Auto Data
 			_setNodeAutoData: function(tnode, data, data_id, data_target){
+				data = this._debug ? this._dataDebug(data) : data;
 				if(typeof data[data_id] !== 'undefined'){
 					if(data_target.startsWith('@')){ // Pseudo Element
 						// console.debug('Debug: Using Pseudo Element ' + data_target.substring(1));
@@ -303,14 +446,35 @@
 						// console.debug(data_target, ref[data_id][data_target]);
 					});
 				});
+			},
+			// Parse Child Node Containers
+			_parseChildNodeContainers: function(){
+				var self = this;
+				// Find all Child nodes with wui-data attribute
+				var wui_container_nodes = this.node.querySelectorAll('[wui-container]');
+				wui_container_nodes.forEach(function(node){
+					var containerID = node.getAttribute('wui-container');
+					node.getAttribute('wui-container');
+					self._addChildNodeContainer(self, containerID, node);
+				});
+				// Check root node for wui-data attribute
+				if(this.node.hasAttribute('wui-container')){
+					var containerID = this.node.getAttribute('wui-container');
+					this.node.getAttribute('wui-container');
+					this._addChildNodeContainer(this, containerID, this.node);
+				}
+			},
+			// Add Child Node Container
+			_addChildNodeContainer: function(self, id, node){
+				// console.debug("ADDING CONTAINER WITH ID: " + id, node)
+				self.childNodeContainer[id] = node;
 			}
 		}
 
 		function buildTestDataElements(data, element, onInputCallback){
-			var ref = element.autoDataRefrences;
+			var ref = element._debugAccessedData;
 			var node = document.createElement('div');
-			
-			console.debug(element.autoDataRefrences);
+			// console.debug(element.autoDataRefrences);
 			
 			Object.keys(ref).forEach(function(data_id) {
 			
@@ -356,7 +520,10 @@
 	var preview_css = document.getElementById('preview_style');
 	var testData = document.getElementById('testData');
 	var cssErrorLog = document.getElementById('cssErrorLog');
-	var jsElementIinitializeErrorLog = document.getElementById('jsElementIinitializeErrorLog');
+	
+	var jsElementInitializeBeforeErrorLog = document.getElementById('jsElementInitializeBeforeErrorLog');
+	var jsElementInitializeAfterErrorLog = document.getElementById('jsElementInitializeAfterErrorLog');
+	var jsSetDataErrorLog = document.getElementById('jsSetDataErrorLog');
 	
 	// Current Element Definition
 	var elementDefinition = {
@@ -381,22 +548,65 @@
 	
 	// Update Element Data
 	function updateElement(){
-		console.debug("UPDATING ELEMENT DATA", preview.firstChild);
+		// console.debug("UPDATING ELEMENT DATA", preview.firstChild);
 		preview_element.setAutoData(data); // Update Auto Data
 		preview_element.setData(data); // Update Data
+	}
+	
+	// Dummy Node
+	function createDummyNode(id){
+		var node = document.createElement('div');
+		node.innerText = 'Dummy Node for ID: ' + id;
+		node.style.backgroundColor = 'blue';
+		node.style.color = 'yellow';
+		node.style.padding = '3px';
+		return node;
+	}
+	
+	// Run Callback and Catch Error
+	function runCatch(object, method, data, error_node){
+		var parent = error_node.parentNode;
+		try{
+			object[method](data); 
+			parent.classList.remove('error');
+			error_node.innerText = '';
+		}catch(e){
+			console.error(e.stack);
+			parent.classList.add('error');
+			error_node.innerText = e;
+		}
 	}
 	
 	// Create Element (From Zero)
 	function createElement(){
 		emptyNode(preview);
 		
-		preview_element = new WUIElement(elementDefinition); // Generate WUI Element
-		preview_element.initializeBefore(); // Initialize Before
+		preview_element = new WUIElement(elementDefinition, { // Generate WUI Element
+			debug: true,
+			debugCompileCSSSuccess: function(){
+				cssErrorLog.parentNode.classList.remove('error');
+				cssErrorLog.innerText = '';
+			},
+			debugCompileCSSFail: function(error){
+				cssErrorLog.parentNode.classList.add('error');
+				cssErrorLog.innerText = error;
+			}
+		}); 
+		runCatch(preview_element, 'initializeBefore', undefined, jsElementInitializeBeforeErrorLog); // Initialize Before
 		preview.appendChild(preview_element.node); // Append Child Node
-		preview_element.initializeAfter(); // Initialize After
+		runCatch(preview_element, 'initializeAfter', undefined, jsElementInitializeAfterErrorLog); // Initialize After
 		preview_element.setAutoData(data); // Set Auto Data
-		preview_element.setData(data); // Set Data
+		runCatch(preview_element, 'setData', data, jsSetDataErrorLog) // Set Data
+		
+		// Set Child Nodes
+		console.debug("CHILD NODE CONTAINERS", preview_element.childNodeContainer);
+		
+		var childNodeContainer = preview_element.childNodeContainer;
+		Object.keys(childNodeContainer).forEach(function(id) { // Iterate Child Node Containers
+			childNodeContainer[id].appendChild(createDummyNode(id));
+		});
 
+		// Build Test Data Elements
 		buildTestDataElements(data, preview_element, updateElement); // Build Test Data Editor
 	}
 	
@@ -408,7 +618,6 @@
 		indentWithTabs: true,
 		lineWrapping : true 
 	});
-	// Change Listener
 	editor_html.on('change', function(editor, change){
 		elementDefinition.html = editor.getValue(); // Set HTML Data
 		createElement(); // Regenerate Element
@@ -423,33 +632,20 @@
 		indentWithTabs: true,
 		lineWrapping : true  
 	});
-	// Change Listener
 	editor_css.on('change', function(editor, change){
-		elementDefinition.css = editor.getValue();
-	
-		less.render('#preview{' + editor.getValue() + '}')
-		.then(function(output) {
-			console.debug(output.css);
-			cssErrorLog.innerText = '';
-			elementDefinition.css = output.css;
-			
-			preview_css.innerHTML = output.css;
-			// output.css = string of css
-			// output.map = string of sourcemap
-			// output.imports = array of string filenames of the imports referenced
-		},
-		function(error) {
-			cssErrorLog.innerText = "ERROR: " + error;
-			console.error("ERROR: " + error);
-		});
-		
+		elementDefinition.css.style = editor.getValue();
+		preview_element._renderCSS(true);
 	});
-	elementDefinition.css = editor_css.getValue(); // Update Element Definition
+	elementDefinition.css.style = editor_css.getValue(); // Update Element Definition
 	
 	// JS: Element Initialize Before
 	var editor_initialize_before_js = CodeMirror.fromTextArea(document.getElementById('element_initialize_before_js'), {
 		lineNumbers: true,
 		mode: "text/javascript"
+	});
+	editor_initialize_before_js.on('change', function(editor, change){
+		elementDefinition.js['initialize-before'] = editor.getValue();
+		createElement();
 	});
 	elementDefinition.js['initialize-before'] = editor_initialize_before_js.getValue(); // Update Element Definition
 	
@@ -458,6 +654,10 @@
 		lineNumbers: true,
 		mode: "text/javascript"
 	});
+	editor_initialize_after_js.on('change', function(editor, change){
+		elementDefinition.js['initialize-after'] = editor.getValue();
+		createElement();
+	});
 	elementDefinition.js['initialize-after'] = editor_initialize_after_js.getValue(); // Update Element Definition
 	
 	// JS: Element Set Data
@@ -465,15 +665,9 @@
 		lineNumbers: true,
 		mode: "text/javascript"
 	});
-	// Change Listener
 	editor_set_data_js.on('change', function(editor, change){
 		elementDefinition.js['set-data'] = editor.getValue();
-		//try{
-			createElement();
-		//}catch(e){
-		
-		//}
-
+		createElement();
 	});
 	elementDefinition.js['set-data'] = editor_set_data_js.getValue(); // Update Element Definition
 
