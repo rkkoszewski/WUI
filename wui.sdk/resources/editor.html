@@ -213,15 +213,18 @@ setContainer("asd", node.querySelector(".container"));</textarea>
 		}
 	</script>
 	
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
 	<script src="codemirror-5.36.0/lib/codemirror.js"></script>
 	<script src="codemirror-5.36.0/mode/xml/xml.js"></script>
 	<script src="codemirror-5.36.0/mode/javascript/javascript.js"></script>
 	<script src="codemirror-5.36.0/mode/css/css.js"></script>
 	<script src="codemirror-5.36.0/mode/htmlmixed/htmlmixed.js"></script>
 	<script src="codemirror-5.36.0/addon/edit/matchbrackets.js"></script>
+	<script src="https://cdn.rawgit.com/muicss/loadjs/3.5.4/dist/loadjs.min.js"></script>
 	<script src="less.js"></script>
 	<script src="wui.element.js"></script>
 	<script src="wui.engine.js"></script>
+	<script src="wui.dp.cdn.js"></script>
 	<script>
 	var preview = document.getElementById('preview');
 	var preview_css = document.getElementById('preview_style');
@@ -246,8 +249,8 @@ setContainer("asd", node.querySelector(".container"));</textarea>
 			'initialize-after': '',
 			'set-data': ''
 		},
-		dependencies:{ // TODO: To be implementeds
-			'jquery': '3.*'
+		dependencies:{ // TODO: To be implemented
+			'jquery': '3.3.1'
 		}
 	}
 	
@@ -298,24 +301,39 @@ setContainer("asd", node.querySelector(".container"));</textarea>
 			debugCompileCSSFail: function(error){
 				cssErrorLog.parentNode.classList.add('error');
 				cssErrorLog.innerText = error;
-			}
+			},
+			placeholder: 'Loading Preview Element...'
 		}); 
-		runCatch(preview_element, 'initializeBefore', undefined, jsElementInitializeBeforeErrorLog); // Initialize Before
-		preview.appendChild(preview_element.node); // Append Child Node
-		runCatch(preview_element, 'initializeAfter', undefined, jsElementInitializeAfterErrorLog); // Initialize After
-		// preview_element.setAutoData(data); // Set Auto Data
-		runCatch(preview_element, 'setData', data, jsSetDataErrorLog) // Set Data
 		
-		// Set Child Nodes
-		console.debug("CHILD NODE CONTAINERS", preview_element.childNodeContainer);
+		// Append Node to DOM with a Placeholder Node
+		preview.appendChild(preview_element.getNode()); // Append Child Node
 		
-		var childNodeContainer = preview_element.childNodeContainer;
-		Object.keys(childNodeContainer).forEach(function(id) { // Iterate Child Node Containers
-			childNodeContainer[id].appendChild(createDummyNode(id));
-		});
+		// Load Dependencies
+		preview_element.loadDependencies()
+		.success(function(){
+			runCatch(preview_element, 'initializeBefore', undefined, jsElementInitializeBeforeErrorLog); // Initialize Before
+			// preview.appendChild(preview_element.getNode()); // Append Child Node (No placeholder node generated)
+			runCatch(preview_element, 'initializeAfter', undefined, jsElementInitializeAfterErrorLog); // Initialize After
+			// preview_element.setAutoData(data); // Set Auto Data (Only necesary when no data was provided during "new WUIElement")
+			runCatch(preview_element, 'setData', data, jsSetDataErrorLog) // Set Data
+			
+			// Set Child Nodes
+			console.debug("CHILD NODE CONTAINERS", preview_element.childNodeContainer);
+			
+			var childNodeContainer = preview_element.childNodeContainer;
+			Object.keys(childNodeContainer).forEach(function(id) { // Iterate Child Node Containers
+				childNodeContainer[id].appendChild(createDummyNode(id));
+			});
 
-		// Build Test Data Elements
-		buildTestDataElements(data, preview_element, updateElement); // Build Test Data Editor
+			console.debug(preview_element)
+			
+			// Build Test Data Elements
+			buildTestDataElements(data, preview_element, updateElement); // Build Test Data Editor
+		})
+		.fail(function(){
+			// TODO: Replace Element with failed to load node message node
+			alert("FAIL");
+		});
 	}
 	
 	// HTML Editor

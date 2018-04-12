@@ -1,5 +1,31 @@
-// WUIElement
-// Dependencies: Requires LESS.js
+/**************************************************************************\
+ * Copyright (c) 2018 Robert Koszewski                                    *
+ *                                                                        *
+ * Permission is hereby granted, free of charge, to any person obtaining  *
+ * a copy of this software and associated documentation files (the        *
+ * "Software"), to deal in the Software without restriction, including    *
+ * without limitation the rights to use, copy, modify, merge, publish,    *
+ * distribute, sublicense, and/or sell copies of the Software, and to     *
+ * permit persons to whom the Software is furnished to do so, subject to  *
+ * the following conditions:                                              *
+ *                                                                        *
+ * The above copyright notice and this permission notice shall be         *
+ * included in all copies or substantial portions of the Software.        *
+ *                                                                        *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        *
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     *
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND                  *
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE *
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION *
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION  *
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
+\**************************************************************************/
+
+// #####################################
+// WUIElement: WUI Element Object
+// #####################################
+// Dependencies: Requires LESS.js and WUI.ENGINE.js
+
 (function(window, less){
 	'use strict';
 
@@ -12,16 +38,17 @@
 		// Element Data and Metadata
 		this.definition = definition;
 		this.isWrapped = false;
+		this._isDOMReady = false;
 		this._configuration = configuration;
 		
-		// WUI Element Debug: Enables some aditional audit data
+		// WUI Element Debug: Enables some additional audit data
 		this._debug = (typeof configuration.debug !== 'undefined' ? configuration.debug : false);
 		if(this._debug){
 			this._debugAccessedData = {};
 			this._debugCSSError;
 		}
 		
-		this.node = this.createNode(); // Create Node
+		this.node = this.createNode(); // Create Node (Do not access WUIElement.node directly when getting the node to be added to the DOM, use getNode() instead)
 		this._renderCSS(); // Render CSS
 	
 		// Auto Data
@@ -182,7 +209,13 @@
 		// Initialize Element Before node is added to DOM
 		initializeBefore: function(){
 			var dataParameters = this._dataParameters();
-			return this._callMethod(this.definition.js, 'initialize-before', dataParameters.definition, dataParameters.parameters);
+			var ret = this._callMethod(this.definition.js, 'initialize-before', dataParameters.definition, dataParameters.parameters);
+			this._isDOMReady = true; // Node is read to be added to DOM
+			if(typeof this.nodePlaceholder !== 'undefined'){
+				this.nodePlaceholder.parentNode.replaceChild(this.node, this.nodePlaceholder); // Replace Placeholder node with element node
+				delete this.nodePlaceholder;
+			}
+			return ret;
 		},
 		// Initialize Element After node is added to DOM
 		initializeAfter: function(){
@@ -295,6 +328,42 @@
 		_addChildNodeContainer: function(self, id, node){
 			// console.debug("ADDING CONTAINER WITH ID: " + id, node)
 			self.childNodeContainer[id] = node;
+		},
+		// Load Dependencies
+		loadDependencies: function(){
+			if(typeof this.definition.dependencies === 'undefined'){  // Abort if no dependencies available
+				return {
+					success: function(callback) {callback();},
+					fail: function(){}
+				}
+			}
+			return window.WUIEngine.DependencyProvider.loadDependencies(this.definition.dependencies);
+		},
+		// Get Element DOM Node
+		getNode: function(){
+			// Check if Element node is DOM read (Element-Initialize-Before was called)
+			if(this._isDOMReady === false){
+				// Element Node is not DOM Ready. Use placeholder element instead.
+				this.nodePlaceholder = document.createElement('div');
+				var placeholderType = typeof this._configuration.placeholder;
+				if(placeholderType !== 'undefined'){
+					switch(placeholderType){
+					case 'string': // HTML Definition
+						this.nodePlaceholder.innerHTML = this._configuration.placeholder;
+						break;
+					case 'object': // Probably Node Object
+						if(this._configuration.placeholder.nodeType === Node.ELEMENT_NODE){ // Node Object
+							nodePlaceholder.appendChild(this._configuration.placeholder);
+						}
+						break;
+					}
+				}
+				return this.nodePlaceholder;
+				
+			}else{
+				// Element Node is DOM Ready
+				return this.node;
+			}
 		}
 	};
 	
