@@ -36,7 +36,7 @@ public class Container extends Parent {
 	@Override
 	public ElementTemplate getElementDefinition() {
 		try {
-			return new ElementTemplate(Node.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/Container.html"));
+			return new ElementTemplate(Container.class.getResourceAsStream("Container.def.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

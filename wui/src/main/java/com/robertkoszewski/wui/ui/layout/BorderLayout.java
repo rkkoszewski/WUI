@@ -34,7 +34,7 @@ public class BorderLayout extends Parent{
 	@Override
 	public ElementTemplate getElementDefinition() {
 		try {
-			return new ElementTemplate(Node.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/BorderLayout.html"));
+			return new ElementTemplate(BorderLayout.class.getResourceAsStream("BorderLayout.def.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

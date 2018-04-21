@@ -40,6 +40,7 @@
 		this.isWrapped = false;
 		this._isDOMReady = false;
 		this._configuration = configuration;
+		this.uuid = configuration.uuid;
 		
 		// WUI Element Debug: Enables some additional audit data
 		this._debug = (typeof configuration.debug !== 'undefined' ? configuration.debug : false);
@@ -48,25 +49,36 @@
 			this._debugCSSError;
 		}
 		
-		this.node = this.createNode(); // Create Node (Do not access WUIElement.node directly when getting the node to be added to the DOM, use getNode() instead)
-		this._renderCSS(); // Render CSS
-	
+		// Node Definition
+		this.node = null;
+		
 		// Auto Data
 		this.autoDataRefrences = {}; // Auto Data References
-		this._parseAutoData(configuration.data); // Parse Auto Data
-		delete configuration.data;
-		
-		// Child Node Containers
-		this.childNodeContainer = {};
-		this._parseChildNodeContainers();
-		// console.debug("POST CHILD NODE CONTAINER", this.childNodeContainer)
-		
-		// Export WUIElement instance in DOM Node
-		this.node.WUIElement = this;
+
+		// Process Element
+		if(definition !== null){
+			this._processElement(true);
+		}
 	}
 	
 	// WUIElement Prototypes
 	WUIElement.prototype = {
+		// Process the Element	
+		_processElement: function(cleanData = false){
+			this.node = this.createNode(); // Create Node (Do not access WUIElement.node directly when getting the node to be added to the DOM, use getNode() instead)
+			this._renderCSS(); // Render CSS
+			
+			// Auto Data
+			this._parseAutoData(this._configuration.data); // Parse Auto Data
+			if(cleanData){
+				delete this._configuration.data; // Clean data that won't be required anymore
+			}
+
+			// Child Node Containers
+			this.childNodeContainers = {};
+			this._parseChildNodeContainers();
+			// console.debug("POST CHILD NODE CONTAINER", this.childNodeContainers)
+		},
 		// Render CSS
 		_renderCSS: function(force = false){
 			var self = this;
@@ -92,7 +104,7 @@
 			
 			// Create Style Element
 			if(typeof document.body.WUIEngine.CSSCache[this.definition.name] === 'undefined'){
-				if(typeof this.definition.css !== 'undefined'){ 
+				if(typeof this.definition.css !== 'undefined' && this.definition.css.style !== ''){ 
 					// Create Style node
 					var style = document.createElement('style'); 
 					var elementUID = this.definition.name;
@@ -102,8 +114,8 @@
 					switch(format){
 					case 'lesscss':
 						// Create Style node
-						console.log("CSS: RENDERING LESSCSS");
-						less.render('.' + elementUID + (this.isWrapped ? '' : '>') + '{' + this.definition.css.style + '}')
+						// console.log("CSS: RENDERING LESSCSS");
+						less.render('*[data-wuielement="' + elementUID + '"]' + (this.isWrapped ? '' : '>') + '{' + this.definition.css.style + '}')
 						.then(function(output) {
 							// console.debug(output.css);
 							style.innerHTML = output.css;
@@ -123,7 +135,7 @@
 						break;
 						
 					default: // Defaults to regular CSS
-						console.log("CSS: RENDERING REGULAR");
+						// console.log("CSS: RENDERING REGULAR CSS");
 						style.innerHTML = this.definition.css.style;
 					}
 					
@@ -132,34 +144,46 @@
 						styleNode: style,
 						uid: elementUID
 					}; 
+					
 					document.head.appendChild(style); // Append style to DOM
-					this.node.classList.add(document.body.WUIEngine.CSSCache[this.definition.name].uid);
+					this.node.dataset.wuielement = document.body.WUIEngine.CSSCache[this.definition.name].uid;
+					// this.node.classList.add(document.body.WUIEngine.CSSCache[this.definition.name].uid);
 				}else{
 					// Non existent CSS
 					document.body.WUIEngine.CSSCache[this.definition.name] = {};
-					console.log("CSS: CSS NON EXISTENT");
+					// console.log("CSS: CSS NON EXISTENT");
 				}
 			}else{
 				// Found already processed CSS
 				if(typeof document.body.WUIEngine.CSSCache[this.definition.name].uid !== 'undefined'){
-					this.node.classList.add(document.body.WUIEngine.CSSCache[this.definition.name].uid);
+					this.node.dataset.wuielement = document.body.WUIEngine.CSSCache[this.definition.name].uid;
+					// this.node.classList.add(document.body.WUIEngine.CSSCache[this.definition.name].uid);
 				}
 			}
+		},
+		// Set Delayed Element Definition
+		setElementDefinition: function(definition, cleanData = false){
+			this.definition = definition; // Set Element Definition
+			this._processElement(cleanData); // Process Element
 		},
 		// Create DOM Node
 		createNode: function(){
 			var wrapper = document.createElement('div');
 			wrapper.innerHTML = this.definition.html;
-			if(wrapper.childNodes.length === 1/* && false*/){ // No need for wrapper -> TODO: '&& false' always wrap due to wrong LESSCSS compiler when .class&div produces .classdiv instead of div.class. Remove this once it's fixed.
+			if(wrapper.childNodes.length === 1){
 				var firstChild = wrapper.firstChild;
 				if(firstChild.nodeType === Node.ELEMENT_NODE){
 					// console.debug('Returning Non-Wrapped Node', firstChild);
 					this.isWrapped = false;
+					// Export WUIElement instance in DOM Node
+					firstChild.WUIElement = this;
 					return firstChild; // Return non-wrapped node
 				}
 			}
 			// console.debug('Returning Wrapped Node', wrapper);
 			this.isWrapped = true;
+			// Export WUIElement instance in DOM Node
+			wrapper.WUIElement = this;
 			return wrapper;
 		},
 		// Call Element Definition Method Helper with AutoCompile
@@ -202,7 +226,8 @@
 						if(typeof node === 'undefined' || node == null) throw 'Selected invalid Node';
 						self._addChildNodeContainer(self, id, node); 
 					}, // Set Container Node
-					function(){ alert("ACTION PERFORMED") } // Action Performed Callback
+					function(){ if(typeof self._configuration.actionPerformed === 'function') 
+						self._configuration.actionPerformed(); } // Action Performed Callback
 				]
 			};
 		},
@@ -241,7 +266,7 @@
 				if(data_split_index !== -1){
 					var data_target = data_value.substring(0, data_split_index).trim();
 					var data_id = data_value.substring(data_split_index + 1, data_value.length).trim();
-					// console.debug("DATA TARGET: " +data_target + " / DATA ID: "+data_id);
+					// console.debug("DATA TARGET: " +data_target + " / DATA ID: "+data_id, self);
 	
 						// Node References
 						var ref = self.autoDataRefrences[data_id];
@@ -314,20 +339,20 @@
 			var wui_container_nodes = this.node.querySelectorAll('[wui-container]');
 			wui_container_nodes.forEach(function(node){
 				var containerID = node.getAttribute('wui-container');
-				node.getAttribute('wui-container');
+				node.removeAttribute('wui-container');
 				self._addChildNodeContainer(self, containerID, node);
 			});
 			// Check root node for wui-data attribute
 			if(this.node.hasAttribute('wui-container')){
 				var containerID = this.node.getAttribute('wui-container');
-				this.node.getAttribute('wui-container');
+				this.node.removeAttribute('wui-container');
 				this._addChildNodeContainer(this, containerID, this.node);
 			}
 		},
 		// Add Child Node Container
 		_addChildNodeContainer: function(self, id, node){
 			// console.debug("ADDING CONTAINER WITH ID: " + id, node)
-			self.childNodeContainer[id] = node;
+			self.childNodeContainers[id] = node;
 		},
 		// Load Dependencies
 		loadDependencies: function(){

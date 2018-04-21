@@ -65,7 +65,7 @@ public class Button extends Node{
 	@Override
 	public ElementTemplate getElementDefinition() {
 		try {
-			return new ElementTemplate(Node.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/Button.html"));
+			return new ElementTemplate(Button.class.getResourceAsStream("Button.def.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

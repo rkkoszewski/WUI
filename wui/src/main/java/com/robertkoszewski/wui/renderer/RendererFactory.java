@@ -45,9 +45,9 @@ public class RendererFactory {
 		System.out.println("FOUND " + modules.size() + " RENDERER IMPLEMENTATIONS");
 		
 		String prefered_renderer = System.getProperty("wui.renderer");
-		prefered_renderer = prefered_renderer.toLowerCase(); // Make it Lower Case
-		
+
 		if(prefered_renderer != null) { 
+			prefered_renderer = prefered_renderer.toLowerCase(); // Make it Lower Case
 			
 			Iterator<Class<? extends Renderer>> rit = modules.iterator();
 			while(rit.hasNext()) {

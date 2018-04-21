@@ -110,7 +110,7 @@ public abstract class Parent extends Node{
 	/**
 	 * Add Element to View inclusive all Child Elements
 	 */
-	public void addElementToView(ViewInstance view, Node parent_element) {
+	public void addElementToView(ViewInstance view, Parent parent_element) {
 		// Add Element to View
 		super.addElementToView(view, parent_element); 
 		// Add Child Elements to View

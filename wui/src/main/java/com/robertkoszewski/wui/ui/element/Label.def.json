@@ -1,0 +1,1 @@
+{"name":"Label","version":"1.0.0","html":"<div wui-data=\"@text:value\"></div>","css":{"format":"lesscss","style":""},"js":{"initialize-before":"","initialize-after":"","set-data":""}}

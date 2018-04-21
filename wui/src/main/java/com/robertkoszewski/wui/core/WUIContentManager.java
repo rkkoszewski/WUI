@@ -331,7 +331,11 @@ public class WUIContentManager implements ContentManager {
 		List<String> elementID = request.getParameter("element");
 		
 		if(elementID.size() != 0) {
-			return new WUIJsonResponse(element_definition_cache.get(elementID.get(0)));
+			
+			System.out.println("ELEMENT: " + elementID.get(0) + " - " + element_definition_cache.get(elementID.get(0)).getElementDefinition());
+			
+			return new WUIStringResponse("text/json", element_definition_cache.get(elementID.get(0)).getElementDefinition());
+			//return new WUIJsonResponse(element_definition_cache.get(elementID.get(0)));
 		}
 		
 		return new WUIJsonResponse(null); // TODO: Return error.

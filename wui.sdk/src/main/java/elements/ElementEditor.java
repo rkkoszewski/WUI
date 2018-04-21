@@ -21,38 +21,19 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.element;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
+package elements;
 
 import com.robertkoszewski.wui.template.ElementTemplate;
+import com.robertkoszewski.wui.ui.element.Node;
 
 /**
- * Image Element
+ * WUI Element Editor
  * @author Robert Koszewski
  */
-public class Image extends Node{
+public class ElementEditor extends Node{
 
-	// Constructors
-
-	public Image(String mime, File file) throws FileNotFoundException {
-		setStreamedResource(mime, file);
-	}
-	
-	public Image(String mime, URL resource){
-		setStreamedResource(mime, resource);
-	}
-	
-	@Override
 	public ElementTemplate getElementDefinition() {
-		try {
-			return new ElementTemplate(Image.class.getResourceAsStream("Image.def.json"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+		return null;
 	}
+
 }

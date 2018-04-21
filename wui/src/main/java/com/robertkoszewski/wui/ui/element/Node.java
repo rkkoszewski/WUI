@@ -24,7 +24,6 @@
 package com.robertkoszewski.wui.ui.element;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +55,7 @@ public abstract class Node implements EventTarget, NodeData, Linkable, StreamedR
 	private String id; // Element ID
 	private ArrayList<Runnable> action_performed_callback; // Action Performed Callbacks
 	private long element_timestamp = Utils.getChangeTimestamp(); // Element UID	
-	protected final Map<ViewInstance, Node> views = new HashMap<ViewInstance, Node>(); // Views Container
+	protected final Map<ViewInstance, Parent> views = new HashMap<ViewInstance, Parent>(); // Views Container
 	
 	// Element Data
 	protected final Map<String, String> data = new HashMap<String, String>(); // Element Data
@@ -138,13 +137,23 @@ public abstract class Node implements EventTarget, NodeData, Linkable, StreamedR
 	}
 	
 	/**
+	 * Element exists in View?
+	 * @param view
+	 * @return
+	 */
+	public boolean elementExistsInView(ViewInstance view) {
+		return views.containsKey(view);
+	}
+	
+	/**
 	 * Add Element to View
 	 * @param view
 	 * @param parent_element
 	 */
-	public void addElementToView(ViewInstance view, Node parent_element) {
+	public void addElementToView(ViewInstance view, Parent parent_element) {
 		// TODO: Check if element is already in View, then eider throw exception or remove old position
-		if(views.get(view) != null) throw new NullPointerException("STILL NOT IMPLEMENTED: Element Exists in View.");
+		// if(views.get(view) != null) throw new Exception("Element Exists in View.");
+		if(views.containsKey(view)) views.get(view).removeChild(this); // Remove Child from Position
 		views.put(view, parent_element);
 		view.addElementToCache(this);
 	};

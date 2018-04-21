@@ -23,34 +23,26 @@
 				margin: 0;
 				padding: 0;
 			}
-			
-			
-			/* Border Layout */
-			.wui-border-layout{
-				display: flex;
-				flex-direction: column;
-				width: 100%;
-			}
-			
-			.wui-border-layout > div, .wui-border-layout > div.center > div{
-				display: flex;
-				flex-direction: column;
-			}
-			
-			.wui-border-layout > div.center{
-			    flex-direction: row;
-				flex-grow: 1;
-			}
-			
-			.wui-border-layout > div.center > div.center{
-				flex-grow: 1;
-			}
-			
-			
 		</style>
-	</head>
-	<body>
 		<script src="/framework/lib/jquery-3.3.1.min.js"></script>
-		<script src="/framework/wui.core.js"></script>
-	</body>
+		<!-- <script src="/framework/wui.core.js"></script> -->
+		<!-- Pre Packed Dependencies -->
+		<script src="/framework/loadjs.min.js"></script>
+		<script src="/framework/less.js"></script>
+		<!-- This should be minified at some point -->
+		<script src="/framework/wui.element.js"></script>
+		<script src="/framework/wui.engine.js"></script>
+		<script src="/framework/wui.dp.cdn.js"></script>
+		<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			(new WUIEngine({
+				placeholder: 'Loading...', /* Element Placeholder */
+				dependencies: { /* Already included dependencies with the template */
+					'jquery': '3.3.1'
+				}
+			})).loadPage(window.location.pathname); /* Initialize the WUI Engine */
+		}, false);
+		</script>
+	</head>
+	<body></body>
 </html>

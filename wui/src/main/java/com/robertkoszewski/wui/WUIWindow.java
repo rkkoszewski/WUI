@@ -64,8 +64,8 @@ public class WUIWindow {
 		this(null);
 	}
 	
-	public WUIWindow(Preferences settings) throws InstantiationException, IllegalAccessException, ServerNotFoundException {
-		this(settings, new BasicTemplate());
+	public WUIWindow(Preferences preferences) throws InstantiationException, IllegalAccessException, ServerNotFoundException {
+		this(preferences, new BasicTemplate());
 	}
 	
 	public WUIWindow(Preferences preferences, WindowTemplate template) throws InstantiationException, IllegalAccessException, ServerNotFoundException {

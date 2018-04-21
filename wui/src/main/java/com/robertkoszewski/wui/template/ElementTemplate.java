@@ -36,6 +36,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class ElementTemplate {
 	
+	/*
 	@SerializedName("html")
 	private String html;
 	
@@ -44,13 +45,23 @@ public class ElementTemplate {
 	
 	@SerializedName("js-set-data")
 	private String set_data_JS;
+	*/
+	
+	private String element_definition;
 	
 	
+
+
 	public ElementTemplate(InputStream is) throws IOException {
 		this(IOUtils.toString(is, "UTF-8"));
 	}
 	
 	public ElementTemplate(String element_definition) {
+		this.element_definition = element_definition;
+		
+		return;
+		
+		/*
 		Document doc = Jsoup.parse(element_definition, "", Parser.xmlParser());
 		//Document doc = Jsoup.parse(element_definition, "");
 		doc.outputSettings().indentAmount(0).prettyPrint(true); // Output Settings
@@ -72,9 +83,11 @@ public class ElementTemplate {
 		if((e = doc.select("element > set-data > script").first()) != null) {
 			this.set_data_JS = e.wholeText();
 		}
+		*/
 
 	}
 	
+	/*
 	public String getHTML() {
 		return html;
 	}
@@ -87,7 +100,15 @@ public class ElementTemplate {
 		return set_data_JS;
 	}
 	
+	*/
+	
+	public String getElementDefinition() {
+		return element_definition;
+	}
+	
+	/*
 	public String toString() {
 		return "HTML: " + html + " | INITIALIZE JS: " + initialize_JS + " | SET-DATA JS: " +set_data_JS; 
 	}
+	*/
 }

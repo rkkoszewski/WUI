@@ -61,7 +61,7 @@ public class Label extends Node{
 	@Override
 	public ElementTemplate getElementDefinition() {
 		try {
-			return new ElementTemplate(Node.class.getResourceAsStream("/com/robertkoszewski/wui/resources/templates/base/elements/Label.html"));
+			return new ElementTemplate(Label.class.getResourceAsStream("Label.def.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

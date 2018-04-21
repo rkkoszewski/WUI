@@ -1,0 +1,1 @@
+{"name":"Example","version":"1.0.0","html":"<img/>","css":{"format":"lesscss","style":""},"js":{"initialize-before":"","initialize-after":"","set-data":"node.src = window.location.href + '?requestType=streamedElement&element=' + element.uuid;"}}
