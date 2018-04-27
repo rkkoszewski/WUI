@@ -46,8 +46,7 @@ public class Label extends Node{
 	 * @param value
 	 */
 	public void setText(String value) {
-		data.put("value", value);
-		updateElementDataTimestamp();
+		setElementData("value", value);
 	}
 	
 	/**
@@ -55,7 +54,7 @@ public class Label extends Node{
 	 * @return
 	 */
 	public String getValue() {
-		return data.get("value");
+		return getElementData("value");
 	}
 
 	@Override

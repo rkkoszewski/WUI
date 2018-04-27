@@ -26,7 +26,7 @@
 // ###########################################
 // Dependencies: Requires JQUERY3.js
 
-var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
+var useSockets = true; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 
 (function(window){
 	'use strict';
@@ -114,7 +114,7 @@ var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 						}
 						
 						// Update Children
-						if(typeof self.new_nodes[uuid].children !== 'undefined'){
+						if(typeof self.new_nodes[uuid].children !== 'undefined' && typeof element.childNodeContainers !== 'undefined'){
 							// console.debug("PROCESSING CHILD NODES: ", self.new_nodes[uuid].children)
 							self.processChildNodes(element.childNodeContainers, self.new_nodes[uuid].children);
 						}
@@ -236,7 +236,7 @@ var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 					// console.debug("FOR DATA CHILDREN: ", children)
 
 					// Process Child Elements
-					if(typeof children !== 'undefined'){
+					if(typeof children !== 'undefined' && typeof element.childNodeContainers !== 'undefined'){
 						self.processChildNodes(element.childNodeContainers, children);
 					}
 					// console.debug(element)

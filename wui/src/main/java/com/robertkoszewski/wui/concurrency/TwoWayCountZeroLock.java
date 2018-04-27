@@ -21,52 +21,31 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.element;
+package com.robertkoszewski.wui.concurrency;
 
-import java.io.IOException;
+import java.util.concurrent.locks.ReentrantLock;
 
-import com.robertkoszewski.wui.template.ElementTemplate;
+public class TwoWayCountZeroLock {
 
-/**
- * Button Element
- * @author Robert Koszewski
- */
-public class Button extends Node{
-
-	// Constructors
-
-	public Button(String value) {
-		setValue(value);
+	private ReentrantLock update_lock = new ReentrantLock();
+	private ReentrantLock freeze_lock = new ReentrantLock();
+	private int counter = 0;
+	
+	public void startUpdate() {
+		
 	}
 	
-	/**
-	 * Set Text Input Value
-	 * @param value
-	 */
-	public void setValue(String value) {
-		setElementData("value", value);
+	public void endUpdate() {
+		
 	}
 	
-	/**
-	 * Get Text Input Value
-	 * @return
-	 */
-	public String getValue() {
-		String v = getElementData("value");
-		return (v != null ? v : "");
+	public void freezeUpdate() {
+		//freeze_lock.w
+		update_lock.lock();
 	}
 	
-	public void setColor(String value) {
-		setElementData("color", value);
+	public void unfreezeUpdate() {
+		update_lock.unlock();
 	}
-
-	@Override
-	public ElementTemplate getElementDefinition() {
-		try {
-			return new ElementTemplate(Button.class.getResourceAsStream("Button.def.json"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+	
 }

@@ -36,8 +36,7 @@ public class TextInput extends Node{
 	 * @param value
 	 */
 	protected void setValue(String value) {
-		data.put("value", value);
-		updateElementDataTimestamp();
+		setElementData("value", value);
 	}
 	
 	/**
@@ -45,7 +44,7 @@ public class TextInput extends Node{
 	 * @return
 	 */
 	protected String getValue() {
-		String v = data.get("value");
+		String v = getElementData("value");
 		return (v != null ? v : "");
 	}
 

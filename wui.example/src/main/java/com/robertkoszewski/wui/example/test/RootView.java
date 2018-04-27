@@ -94,11 +94,11 @@ public class RootView extends View{
 		final Thread cthread = new Thread() {
 			public void run() {
 				while(!interrupted()) {
-					System.out.println("# Updating System Info");
+					//System.out.println("# Updating System Info");
 					cpu_label.setText("Total RAM: "+StringUtils.readableFileSize(info.totalMem()));
 					ram_label.setText("Used RAM: "+StringUtils.readableFileSize(info.usedMem()));
 					try {
-						Thread.sleep(1500);
+						Thread.sleep(24);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

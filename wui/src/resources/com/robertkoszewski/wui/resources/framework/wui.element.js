@@ -36,7 +36,7 @@
 			return new WUIElement(definition, configuration);
 		
 		// Element Data and Metadata
-		this.definition = definition;
+		this.definition = (definition !== null ? definition : {});
 		this.isWrapped = false;
 		this._isDOMReady = false;
 		this._configuration = configuration;
@@ -115,7 +115,7 @@
 					case 'lesscss':
 						// Create Style node
 						// console.log("CSS: RENDERING LESSCSS");
-						less.render('*[data-wuielement="' + elementUID + '"]' + (this.isWrapped ? '' : '>') + '{' + this.definition.css.style + '}')
+						less.render('[data-wuielement="' + elementUID + '"]' + (this.isWrapped ? '' : '>') + '{' + this.definition.css.style + '}')
 						.then(function(output) {
 							// console.debug(output.css);
 							style.innerHTML = output.css;
@@ -188,6 +188,7 @@
 		},
 		// Call Element Definition Method Helper with AutoCompile
 		_callMethod: function(definitionBranch, definitionLeafID, parameterDefinition, parameterData){
+			if(typeof definitionBranch === 'undefined') return;
 			var callback = definitionBranch[definitionLeafID];
 			switch(typeof callback){
 				case 'string': // Uncompiled State (Do compilation)
@@ -252,6 +253,7 @@
 			var dataParameters = this._dataParameters();
 			dataParameters.definition += ', data';
 			dataParameters.parameters.push(this._debug ? this._dataDebug(data) :data);
+			console.debug(this);
 			return this._callMethod(this.definition.js, 'set-data', dataParameters.definition, dataParameters.parameters);
 		},
 		// Parse Auto Data Node

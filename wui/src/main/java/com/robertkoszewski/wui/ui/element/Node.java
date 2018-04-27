@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.robertkoszewski.wui.core.ViewInstance;
 import com.robertkoszewski.wui.ui.element.type.EventTarget;
@@ -58,9 +59,11 @@ public abstract class Node implements EventTarget, NodeData, Linkable, StreamedR
 	protected final Map<ViewInstance, Parent> views = new HashMap<ViewInstance, Parent>(); // Views Container
 	
 	// Element Data
-	protected final Map<String, String> data = new HashMap<String, String>(); // Element Data
+	private final Map<String, String> data = new HashMap<String, String>(); // Element Data
 	private long element_data_timestamp = 0; // Element Data Timestamp
 	
+	// Concurrency
+	protected ReentrantReadWriteLock rwlock = new ReentrantReadWriteLock();
 	
 	/**
 	 * Get Element Name
@@ -121,6 +124,17 @@ public abstract class Node implements EventTarget, NodeData, Linkable, StreamedR
 		return data;
 	}
 	
+	protected String getElementData(String key) {
+		return data.get(key);
+	}
+	
+	protected void setElementData(String key, String value) {
+		startWrite();
+		data.put(key, value);
+		updateElementDataTimestamp();
+		endWrite();
+	}
+	
 	/**
 	 * Get Element Data Timestamp
 	 */
@@ -131,7 +145,7 @@ public abstract class Node implements EventTarget, NodeData, Linkable, StreamedR
 	/**
 	 * Update ELement Data Timestamp
 	 */
-	protected void updateElementDataTimestamp() {
+	private void updateElementDataTimestamp() {
 		element_data_timestamp = Utils.getChangeTimestamp();
 		updateElement();
 	}
@@ -199,6 +213,7 @@ public abstract class Node implements EventTarget, NodeData, Linkable, StreamedR
 	 */
 	@Override
 	public void setLink(String url) {
+		// TODO: Finish This
 		data.put("SYSTEM:WUI:LINKABLE", url);
 	}
 	
@@ -207,6 +222,7 @@ public abstract class Node implements EventTarget, NodeData, Linkable, StreamedR
 	 */
 	@Override
 	public String getLink() {	
+		// TODO: Finish This
 		return data.get("SYSTEM:WUI:LINKABLE");
 	}
 	
@@ -245,4 +261,23 @@ public abstract class Node implements EventTarget, NodeData, Linkable, StreamedR
 	public String getStreamedResourceMimeType() {
 		return streamedResourceMime;
 	}
+	
+	// Avoid Update Miss due to Concurrency Issues
+	
+	public void startRead() {
+		rwlock.readLock().lock();
+	}
+	
+	public void endRead() {
+		rwlock.readLock().unlock();
+	}
+	
+	protected void startWrite() {
+		rwlock.writeLock().lock();
+	}
+	
+	protected void endWrite() {
+		rwlock.writeLock().unlock();
+	}
+	
 }

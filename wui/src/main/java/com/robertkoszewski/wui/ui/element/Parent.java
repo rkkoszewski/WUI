@@ -57,6 +57,7 @@ public abstract class Parent extends Node{
 	 * @param element
 	 */
 	protected void addChild(Node element, String id) {
+		startWrite();
 		List<Node> branch = children.get(id);
 		if(branch == null) { 
 			branch = new ArrayList<Node>();
@@ -69,6 +70,7 @@ public abstract class Parent extends Node{
 		branch.add(element);
 		// Update Nesting Timestamp
 		updateNestingTimestamp();
+		endWrite();
 	}
 	
 	/**
@@ -77,6 +79,7 @@ public abstract class Parent extends Node{
 	 * @param id
 	 */
 	protected void removeChild(Node element) {
+		startWrite();
 		// Remove Element from View
 		Iterator<ViewInstance> vit = views.keySet().iterator();
 		while(vit.hasNext()) element.removeElementFromView(vit.next());
@@ -89,6 +92,7 @@ public abstract class Parent extends Node{
 		
 		// Update Nesting Timestamp
 		updateNestingTimestamp();
+		endWrite();
 	}
 	
 	/**
@@ -102,7 +106,7 @@ public abstract class Parent extends Node{
 	/**
 	 * Update Nesting Timestamp
 	 */
-	protected void updateNestingTimestamp() {
+	private void updateNestingTimestamp() {
 		children_timestamp = Utils.getChangeTimestamp();
 		updateElement();
 	}

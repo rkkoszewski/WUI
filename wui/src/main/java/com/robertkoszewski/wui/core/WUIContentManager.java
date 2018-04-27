@@ -30,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -402,10 +403,13 @@ public class WUIContentManager implements ContentManager {
 		ContentResponse content_response = new ContentResponse();
 		content_response.title = content.getTitle();
 		
+		// Concurrency Fix
+		ArrayList<Node> lockedElements = new ArrayList<Node>();
+		
 		// Process Nodes
 		BuilderData bdata = new BuilderData();
 		bdata.remote_timestamp = remote_timestamp;
-		buildResponseTree(content.getChildren(), bdata);
+		buildResponseTree(content.getChildren(), bdata, lockedElements);
 
 		// Check Content Data
 
@@ -446,6 +450,10 @@ public class WUIContentManager implements ContentManager {
 			metadata.isContentRequest = true;
 		}
 
+		// CONCURRENCY: Unlock Locked Elements
+		Iterator<Node> lit = lockedElements.iterator();
+		while(lit.hasNext()) lit.next().endRead();
+		
 		// Return Response
 		return new WUIStringResponse("text/json", (new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()).toJson(content_response));
 	}
@@ -468,9 +476,10 @@ public class WUIContentManager implements ContentManager {
 	 * @param parent
 	 * @param current
 	 * @param bdata
+	 * @param lockedElements 
 	 * @return
 	 */
-	private void buildResponseTree(Map<String, List<Node>> current, BuilderData bdata) {
+	private void buildResponseTree(Map<String, List<Node>> current, BuilderData bdata, ArrayList<Node> lockedElements) {
 		
 		// Nodes Object
 		Map<String, NodeObject[]> nodes = new HashMap<String, NodeObject[]>();
@@ -486,6 +495,9 @@ public class WUIContentManager implements ContentManager {
 			// Build Node Array
 			int i = 0;
 			for(Node e : branch.getValue()) {
+				// CONCURRENCY: Lock Node to prevent Writing
+				e.startRead();
+				lockedElements.add(e);
 
 				// Full Node
 				NodeObject n = new NodeObject();
@@ -535,7 +547,7 @@ public class WUIContentManager implements ContentManager {
 						// bdata.nesting_changed = true;
 					}
 					
-					buildResponseTree(children, bdata); // Build Child Tree
+					buildResponseTree(children, bdata, lockedElements); // Build Child Tree
 				}
 				
 				// Element Changed
