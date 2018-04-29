@@ -36,7 +36,8 @@
 			return new CDNDependencyProvider(configuration);
 		
 		// Variables
-		this.depCache = {};
+		this.dependencyCacheJS = {};
+		this.dependencyCacheCSS = {};
 	}
 
 	// DependencyProvider Methods
@@ -45,21 +46,37 @@
 			console.log("LOADING DEPENDENCIES")
 
 			// Build Dependency URLs
-			var dependencyFiles = [];
+			var dependencyFilesJS = [];
 			
-			Object.keys(dependencies).forEach(function(depName) { // Iterate Data Target
-				var depVersion = dependencies[depName];
-				console.log("REQUIRES DEPENDENCY: " + depName + " @ " + depVersion);
-				dependencyFiles.push('https://cdnjs.cloudflare.com/ajax/libs/'+depName+'/'+depVersion+'/'+depName+'.min.js')
-				console.log("DOWNLOADING FROM: " + 'https://cdnjs.cloudflare.com/ajax/libs/'+depName+'/'+depVersion+'/'+depName+'.min.js');
-			});
+			// Process JS Dependencies
+			if(typeof dependencies.js !== 'undefined'){
+				Object.keys(dependencies.js).forEach(function(depName) { // Iterate Data Target
+					var depConfig = dependencies.js[depName];
+					var depVersion = depConfig.version;
+					console.log("REQUIRES JS DEPENDENCY: " + depName + " @ " + depVersion);
+					dependencyFilesJS.push('https://cdnjs.cloudflare.com/ajax/libs/'+depName+'/'+depVersion+'/'+depName+'.min.js')
+					console.log("DOWNLOADING FROM: " + 'https://cdnjs.cloudflare.com/ajax/libs/'+depName+'/'+depVersion+'/'+depName+'.min.js');
+				});
+			}
 			
+			// Process CSS Dependencies
+			if(typeof dependencies.css !== 'undefined'){
+				Object.keys(dependencies.css).forEach(function(depName) { // Iterate Data Target
+					var depConfig = dependencies.css[depName];
+					var depVersion = depConfig.version;
+					console.log("REQUIRES CSS DEPENDENCY: " + depName + " @ " + depVersion);
+					loadCSS('https://cdnjs.cloudflare.com/ajax/libs/'+depName+'/'+depVersion+'/'+depName+'.min.css')
+					console.log("DOWNLOADING FROM: " + 'https://cdnjs.cloudflare.com/ajax/libs/'+depName+'/'+depVersion+'/'+depName+'.min.css');
+				});
+			}
+
 			// Abort when no more new dependencies are needed
-			if(dependencyFiles.length === 0){
-				return {
-					success: function(callback){ callback(); },
-					fail: function(){}
+			if(dependencyFilesJS.length === 0){
+				var ret = {
+					success: function(callback){ callback(); return ret; },
+					fail: function(){ return ret; }
 				}
+				return ret;
 			}
 			
 			// Status Variables
@@ -68,7 +85,7 @@
 			var fail_callback = [];
 						
 			// Load JavaScripts
-			loadjs(dependencyFiles, {
+			loadjs(dependencyFilesJS, {
 				success: function(){
 					while(success_callback.length != 0){
 						console.log("LENGT: " + success_callback.length)
@@ -84,7 +101,7 @@
 					};
 				}
 			});
-			
+
 			// Promise Like Object
 			var promise = {
 				success: function(callback){
@@ -111,5 +128,19 @@
 		// Register Dependency Provider
 		window.WUIEngine.DependencyProvider = new CDNDependencyProvider();
 	}
+	
+	// Loads the CSS File
+	function loadCSS(url) {
+		  return new Promise((resolve, reject) => {
+		    var link = document.createElement('link');
+		    link.type = 'text/css';
+		    link.rel = 'stylesheet';
+		    link.onload = function() { resolve(); };
+		    link.href = url;
+		    
+		    // Append Link
+		    document.head.appendChild(link);
+		  });
+		};
 	
 })(window);

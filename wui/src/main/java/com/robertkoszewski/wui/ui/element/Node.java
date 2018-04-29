@@ -93,9 +93,10 @@ public abstract class Node implements EventTarget, NodeData, Linkable, StreamedR
 	}
 	
 	/**
-	 * Trigger Action Performed
+	 * Trigger Event
 	 */
-	public void actionPerformed() {
+	public void triggerEvent(String eventID, String data) {
+		// TODO: Implement here
 		if(action_performed_callback == null) return;
 		Iterator<Runnable> it = action_performed_callback.iterator();
 		while(it.hasNext())
@@ -105,14 +106,14 @@ public abstract class Node implements EventTarget, NodeData, Linkable, StreamedR
 	/**
 	 * Add Action Listener
 	 */
-	public void addActionListener(Runnable callback) {
+	public void addEventListener(Runnable callback) {
 		if(action_performed_callback == null) action_performed_callback= new ArrayList<Runnable>(); // Lazy Instantiation
 		action_performed_callback.add(callback);
 		updateElement(); // TODO: Only run this when a new Action Type is added
 	}	
 	
 	@Override
-	public void removeActionListener(Runnable callback) {
+	public void removeEventListener(Runnable callback) {
 		action_performed_callback.remove(callback);
 		updateElement(); // TODO: Only run this when a Action Type is really removed
 	}

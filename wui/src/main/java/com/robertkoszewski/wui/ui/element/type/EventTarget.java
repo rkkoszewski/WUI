@@ -31,17 +31,17 @@ public interface EventTarget {
 	/**
 	 * Trigger Action Performed
 	 */
-	public void actionPerformed();
+	public void triggerEvent(String eventID, String data);
 	
 	/**
 	 * Add a ActionListener
 	 * @param callback
 	 */
-	public void addActionListener(Runnable callback);
+	public void addEventListener(Runnable callback);
 	
 	/**
 	 * Remove a ActionListener
 	 * @param callback
 	 */
-	public void removeActionListener(Runnable callback);
+	public void removeEventListener(Runnable callback);
 }

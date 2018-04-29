@@ -31,6 +31,6 @@ package com.robertkoszewski.wui.core;
 public enum RequestType {
 	UNKNOWN, // No Request: Not a WUI Request
 	CONTENT, // Content Request: Serves regular content
-	ACTION,  // Action Request: Calls an action
+	EVENT,  // Event Request: Triggers an Event
 	ELEMENT  // Element Definition Request: Requests a Element Definition
 }

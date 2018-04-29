@@ -80,7 +80,7 @@ public class App
 				
 				content.addElement(new Label("ASD"));
 				Button button = new Button("Shutdown");
-				button.addActionListener(callback);
+				button.addEventListener(callback);
 				content.addElement(button);
 
 				Button button2 = new Button("GO BACK TO ROOT VIEW");

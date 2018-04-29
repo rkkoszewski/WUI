@@ -57,12 +57,13 @@ public class ViewInstance {
 	/**
 	 * Perform Action on Element
 	 * @param element_uuid
+	 * @param eventID 
 	 * @return
 	 */
-	public boolean performActionOnElement(String element_uuid) {
+	public boolean triggerEventOnElement(String element_uuid, String eventID, String data) {
 		Node el = element_uuid_to_element.get(element_uuid);
 		if(el == null) return false; // Return False if Element is not found
-		el.actionPerformed(); // Perform Action
+		el.triggerEvent(eventID, data); // Perform Action
 		return true; // Return True
 	}
 	

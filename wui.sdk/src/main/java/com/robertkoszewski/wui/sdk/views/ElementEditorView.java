@@ -54,7 +54,7 @@ public class ElementEditorView extends View {
 		layout.addElement(label, BorderLayout.Position.north); // Label Button
 		
 		Button button = new Button("PRESS ME");
-		button.addActionListener(new Runnable() {
+		button.addEventListener(new Runnable() {
 			public void run() {
 				label.setText("BUTTON PRESSED: "+ i++);
 				
@@ -78,7 +78,7 @@ public class ElementEditorView extends View {
 		
 		
 		Button button2 = new Button("CREATE NEW ELEMENT");
-		button2.addActionListener(new Runnable() {
+		button2.addEventListener(new Runnable() {
 			public void run() {
 				Label nl = new Label("NEW ELEMENT " + e++);
 				den.add(nl);
@@ -88,7 +88,7 @@ public class ElementEditorView extends View {
 		layout.addElement(button2, BorderLayout.Position.south);
 		
 		Button button3 = new Button("REMOVE ELEMENT");
-		button3.addActionListener(new Runnable() {
+		button3.addEventListener(new Runnable() {
 			public void run() {
 				
 				if(!den.isEmpty()) {

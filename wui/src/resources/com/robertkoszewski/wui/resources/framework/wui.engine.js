@@ -185,7 +185,7 @@ var useSockets = true; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 						uuid: node_uuid,
 						data: this.new_nodes[node_uuid].data,
 						placeholder: this.placeholder_html,
-						actionPerformed: function(){ performAction(node_uuid); }
+						actionPerformed: function(actionID, data){ performAction(node_uuid, actionID, data); }
 					});
 					this.element_cache[node_uuid] = element; // Cache Element
 					root.appendChild(element.getNode()); // Get Placeholder Node
@@ -462,10 +462,14 @@ var useSockets = true; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 	}
 
 	// Perform an Action
-	function performAction(uuid){
+	function performAction(uuid, eventID, data){
 		doRequest({
 			url: window.location.href,
-			headers: {'x-wui-request': 'action', 'x-wui-element': uuid}
+			headers: {
+				'x-wui-request': 'event', 
+				'x-wui-element': uuid,
+				'x-wui-event': eventID},
+			data: data
 		}, 'action', 2000);
 	}
 	

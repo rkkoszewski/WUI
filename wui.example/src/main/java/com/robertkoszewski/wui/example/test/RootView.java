@@ -75,7 +75,7 @@ public class RootView extends View{
 		// Button Test
 		layout.addElement(label_press, BorderLayout.Position.east);
 		Button b = new Button("Press Me!! (Counter)");
-		b.addActionListener(new Runnable() {
+		b.addEventListener(new Runnable() {
 			public void run() {
 				int press = content.getSharedData("press", Integer.class);
 				label_press.setText("COUNTING PRESSES: " + press++ );
@@ -119,7 +119,7 @@ public class RootView extends View{
 		
 		// Realtime Counter
 		Button bstart = new Button("Start Realtime Counter");
-		bstart.addActionListener(new Runnable() {
+		bstart.addEventListener(new Runnable() {
 			public void run() {
 				if(!cthread.isAlive()) {
 					cthread.start();
@@ -136,7 +136,7 @@ public class RootView extends View{
 		// Button Test
 		layout.addElement(new Label("--- ADD A NEW ELEMENT DYNAMICALLY ---"), BorderLayout.Position.center);
 		Button addbtn = new Button("Add new Node");
-		addbtn.addActionListener(new Runnable() {
+		addbtn.addEventListener(new Runnable() {
 			public void run() {
 				int x = content.getSharedData("x", Integer.class);
 				layout.addElement(new Label("Adding new dynamic element " + x), BorderLayout.Position.east);
@@ -150,7 +150,7 @@ public class RootView extends View{
 		content.setSharedData("moveleft", true);
 		layout.addElement(new Label("--- MOVE A ELEMENT IN REALTIME ---"), BorderLayout.Position.center);
 		final Button movebtn = new Button("CLICK ME TO MOVE ME");
-		movebtn.addActionListener(new Runnable() {
+		movebtn.addEventListener(new Runnable() {
 			public void run() {
 				
 				boolean moveleft = content.getSharedData("moveleft", Boolean.class);

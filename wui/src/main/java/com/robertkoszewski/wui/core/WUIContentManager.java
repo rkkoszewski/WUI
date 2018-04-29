@@ -150,8 +150,8 @@ public class WUIContentManager implements ContentManager {
 			ViewInstance view;
 			
 			switch (requestType) {
-			case ACTION: // Action Performed Request Type
-				response =  performAction(session.getViewInstance(request.getURL()), request);
+			case EVENT: // Action Performed Request Type
+				response =  triggerEvent(session.getViewInstance(request.getURL()), request);
 				break;
 
 			case CONTENT: // Content Request Type
@@ -310,14 +310,15 @@ public class WUIContentManager implements ContentManager {
 	 * @param request
 	 * @return
 	 */
-	private Response performAction(ViewInstance viewInstance, Request request) {
+	private Response triggerEvent(ViewInstance viewInstance, Request request) {
 		String elmentUUID = request.getHeader("x-wui-element");
+		String eventID = request.getHeader("x-wui-event");
 		
-		if(log.isDebugEnabled()) log.debug("ACTION PERFORMED ON ELEMENT " + elmentUUID);	
+		if(log.isDebugEnabled()) log.debug("TRIGGERED EVENT ON ELEMENT " + elmentUUID);	
 		
-		viewInstance.performActionOnElement(elmentUUID);
+		viewInstance.triggerEventOnElement(elmentUUID, eventID, null); // TODO: Pass data
 		
-		return new WUIStringResponse("text/html", "ACTION PERFORMED");
+		return new WUIStringResponse("text/html", "EVENT TRIGGERED");
 	}
 	
 	/**
