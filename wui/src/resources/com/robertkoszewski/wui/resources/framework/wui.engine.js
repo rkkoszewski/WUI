@@ -26,7 +26,7 @@
 // ###########################################
 // Dependencies: Requires JQUERY3.js
 
-var useSockets = true; // Enable WebSockets (DEBUG -> TO BE REMOVED)
+var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 
 (function(window){
 	'use strict';
@@ -185,7 +185,7 @@ var useSockets = true; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 						uuid: node_uuid,
 						data: this.new_nodes[node_uuid].data,
 						placeholder: this.placeholder_html,
-						actionPerformed: function(actionID, data){ performAction(node_uuid, actionID, data); }
+						eventTrigger: function(eventID, data){ triggerEvent(node_uuid, eventID, data); }
 					});
 					this.element_cache[node_uuid] = element; // Cache Element
 					root.appendChild(element.getNode()); // Get Placeholder Node
@@ -202,7 +202,7 @@ var useSockets = true; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 						uuid: node_uuid,
 						data: this.new_nodes[node_uuid].data,
 						placeholder: this.placeholder_html,
-						actionPerformed: function(){ performAction(node_uuid); }
+						eventTrigger: function(eventID, data){ triggerEvent(node_uuid, eventID, data); }
 					});
 					this.element_cache[node_uuid] = element; // Cache Element
 					
@@ -268,8 +268,8 @@ var useSockets = true; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 					/*
 					self.elements[element_name] = {
 							"html": data.html,
-							"initialize": new Function("node, data, element, performAction", data['js-initialize']),
-							"setData": new Function("node, data, element, performAction", data['js-set-data'])
+							"initialize": new Function("node, data, element, eventTriggered", data['js-initialize']),
+							"setData": new Function("node, data, element, eventTriggered", data['js-set-data'])
 					}
 					*/
 					// Get Element Definition
@@ -454,21 +454,32 @@ var useSockets = true; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 			var jqrequest = $.ajax({
 				url: request.url,
 				headers: request.headers,
-				data: request.data
+				data: request.data,
+				method: request.method,
+				contentType: request.contentType,
+				processData: request.processData
 			});
 			
 			return new JQResponse(jqrequest);
 		}
 	}
 
-	// Perform an Action
-	function performAction(uuid, eventID, data){
+	// Trigger Event
+	function triggerEvent(uuid, eventID, data = undefined){
+		console.debug("EVENT TRIGGERED: " + eventID, data)
+		if(typeof data !== 'undefined'){
+			data = JSON.stringify(data); // Encode Object with JSON
+		}
+		
 		doRequest({
 			url: window.location.href,
 			headers: {
 				'x-wui-request': 'event', 
 				'x-wui-element': uuid,
 				'x-wui-event': eventID},
+			method: 'POST',
+			processData: false,
+			contentType: 'application/json',
 			data: data
 		}, 'action', 2000);
 	}

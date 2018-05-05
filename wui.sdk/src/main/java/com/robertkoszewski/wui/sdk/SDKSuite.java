@@ -1,7 +1,9 @@
 package com.robertkoszewski.wui.sdk;
 
 import com.robertkoszewski.wui.Preferences;
-import com.robertkoszewski.wui.WUIWindow;
+import com.robertkoszewski.wui.WUIEngine;
+import com.robertkoszewski.wui.core.CSSDependency;
+import com.robertkoszewski.wui.core.JSDependency;
 import com.robertkoszewski.wui.sdk.views.ElementEditorView;
 import com.robertkoszewski.wui.server.ServerNotFoundException;
 
@@ -19,13 +21,24 @@ public class SDKSuite
 	        // System.setProperty("wui.renderer", "javafx");
         	
 	        // Instantiate WUI Window
-			WUIWindow window = new WUIWindow(new Preferences(new String[] {"prefered"}));
+			WUIEngine wui = new WUIEngine(new Preferences(new String[] {"prefered"}));
 
 			// Add Views
-			window.addView("/", new ElementEditorView(null));
+			wui.addView("/", new ElementEditorView(null));
+			
+			// Add JS Dependencies
+			wui.addDependency(new JSDependency("codemirror", "5.36.0", SDKSuite.class.getResource("/codemirror.js")));
+			wui.addDependency(new JSDependency("codemirror.mode.xml", "5.36.0", SDKSuite.class.getResource("/codemirror-5.36.0/mode/xml/xml.js")));
+			wui.addDependency(new JSDependency("codemirror.mode.javascript", "5.36.0", SDKSuite.class.getResource("/codemirror-5.36.0/mode/javascript/javascript.js")));
+			wui.addDependency(new JSDependency("codemirror.mode.css", "5.36.0", SDKSuite.class.getResource("/codemirror-5.36.0/mode/css/css.js")));
+			wui.addDependency(new JSDependency("codemirror.mode.htmlmixed", "5.36.0", SDKSuite.class.getResource("/codemirror-5.36.0/mode/htmlmixed/htmlmixed.js")));
+			wui.addDependency(new JSDependency("codemirror.addon.edit.matchbrackets", "5.36.0", SDKSuite.class.getResource("/codemirror-5.36.0/edit/matchbrackets.js")));
+			
+			// Add CSS Dependencies
+			wui.addDependency(new CSSDependency("codemirror", "5.36.0", SDKSuite.class.getResource("/codemirror.css")));
 			
 			// Open Window
-			window.open();
+			wui.showView();
 			
 		} catch (InstantiationException e) {
 			e.printStackTrace();

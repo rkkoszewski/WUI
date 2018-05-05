@@ -183,11 +183,19 @@ public class WUIContentManager implements ContentManager {
 
 			String staticRequestType = request.getFirstParameter("requestType");
 			
-			
 			if(staticRequestType != null) {
 				switch(staticRequestType) {
-				case "streamedElement":
+				// Streamed Element
+				case "streamedElement": 
 					response = getStreamedElementData(request, session);
+					break;
+				// CSS Dependency	
+				case "cssDependency":
+					response = getCSSDependency(request, session);
+					break;
+				// JS Dependency
+				case "jsDependency": 
+					response = getJSDependency(request, session);
 					break;
 				}
 				
@@ -246,7 +254,7 @@ public class WUIContentManager implements ContentManager {
 		// Return Response
 		return response;
 	}
-	
+
 	/**
 	 * Get Web Socket Response
 	 */
@@ -315,8 +323,8 @@ public class WUIContentManager implements ContentManager {
 		String eventID = request.getHeader("x-wui-event");
 		
 		if(log.isDebugEnabled()) log.debug("TRIGGERED EVENT ON ELEMENT " + elmentUUID);	
-		
-		viewInstance.triggerEventOnElement(elmentUUID, eventID, null); // TODO: Pass data
+
+		viewInstance.triggerEventOnElement(elmentUUID, eventID, request.getPostBody()); // TODO: Pass data
 		
 		return new WUIStringResponse("text/html", "EVENT TRIGGERED");
 	}
@@ -618,5 +626,69 @@ public class WUIContentManager implements ContentManager {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		ImageIO.write(bi, targetFormat, os);
 		return new ByteArrayInputStream(os.toByteArray());
+	}
+	
+	// Simple CSS Dependency Manager (No Versioning)
+	private HashMap<String, CSSDependency> cssDependencies = new HashMap<String, CSSDependency>();
+	private HashMap<String, JSDependency> jsDependencies = new HashMap<String, JSDependency>();
+
+	/**
+	 * Add Web Dependency
+	 */
+	@Override
+	public void addDependency(WebDependency dependency) {
+		if(dependency instanceof CSSDependency) {
+			cssDependencies.put(dependency.name, (CSSDependency) dependency);
+		}else 
+		if(dependency instanceof JSDependency) {
+			jsDependencies.put(dependency.name, (JSDependency) dependency);
+		}else {
+			log.error("ERROR: Unknown web dependency type: ", dependency);
+		}
+		
+	}
+	
+	/**
+	 * Get JavaScript Dependency
+	 * @param request
+	 * @param session
+	 * @return
+	 */
+	private Response getJSDependency(Request request, Session session) {
+		System.out.println("REQUETSTING JS DEPENDENCY: " + request.getFirstParameter("name") + " / " + jsDependencies.size());
+		String name = request.getFirstParameter("name");
+		// String version = request.getFirstParameter("version");
+		
+		if(name != null && jsDependencies.containsKey(name)) {
+			JSDependency dep = jsDependencies.get(name);
+			try {
+				return new WUIFileResponse("text/javascript", dep.file.openStream());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return new WUIStringResponse("text/html","ERROR: Resource not found");
+	}
+
+	/**
+	 * Get CSS Dependency
+	 * @param request
+	 * @param session
+	 * @return
+	 */
+	private Response getCSSDependency(Request request, Session session) {
+		System.out.println("REQUETSTING CSS DEPENDENCY: " + request.getFirstParameter("name") + " / " + cssDependencies.size());
+		String name = request.getFirstParameter("name");
+		// String version = request.getFirstParameter("version");
+		
+		if(name != null && cssDependencies.containsKey(name)) {
+			CSSDependency dep = cssDependencies.get(name);
+			try {
+				return new WUIFileResponse("text/css", dep.file.openStream());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return new WUIStringResponse("text/html","ERROR: Resource not found");
 	}
 }

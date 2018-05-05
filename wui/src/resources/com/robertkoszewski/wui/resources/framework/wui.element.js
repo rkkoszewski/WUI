@@ -52,8 +52,10 @@
 		// Node Definition
 		this.node = null;
 		
-		// Auto Data
+		// Auto Data, References and Shared Memory
 		this.autoDataRefrences = {}; // Auto Data References
+		this.shared = {}; // Shared General Memory
+		this.ref = {}; // Shared DOM References
 
 		// Process Element
 		if(definition !== null){
@@ -67,6 +69,7 @@
 		_processElement: function(cleanData = false){
 			this.node = this.createNode(); // Create Node (Do not access WUIElement.node directly when getting the node to be added to the DOM, use getNode() instead)
 			this._renderCSS(); // Render CSS
+			this._parseDOMReferences(); // Parse DOM References
 			
 			// Auto Data
 			this._parseAutoData(this._configuration.data); // Parse Auto Data
@@ -217,18 +220,22 @@
 		_dataParameters: function(){
 			var self = this;
 			return {
-				definition: 'node, element, setContainer, performAction',
-				parameters: [ // Default Elements: 'node, element, setContainer, performAction'
+				definition: 'node, element, shared, ref, setContainer, triggerEvent',
+				parameters: [ // Default Elements: 'node, element, setContainer, triggerEvent'
 					this.node, // Element DOM Node
-					this,  // Element Object
-					function(id, node){ 
+					this,  // Element Object,
+					this.shared,
+					this.ref,
+					function(id, node){ // Set Container Node
 						id = id.trim();
 						if(id === '') throw 'Container ID Empty';
 						if(typeof node === 'undefined' || node == null) throw 'Selected invalid Node';
 						self._addChildNodeContainer(self, id, node); 
-					}, // Set Container Node
-					function(){ if(typeof self._configuration.actionPerformed === 'function') 
-						self._configuration.actionPerformed(); } // Action Performed Callback
+					}, 
+					function(eventID, data){ 
+						if(typeof self._configuration.eventTrigger === 'function') // Event Triggered Callback
+							self._configuration.eventTrigger(eventID, data); 
+					} 
 				]
 			};
 		},
@@ -255,6 +262,21 @@
 			dataParameters.parameters.push(this._debug ? this._dataDebug(data) :data);
 			console.debug(this);
 			return this._callMethod(this.definition.js, 'set-data', dataParameters.definition, dataParameters.parameters);
+		},
+		// Parse DOM References
+		_parseDOMReferences: function(data){
+			var self = this;
+			// Find all Child nodes with wui-ref attribute
+			var wui_data_nodes = this.node.querySelectorAll('[wui-ref]');
+			wui_data_nodes.forEach(function(node){
+				self.ref[node.getAttribute('wui-ref')] = node;
+				node.removeAttribute('wui-ref');
+			});
+			// Check root node for wui-data attribute
+			if(this.node.hasAttribute('wui-ref')){
+				this.ref[this.node.getAttribute('wui-ref')] = this.node;
+				this.node.removeAttribute('wui-ref');
+			}
 		},
 		// Parse Auto Data Node
 		_parseAutoDataNode: function(self, dnode, data){

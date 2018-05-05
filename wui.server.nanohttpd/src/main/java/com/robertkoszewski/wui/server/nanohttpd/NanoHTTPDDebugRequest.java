@@ -80,9 +80,8 @@ public class NanoHTTPDDebugRequest implements Request{
 		
 	}
 
-	public void getPostBody() {
-		// TODO Auto-generated method stub
-		
+	public String getPostBody() {
+		return null;
 	}
 	
 	// GET Parameters

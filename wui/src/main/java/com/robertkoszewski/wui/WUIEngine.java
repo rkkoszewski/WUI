@@ -29,8 +29,10 @@ import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.robertkoszewski.wui.core.CSSDependency;
 import com.robertkoszewski.wui.core.ContentManager;
 import com.robertkoszewski.wui.core.WUIContentManager;
+import com.robertkoszewski.wui.core.WebDependency;
 import com.robertkoszewski.wui.renderer.Renderer;
 import com.robertkoszewski.wui.renderer.RendererFactory;
 import com.robertkoszewski.wui.renderer.RendererHeadless;
@@ -46,7 +48,7 @@ import com.robertkoszewski.wui.utils.SocketUtils;
  * WUI Window Implementation
  * @author Robert Koszewski
  */
-public class WUIWindow {
+public class WUIEngine {
 	
 	//private final WindowTemplate template;
 	private final Server server;
@@ -55,20 +57,20 @@ public class WUIWindow {
 	private final Preferences preferences;
 	
 	// Logger
-	protected final Logger log = LoggerFactory.getLogger(WUIWindow.class);
+	protected final Logger log = LoggerFactory.getLogger(WUIEngine.class);
 	
 	/*
 	 * Constructors 
 	 */
-	public WUIWindow() throws InstantiationException, IllegalAccessException, ServerNotFoundException {
+	public WUIEngine() throws InstantiationException, IllegalAccessException, ServerNotFoundException {
 		this(null);
 	}
 	
-	public WUIWindow(Preferences preferences) throws InstantiationException, IllegalAccessException, ServerNotFoundException {
+	public WUIEngine(Preferences preferences) throws InstantiationException, IllegalAccessException, ServerNotFoundException {
 		this(preferences, new BasicTemplate());
 	}
 	
-	public WUIWindow(Preferences preferences, WindowTemplate template) throws InstantiationException, IllegalAccessException, ServerNotFoundException {
+	public WUIEngine(Preferences preferences, WindowTemplate template) throws InstantiationException, IllegalAccessException, ServerNotFoundException {
 		this.contentManager = new WUIContentManager(template);
 		this.server = getServerInstance();
 		this.renderer = getRendererInstance();
@@ -113,8 +115,11 @@ public class WUIWindow {
 	/*
 	 * Methods
 	 */
+	public void showView() {
+		this.showView("/");
+	}
 	
-	public void open() {
+	public void showView(String viewURL) {
 		try {
 			Integer port = parseInt(preferences.getSetting("port"));
 			// Get Port Number
@@ -124,7 +129,12 @@ public class WUIWindow {
 			
 			this.server.startServer(port, contentManager); // Start Server
 			
-			renderer.open("http://localhost:"+port+"/", "App Title", null, false, null, null);
+			// Process URL
+			if(!viewURL.startsWith("/")) {
+				viewURL = "/" + viewURL;
+			}
+			
+			renderer.open("http://localhost:" + port + viewURL, "App Title", null, false, null, null);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -153,5 +163,14 @@ public class WUIWindow {
 		}catch(Exception e) {
 			return null;
 		}
+	}
+
+	/**
+	 * Add Dependencies
+	 * @param dependencies
+	 */
+	public void addDependency(WebDependency... dependencies) {
+		for(WebDependency dependency: dependencies)
+			contentManager.addDependency(dependency);
 	}
 }

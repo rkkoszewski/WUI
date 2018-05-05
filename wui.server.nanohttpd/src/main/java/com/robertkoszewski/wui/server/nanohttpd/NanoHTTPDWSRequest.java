@@ -23,6 +23,7 @@
 
 package com.robertkoszewski.wui.server.nanohttpd;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,6 +34,7 @@ import com.robertkoszewski.wui.server.Request;
 
 import fi.iki.elonen.NanoHTTPD.CookieHandler;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
+import fi.iki.elonen.NanoHTTPD.ResponseException;
 
 /**
  * NanoHTTPD Compatible Request
@@ -86,9 +88,14 @@ public class NanoHTTPDWSRequest implements Request{
 		
 	}
 
-	public void getPostBody() {
-		// TODO Auto-generated method stub
-		
+	public String getPostBody() {
+		final HashMap<String, String> map = new HashMap<String, String>();
+        try {
+			session.parseBody(map);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        return map.get("postData");
 	}
 	
 	// GET Parameters

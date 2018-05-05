@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.robertkoszewski.wui.core.EventListener;
 import com.robertkoszewski.wui.core.ViewInstance;
 import com.robertkoszewski.wui.ui.element.type.EventTarget;
 import com.robertkoszewski.wui.ui.element.type.HTMLElement;
@@ -54,7 +55,7 @@ public abstract class Node implements EventTarget, NodeData, Linkable, StreamedR
 	// Variables
 	private UUID element_uuid = UUID.randomUUID(); // Element Unique Identifiable ID
 	private String id; // Element ID
-	private ArrayList<Runnable> action_performed_callback; // Action Performed Callbacks
+	private ArrayList<EventListener> action_performed_callback; // Action Performed Callbacks
 	private long element_timestamp = Utils.getChangeTimestamp(); // Element UID	
 	protected final Map<ViewInstance, Parent> views = new HashMap<ViewInstance, Parent>(); // Views Container
 	
@@ -98,22 +99,22 @@ public abstract class Node implements EventTarget, NodeData, Linkable, StreamedR
 	public void triggerEvent(String eventID, String data) {
 		// TODO: Implement here
 		if(action_performed_callback == null) return;
-		Iterator<Runnable> it = action_performed_callback.iterator();
+		Iterator<EventListener> it = action_performed_callback.iterator();
 		while(it.hasNext())
-			it.next().run();
+			it.next().run(eventID, data);
 	}
 	
 	/**
 	 * Add Action Listener
 	 */
-	public void addEventListener(Runnable callback) {
-		if(action_performed_callback == null) action_performed_callback= new ArrayList<Runnable>(); // Lazy Instantiation
+	public void addEventListener(EventListener callback) {
+		if(action_performed_callback == null) action_performed_callback= new ArrayList<EventListener>(); // Lazy Instantiation
 		action_performed_callback.add(callback);
 		updateElement(); // TODO: Only run this when a new Action Type is added
 	}	
 	
 	@Override
-	public void removeEventListener(Runnable callback) {
+	public void removeEventListener(EventListener callback) {
 		action_performed_callback.remove(callback);
 		updateElement(); // TODO: Only run this when a Action Type is really removed
 	}

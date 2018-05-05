@@ -21,51 +21,22 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package elements;
+package com.robertkoszewski.wui.core;
 
-import java.io.IOException;
-
-import org.apache.commons.io.IOUtils;
-
-import com.robertkoszewski.wui.core.EventListener;
-import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.ui.element.Node;
+import java.net.URL;
 
 /**
- * WUI Element Editor
+ * Web Dependency
  * @author Robert Koszewski
  */
-public class ElementEditor extends Node{
+public abstract class WebDependency {
+	public final String name;
+	public final String version;
+	public final URL file;
 	
-	public ElementEditor() {
-		try {
-			setElementData("definition", IOUtils.toString(ElementEditor.class.getResourceAsStream("test.json"), "UTF-8"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		addEventListener(new EventListener() {
-
-			public void run(String eventID, String data) {
-				if(eventID.equals("editor-update")) {
-					// Editor UPDATE
-					// System.err.println("EVENT ID!!!" + eventID +" WITH DATA: " + data);
-					setElementData("definition", data); // TODO: Check Data
-				}
-			}
-			
-		});
+	public WebDependency(String name, String version, URL file) {
+		this.name = name;
+		this.version = version;
+		this.file = file;
 	}
-	
-	
-
-	public ElementTemplate getElementDefinition() {
-		try {
-			return new ElementTemplate(ElementEditor.class.getResourceAsStream("ElementEditor.def.json"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
 }

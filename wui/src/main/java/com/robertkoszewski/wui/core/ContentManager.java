@@ -59,4 +59,10 @@ public interface ContentManager extends ResponseManager {
 	 * @param url
 	 */
 	public void removeView(String url);
+
+	/**
+	 * Add Web Dependency
+	 * @param dependency
+	 */
+	public void addDependency(WebDependency dependency);
 }

@@ -1,10 +1,13 @@
 package com.robertkoszewski.wui.example;
 
+import java.io.File;
 import java.util.Collections;
 import com.google.devtools.common.options.OptionsParser;
 import com.robertkoszewski.wui.Preferences;
 import com.robertkoszewski.wui.View;
-import com.robertkoszewski.wui.WUIWindow;
+import com.robertkoszewski.wui.WUIEngine;
+import com.robertkoszewski.wui.core.CSSDependency;
+import com.robertkoszewski.wui.core.EventListener;
 import com.robertkoszewski.wui.example.test.RootView;
 import com.robertkoszewski.wui.template.Content;
 import com.robertkoszewski.wui.ui.element.Button;
@@ -48,14 +51,14 @@ public class App
         // Setup Renderer
         System.setProperty("wui.renderer", "javafx");
         
-        WUIWindow w = null;
+        WUIEngine w = null;
 		try {
 			
 			Preferences settings = new Preferences();
 			if(options.port > 0) settings.setSetting("Port", options.port + "");
 			settings.setSetting("Headless", options.headless + "");
 			
-			w = new WUIWindow(settings); // TODO: Add configuration options to this
+			w = new WUIEngine(settings); // TODO: Add configuration options to this
 		} catch (Exception e) {
 			System.err.println("ERROR: An exception found during start of the Server system.");
 			e.printStackTrace();
@@ -63,14 +66,13 @@ public class App
 		} 
         
         w.setIcon(RootView.class.getResource("icon.png")); // Set Icon
-        
+
         // Class Based View
         w.addView("/", new RootView()); // Define Root View
-        
-        
+
         // Add View
-        final Runnable callback = new Runnable() {
-			public void run() {
+        final EventListener callback = new EventListener() {
+			public void run(String eventID, String data) {
 				System.exit(0);
 			}
         };
@@ -90,7 +92,7 @@ public class App
         });
 
         
-        w.open();
+        w.showView();
 
         /*
         WUIWindow w = WUI.newWindow("Title", "Icon");

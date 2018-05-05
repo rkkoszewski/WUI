@@ -83,12 +83,21 @@ public class NanoHTTPDRequest implements Request{
 	public void getPostData() {
 		
 		// TODO Auto-generated method stub
-		
+		/*
+		System.out.println("MAP MAP" + map.toString());
+        System.out.println("MAP MAP2" + session.getParameters().toString());
+        System.out.println("MAP MAP3" + session.getParameters().keySet().toString());
+		*/
 	}
 
-	public void getPostBody() {
-		// TODO Auto-generated method stub
-		
+	public String getPostBody() {
+		final HashMap<String, String> map = new HashMap<String, String>();
+        try {
+			session.parseBody(map);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        return map.get("postData");
 	}
 	
 	// GET Parameters

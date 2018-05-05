@@ -69,7 +69,7 @@ public interface Request {
 	
 	// POST Data
 	public void getPostData();
-	public void getPostBody();
+	public String getPostBody();
 
 	// GET Parameters
 	/**

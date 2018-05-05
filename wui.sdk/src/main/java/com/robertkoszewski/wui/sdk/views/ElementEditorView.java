@@ -30,11 +30,14 @@ import java.util.Queue;
 import java.util.Vector;
 
 import com.robertkoszewski.wui.View;
+import com.robertkoszewski.wui.core.EventListener;
 import com.robertkoszewski.wui.template.Content;
 import com.robertkoszewski.wui.ui.element.Button;
 import com.robertkoszewski.wui.ui.element.Label;
 import com.robertkoszewski.wui.ui.element.Node;
 import com.robertkoszewski.wui.ui.layout.BorderLayout;
+
+import elements.ElementEditor;
 
 public class ElementEditorView extends View {
 
@@ -50,12 +53,21 @@ public class ElementEditorView extends View {
 		final BorderLayout layout = new BorderLayout();
 		content.addElement(layout);
 		
+		
+		// Element Editor
+		
+		ElementEditor editor = new ElementEditor();
+		
+		layout.addElement(editor, BorderLayout.Position.center);
+		
+		/*
+		
 		final Label label = new Label("IT WORKS ");
 		layout.addElement(label, BorderLayout.Position.north); // Label Button
 		
 		Button button = new Button("PRESS ME");
-		button.addEventListener(new Runnable() {
-			public void run() {
+		button.addEventListener(new EventListener() {
+			public void run(String eventID, String data) {
 				label.setText("BUTTON PRESSED: "+ i++);
 				
 				if(left) {
@@ -75,11 +87,10 @@ public class ElementEditorView extends View {
 		// Dynamic Add Remove
 		
 		final Queue<Node> den = new ArrayDeque<Node>();
-		
-		
+				
 		Button button2 = new Button("CREATE NEW ELEMENT");
-		button2.addEventListener(new Runnable() {
-			public void run() {
+		button2.addEventListener(new EventListener() {
+			public void run(String eventID, String data) {
 				Label nl = new Label("NEW ELEMENT " + e++);
 				den.add(nl);
 				layout.addElement(nl, BorderLayout.Position.center);;
@@ -88,8 +99,8 @@ public class ElementEditorView extends View {
 		layout.addElement(button2, BorderLayout.Position.south);
 		
 		Button button3 = new Button("REMOVE ELEMENT");
-		button3.addEventListener(new Runnable() {
-			public void run() {
+		button3.addEventListener(new EventListener() {
+			public void run(String eventID, String data) {
 				
 				if(!den.isEmpty()) {
 					Node ele = den.poll();
@@ -98,5 +109,6 @@ public class ElementEditorView extends View {
 			}
 		});
 		layout.addElement(button3, BorderLayout.Position.south);
+		*/
 	}
 }

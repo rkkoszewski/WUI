@@ -122,9 +122,8 @@ public class WSRequest implements Request{
 	}
 
 	@Override
-	public void getPostBody() {
-		// TODO Auto-generated method stub
-		
+	public String getPostBody() {
+		return null;
 	}
 
 	@Override

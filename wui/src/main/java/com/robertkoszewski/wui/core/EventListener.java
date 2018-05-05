@@ -21,51 +21,12 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package elements;
-
-import java.io.IOException;
-
-import org.apache.commons.io.IOUtils;
-
-import com.robertkoszewski.wui.core.EventListener;
-import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.ui.element.Node;
+package com.robertkoszewski.wui.core;
 
 /**
- * WUI Element Editor
+ * Event Listener
  * @author Robert Koszewski
  */
-public class ElementEditor extends Node{
-	
-	public ElementEditor() {
-		try {
-			setElementData("definition", IOUtils.toString(ElementEditor.class.getResourceAsStream("test.json"), "UTF-8"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		addEventListener(new EventListener() {
-
-			public void run(String eventID, String data) {
-				if(eventID.equals("editor-update")) {
-					// Editor UPDATE
-					// System.err.println("EVENT ID!!!" + eventID +" WITH DATA: " + data);
-					setElementData("definition", data); // TODO: Check Data
-				}
-			}
-			
-		});
-	}
-	
-	
-
-	public ElementTemplate getElementDefinition() {
-		try {
-			return new ElementTemplate(ElementEditor.class.getResourceAsStream("ElementEditor.def.json"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
+public interface EventListener {
+	public void run(String eventID, String data);
 }

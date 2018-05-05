@@ -23,6 +23,8 @@
 
 package com.robertkoszewski.wui.ui.element.type;
 
+import com.robertkoszewski.wui.core.EventListener;
+
 /**
  * Interactive Element
  * @author Robert Koszewski
@@ -37,11 +39,11 @@ public interface EventTarget {
 	 * Add a ActionListener
 	 * @param callback
 	 */
-	public void addEventListener(Runnable callback);
+	public void addEventListener(EventListener callback);
 	
 	/**
 	 * Remove a ActionListener
 	 * @param callback
 	 */
-	public void removeEventListener(Runnable callback);
+	public void removeEventListener(EventListener callback);
 }
