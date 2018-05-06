@@ -41,7 +41,7 @@ import com.robertkoszewski.wui.utils.SystemInfo;
 public class RootView extends View{
 
 	public RootView() {
-		super(Type.GLOBAL);
+		super(Scope.SHARED);
 	}
 
 	public void createView(final Content content) {

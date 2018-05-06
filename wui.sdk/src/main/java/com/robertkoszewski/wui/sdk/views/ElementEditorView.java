@@ -41,7 +41,7 @@ import elements.ElementEditor;
 
 public class ElementEditorView extends View {
 
-	public ElementEditorView(Type type) {
+	public ElementEditorView(Scope type) {
 		super(type);
 	}
 	

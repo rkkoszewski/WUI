@@ -23,9 +23,15 @@
 
 package com.robertkoszewski.wui.core;
 
+import com.robertkoszewski.wui.View.Scope;
 import com.robertkoszewski.wui.template.Content;
 
+/**
+ * View Interface
+ * @author Robert Koszewski
+ */
 public interface ViewInterface {
-	public void createView(Content content);
-	public void onDestroy();
+	public void createView(Content content); // Instantiate View
+	public void onDestroy(); // Destroy View
+	public Scope getViewScope(); // Get View Scope
 }

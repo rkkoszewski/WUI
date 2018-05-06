@@ -77,7 +77,7 @@ public class App
 			}
         };
         
-        w.addView("/data", new View(View.Type.PRIVATE) { // Default is global view
+        w.addView("/data", new View(View.Scope.SHARED) { // Default is global view
 			public void createView(Content content) {
 				
 				content.addElement(new Label("ASD"));

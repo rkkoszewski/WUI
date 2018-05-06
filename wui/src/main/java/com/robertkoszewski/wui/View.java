@@ -33,40 +33,56 @@ import com.robertkoszewski.wui.template.WindowTemplate;
  */
 public abstract class View implements ViewInterface{
 
-	private final Type type;
+	private final Scope scope;
+	private ViewInstance sharedInstance = null;
 	
-	public View(Type type) {
-		this.type = type;
+	public View(Scope scope) {
+		this.scope = scope;
 	}
 	
 	/**
 	 * On Destroy Callback
 	 */
 	public void onDestroy() {}
-	
+
 	/**
 	 * Get View Instance
 	 * @param template
 	 * @return
 	 */
 	public final ViewInstance getViewInstance(WindowTemplate template) {
-		// TODO: Change behavior based on Type
-		/*
-		switch(type) {
-			default:
+		// TODO: Implement an instance that can be shared by UID between different users 
+		switch(scope) {
+			// Per Session Instance
+			case SESSION: 
+				ViewInstance instance = new ViewInstance(template);
+				createView(instance.getContent()); // Populate View
+				return instance;
+				
+			// Shared Instance
+			case SHARED: 
+			default: // Defaults to Shared Instance
+				if(sharedInstance == null) {
+					sharedInstance = new ViewInstance(template);
+					createView(sharedInstance.getContent()); // Populate View
+				}
+				return sharedInstance;
 		}
-		*/
-		ViewInstance instance = new ViewInstance(template);
-		createView(instance.getContent()); // Populate View
-		return instance;
 	}
 	
 	/**
-	 * View Visibility Type
-	 * @author Robert Koszewski
+	 * Get View Scope
+	 * @return Scope
 	 */
-	public enum Type{
-		GLOBAL,
-		PRIVATE
+	public final Scope getViewScope() {
+		return scope;
+	}
+	
+	/**
+	 * View Scope
+	 */
+	public enum Scope{
+		SESSION,
+		SHARED
 	}
 }

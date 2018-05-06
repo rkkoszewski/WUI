@@ -1,6 +1,7 @@
 package com.robertkoszewski.wui.sdk;
 
 import com.robertkoszewski.wui.Preferences;
+import com.robertkoszewski.wui.View;
 import com.robertkoszewski.wui.WUIEngine;
 import com.robertkoszewski.wui.core.CSSDependency;
 import com.robertkoszewski.wui.core.JSDependency;
@@ -21,10 +22,10 @@ public class SDKSuite
 	        // System.setProperty("wui.renderer", "javafx");
         	
 	        // Instantiate WUI Window
-			WUIEngine wui = new WUIEngine(new Preferences(new String[] {"prefered"}));
+			WUIEngine wui = new WUIEngine(new Preferences(new String[] {"prefered", "port=8080"}));
 
 			// Add Views
-			wui.addView("/", new ElementEditorView(null));
+			wui.addView("/", new ElementEditorView(View.Scope.SHARED));
 			
 			// Add JS Dependencies
 			wui.addDependency(new JSDependency("codemirror", "5.36.0", SDKSuite.class.getResource("/codemirror.js")));
