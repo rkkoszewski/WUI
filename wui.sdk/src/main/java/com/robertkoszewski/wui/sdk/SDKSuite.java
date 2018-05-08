@@ -7,6 +7,7 @@ import com.robertkoszewski.wui.core.CSSDependency;
 import com.robertkoszewski.wui.core.JSDependency;
 import com.robertkoszewski.wui.sdk.views.ElementEditorView;
 import com.robertkoszewski.wui.server.ServerNotFoundException;
+import com.robertkoszewski.wui.template.materialdesign.MaterialDesignTemplate;
 
 /**
  * Hello world!
@@ -22,7 +23,7 @@ public class SDKSuite
 	        // System.setProperty("wui.renderer", "javafx");
         	
 	        // Instantiate WUI Window
-			WUIEngine wui = new WUIEngine(new Preferences(new String[] {"prefered", "port=8080"}));
+			WUIEngine wui = new WUIEngine(new Preferences("port=8080"), new MaterialDesignTemplate());
 
 			// Add Views
 			wui.addView("/", new ElementEditorView(View.Scope.SHARED));

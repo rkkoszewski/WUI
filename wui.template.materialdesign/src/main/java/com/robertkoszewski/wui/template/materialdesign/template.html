@@ -6,9 +6,6 @@
 		<base href="/" />
 		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     	<link rel="icon" href="/favicon.png" type="image/png" />
-		<!--<meta name="description" content="The HTML5 Herald">
-		<meta name="author" content="SitePoint">-->
-		<link rel="stylesheet" href="/templates/base/css/style.css">
 		<!--[if lt IE 9]>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
 		<![endif]-->
@@ -17,11 +14,11 @@
 			/* TODO: Use style.css instead of this. We need this workaround because the CSS file is delivered with wrong headers and is treated as Javascript.*/
 			/* Base Style */
 			html, body{
+			    height: 100%;
+			    padding: 0;
+			    margin: 0;
 			    display: flex;
-				width: 100%;
-				height: 100%;
-				margin: 0;
-				padding: 0;
+			    flex-direction: column;
 			}
 		</style>
 		<script src="/framework/lib/jquery-3.3.1.min.js"></script>
@@ -34,18 +31,45 @@
 		<script src="/framework/wui.engine.js"></script>
 		<script src="/framework/wui.dependencies.js"></script>
 		<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			(new WUIEngine({
-				body: document.body
-			},{
-				placeholder: 'Loading...', /* Element Placeholder */
-				dependencies: { /* Already included dependencies with the template */
-					'jquery': '3.3.1'
-				}
-			}))
-			.loadPage(window.location.pathname); /* Initialize the WUI Engine */
-		}, false);
+			document.addEventListener('DOMContentLoaded', function() {
+				(new WUIEngine({
+					body: document.getElementById('body')
+				},{
+					placeholder: 'Loading...', /* Element Placeholder */
+					dependencies: { /* Already included dependencies with the template */
+						'jquery': '3.3.1'
+					}
+				}))
+				.loadPage(window.location.pathname); /* Initialize the WUI Engine */
+			}, false);
 		</script>
+		
+		<style>
+			.material-appbar{
+				max-height: 56px;
+				/*background-color: #303F9F;*/
+				background-color: #607D8B;
+				color: #FFFFFF;
+				font-weight: 900;
+			    padding: 16px;
+			    font-size: 20px;
+			}
+			
+			.material-content{
+				display: flex;
+    			height: 100%;
+    			overflow: auto;
+			}
+		</style>
 	</head>
-	<body></body>
+	<body>
+		<header class="material-appbar">
+	        <!-- <div class="menu"></div>  -->
+	        <div class="material-appbar-title">Title</div>
+	    </header>
+	
+	    <!-- <nav id="drawer" class="drawer drawer-temporary"></nav> -->
+	    
+	    <main class="material-content" id="body"></main>
+	</body>
 </html>

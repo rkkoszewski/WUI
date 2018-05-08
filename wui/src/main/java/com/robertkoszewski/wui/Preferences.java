@@ -37,8 +37,24 @@ public class Preferences extends CaseInsensitiveHashMap<String>{
 		super();
 	}
 	
-	public Preferences(String[] args) {
-		// TODO: Parse arguments
+	/**
+	 * Read Preferences from Argument Array
+	 * @param args
+	 */
+	public Preferences(String... args) {
+		for(String arg : args) {
+			int i = arg.indexOf('=');
+			if(i != -1 && i < arg.length()) {
+				// Key Value Pair
+				String key = arg.substring(0, i).toLowerCase();
+				String value = arg.substring(i + 1);
+				setSetting(key, value);
+				
+			}else{
+				// No Key-Value Pair Found
+				setSetting(arg, "");
+			}
+		}
 	}
 	
 	/**
@@ -47,7 +63,7 @@ public class Preferences extends CaseInsensitiveHashMap<String>{
 	 * @param value
 	 */
 	public void setSetting(String key, String value) {
-		put(key, value);
+		put(key.toLowerCase(), value);
 	}
 	
 	/**

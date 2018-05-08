@@ -50,9 +50,13 @@ public class WUIResourceManager implements ResourceManager {
 
 	@Override
 	public String getResourceAsString(String path) {
-		InputStream in = WUIResourceManager.class.getResourceAsStream(processPath(path, true)); 
-		if(in == null) return null;
-		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+		return getResourceAsString(WUIResourceManager.class.getResourceAsStream(processPath(path, true))); 
+	}
+	
+	@Override
+	public String getResourceAsString(InputStream is) {
+		if(is == null) return null;
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		String out = "";
 		try {
 			String line;
@@ -68,5 +72,4 @@ public class WUIResourceManager implements ResourceManager {
 	private String processPath(String path, boolean prependBasePath) {
 		return BasePath + StringUtils.removeStringFromStringStart(path, "/");
 	}
-
 }

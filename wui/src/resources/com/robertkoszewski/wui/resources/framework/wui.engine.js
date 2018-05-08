@@ -32,15 +32,14 @@ var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 	'use strict';
 
 	// WUI Core Engine
-	function WUIEngine(rootNode, configuration = {}){
+	function WUIEngine(rootContainers, configuration = {}){
 		// Correct Instantiation Guard
 		if (!(this instanceof WUIEngine)) 
-			return new WUIEngine(configuration);
+			return new WUIEngine(rootContainers, configuration);
 		
 		// Configuration
 		this.configuration = configuration;
-		
-		//
+
 		// Variables
 		this.elements = {};
 		this.element_cache = {};
@@ -48,13 +47,16 @@ var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 		this.element_download_queue = {};
 		this.new_nodes = {}; // New Nodes
 		this.placeholder_html = "<div>Loading...</div>"; // Placeholder Element
+		this.rootContainers = rootContainers;
 		
 		// Prepare Body Node
+		/*
 		document.body._wuidata = {
 			container: {
 				body: document.body
 			}
 		}
+		*/
 		
 		// Variables
 		this.DependencyProvider;
@@ -83,17 +85,21 @@ var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 				self.timestamp = data.timestamp; // Update Timestamp
 
 				// Template Child Nodes (TODO: To be inherited from the template)
+				/*
 				var template_child_nodes = {
 					body: document.body
 				}
+				*/
 				
 				self.new_nodes = data.nodes; // Set New Nodes
 				
 				// TODO: Implement Root Data Updating
 				if(typeof data.root != 'undefined'){
 					// Root Updates
+					// alert(self.childNodes);
+					console.debug("CHILD NODES:", self.childNodes)
 					// console.debug("getPageContent: PROCESS BODY CHILD NODES!!!", template_child_nodes);
-					self.processChildNodes(template_child_nodes, data.root); // Process Child Nodes
+					self.processChildNodes(self.rootContainers, data.root); // Process Child Nodes
 				}
 				
 				// Update Existing Nodes

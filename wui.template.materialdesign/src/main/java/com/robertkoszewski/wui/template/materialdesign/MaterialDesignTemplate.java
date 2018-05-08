@@ -21,41 +21,43 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.server;
+package com.robertkoszewski.wui.template.materialdesign;
 
-import java.io.InputStream;
+import com.robertkoszewski.wui.core.ViewInstance;
+import com.robertkoszewski.wui.server.ResourceManager;
+import com.robertkoszewski.wui.template.BaseContent;
+import com.robertkoszewski.wui.template.BasicContent;
+import com.robertkoszewski.wui.template.Content;
+import com.robertkoszewski.wui.template.WindowTemplate;
 
 /**
- * Resource Manager Interface
+ * Material Design Template
  * @author Robert Koszewski
  */
-public interface ResourceManager {
+public class MaterialDesignTemplate implements WindowTemplate{
 	
-	/**
-	 * Check if resouce exists
-	 * @param path
-	 * @return
-	 */
-	public boolean resourceExists(String path);
-	
-	/**
-	 * Get Resource
-	 * @param path
-	 * @return
-	 */
-	public InputStream getResource(String path);
-	
-	/**
-	 * Get Resource as Stream
-	 * @param path
-	 * @return
-	 */
-	public String getResourceAsString(String path);
-	
-	/**
-	 * Get Resource as Stream
-	 * @param is
-	 * @return
-	 */
-	public String getResourceAsString(InputStream is);
+	private String title = "";
+
+	public String getTemplateHTML(ResourceManager resources) {
+		String html = resources.getResourceAsString(MaterialDesignTemplate.class.getResourceAsStream("template.html"));
+		return (html != null ? html : "<html><body>ERROR: Unable to find Template</body></html>");
+	}
+
+	public String generateResponse(Content content, /*UIControl uicontrol,*/ long timestamp) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setAppName(String title) {
+		this.title = title;
+	}
+
+	public String getAppName() {
+		return this.title;
+	}
+
+	public BaseContent<?, ?, ?> getContentInstance(ViewInstance viewInstance) {
+		return new BasicContent(viewInstance);
+	}
+
 }

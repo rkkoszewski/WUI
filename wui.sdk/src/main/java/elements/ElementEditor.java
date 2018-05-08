@@ -39,7 +39,7 @@ public class ElementEditor extends Node{
 	
 	public ElementEditor() {
 		try {
-			setElementData("definition", IOUtils.toString(ElementEditor.class.getResourceAsStream("test.json"), "UTF-8"));
+			setElementData("definition", IOUtils.toString(ElementEditor.class.getResourceAsStream("ElementEditor.def.json"), "UTF-8"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
