@@ -21,52 +21,27 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.layout;
+package com.robertkoszewski.wui.structs;
 
-import java.io.IOException;
-import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.ui.element.Node;
-import com.robertkoszewski.wui.ui.element.Parent;
+/**
+ * Hard Reference to pass by reference an object to a method
+ * @author Robert Koszewski
+ *
+ * @param <T>
+ */
+public class HardReference<T> {
 
-public class BorderLayout extends Parent{
-
-	@Override
-	public ElementTemplate getElementDefinition() {
-		try {
-			return new ElementTemplate(BorderLayout.class.getResourceAsStream("BorderLayout.def.json"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+	private T obj;
+	
+	public HardReference(T obj) {
+		this.obj = obj;
 	}
 	
-	public void addElement(Node element, Position position) {
-		addChild(element, position.name());
+	public void setValue(T obj) {
+		this.obj = obj;
 	}
 	
-	public void removeElement(Node element) {
-		removeChild(element);
+	public T getValue() {
+		return obj;
 	}
-	
-	public Node[] getElements(Position position) {
-		return getChildren(position.name());
-	}
-	
-	public void clearElements(Position position) {
-		clearChildren(position.name());
-	}
-
-	/**
-	 * Element Positions
-	 * @author Robert Koszewski
-	 */
-	public enum Position{
-		north,
-		east,
-		south,
-		west,
-		center
-	}
-
-	
 }

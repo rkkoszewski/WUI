@@ -21,52 +21,79 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.layout;
+package com.robertkoszewski.wui.sdk.elements;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+
+import org.apache.commons.io.IOUtils;
+
+import com.robertkoszewski.wui.core.EventListener;
 import com.robertkoszewski.wui.template.ElementTemplate;
 import com.robertkoszewski.wui.ui.element.Node;
-import com.robertkoszewski.wui.ui.element.Parent;
+import com.robertkoszewski.wui.utils.FileUtils;
 
-public class BorderLayout extends Parent{
+/**
+ * WUI Element Editor
+ * @author Robert Koszewski
+ */
+public class ElementEditor extends Node{
+	
+	public ElementEditor() {
+		addEventListener(new EventListener() {
+			public void run(String eventID, String data) {
+				if(eventID.equals("editor-update")) {
+					setElementData("definition", data); // TODO: Check Data
+				}
+			}
+		});
+	}
+	
+	/**
+	 * Get Definition
+	 * @return
+	 */
+	public String getDefinition() {
+		return getElementData("definition");
+	}
+	
+	/**
+	 * Load Definition
+	 * @param definition
+	 */
+	public void setDefinition(String definition) {
+		setElementData("definition", definition); // TODO: Check Data
+	}
 
-	@Override
+	/**
+	 * Load Definition from URI
+	 * @param definitionURI
+	 * @throws IOException
+	 */
+	public void loadDefinition(URI definitionURI) throws IOException {
+		setElementData("definition", IOUtils.toString(definitionURI, "UTF-8")); // TODO: Check Data
+	}
+	
+	/**
+	 * Save Element Definition to File
+	 * @param file
+	 */
+	public void saveDefinition(File file) {
+		try {
+			FileUtils.writeStringToFile(file, getDefinition());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public ElementTemplate getElementDefinition() {
 		try {
-			return new ElementTemplate(BorderLayout.class.getResourceAsStream("BorderLayout.def.json"));
+			return new ElementTemplate(ElementEditor.class.getResourceAsStream("ElementEditor.def.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
-	
-	public void addElement(Node element, Position position) {
-		addChild(element, position.name());
-	}
-	
-	public void removeElement(Node element) {
-		removeChild(element);
-	}
-	
-	public Node[] getElements(Position position) {
-		return getChildren(position.name());
-	}
-	
-	public void clearElements(Position position) {
-		clearChildren(position.name());
-	}
 
-	/**
-	 * Element Positions
-	 * @author Robert Koszewski
-	 */
-	public enum Position{
-		north,
-		east,
-		south,
-		west,
-		center
-	}
-
-	
 }

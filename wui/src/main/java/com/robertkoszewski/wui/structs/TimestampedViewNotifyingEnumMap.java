@@ -51,6 +51,6 @@ public class TimestampedViewNotifyingEnumMap<K extends Enum<K>, V> extends Times
 	protected void contentChanged() {
 		super.contentChanged();
 		// Notify View
-		viewInstance.viewChanged();
+		viewInstance.viewChanged(0); // TODO: Get Timestamp
 	}
 }

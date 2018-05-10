@@ -41,6 +41,7 @@ public class ViewInstance {
 	private Map<String, Node> element_uuid_to_element = new HashMap<String, Node>();
 	private Lock view_lock = new ReentrantLock();
 	private final BaseContent<?, ?, ?> content;
+	private long latest_timestamp = 0;
 	
 	public ViewInstance(WindowTemplate template) {
 		this.content = template.getContentInstance(this);
@@ -78,11 +79,23 @@ public class ViewInstance {
 	
 	/**
 	 * Notify that View has changed
+	 * @param element_timestamp 
 	 */
-	public void viewChanged() {
+	public void viewChanged(long element_timestamp) {
 		synchronized(view_lock){
+			if(this.latest_timestamp < element_timestamp) {
+				this.latest_timestamp = element_timestamp;
+			}
 			view_lock.notifyAll();
 		}
+	}
+	
+	/**
+	 * Get Latest Timestamp
+	 * @return
+	 */
+	public long getLatestTimestamp() {
+		return this.latest_timestamp;
 	}
 	
 	/**

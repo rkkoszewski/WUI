@@ -23,7 +23,7 @@ public class SDKSuite
 	        // System.setProperty("wui.renderer", "javafx");
         	
 	        // Instantiate WUI Window
-			WUIEngine wui = new WUIEngine(new Preferences("port=8080"), new MaterialDesignTemplate());
+			WUIEngine wui = new WUIEngine(new Preferences("port=8081"), new MaterialDesignTemplate());
 
 			// Add Views
 			wui.addView("/", new ElementEditorView(View.Scope.SHARED));

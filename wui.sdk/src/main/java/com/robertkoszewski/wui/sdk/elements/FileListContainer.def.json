@@ -1,0 +1,1 @@
+{"name":"FileElementContainer","version":"1.0.0","html":"<div wui-container=\"default\"></div>","css":{"format":"lesscss","style":"padding: 6px;\ndisplay: flex;\nflex-direction: column;\nmin-width: 100px;"}}

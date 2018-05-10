@@ -25,5 +25,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/wui"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/wui.renderer.javafx"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/wui.server.nanohttpd"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/wui.template.materialdesign"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

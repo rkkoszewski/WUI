@@ -50,4 +50,8 @@ public class Container extends Parent {
 	public void removeElement(Node e) {
 		removeChild(e);
 	}
+	
+	public void clearElements() {
+		clearChildren("default");
+	}
 }

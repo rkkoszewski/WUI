@@ -8,8 +8,10 @@ import com.robertkoszewski.wui.View;
 import com.robertkoszewski.wui.WUIEngine;
 import com.robertkoszewski.wui.core.CSSDependency;
 import com.robertkoszewski.wui.core.EventListener;
+import com.robertkoszewski.wui.example.pictureviewer.PictureViewerView;
 import com.robertkoszewski.wui.example.test.RootView;
 import com.robertkoszewski.wui.template.Content;
+import com.robertkoszewski.wui.template.materialdesign.MaterialDesignTemplate;
 import com.robertkoszewski.wui.ui.element.Button;
 import com.robertkoszewski.wui.ui.element.Label;
 
@@ -58,7 +60,7 @@ public class App
 			if(options.port > 0) settings.setSetting("Port", options.port + "");
 			settings.setSetting("Headless", options.headless + "");
 			
-			w = new WUIEngine(settings); // TODO: Add configuration options to this
+			w = new WUIEngine(settings, new MaterialDesignTemplate());
 		} catch (Exception e) {
 			System.err.println("ERROR: An exception found during start of the Server system.");
 			e.printStackTrace();
@@ -68,7 +70,9 @@ public class App
         w.setIcon(RootView.class.getResource("icon.png")); // Set Icon
 
         // Class Based View
-        w.addView("/", new RootView()); // Define Root View
+        //w.addView("/", new RootView()); // Define Root View
+        w.addView("/", new PictureViewerView(View.Scope.SHARED)); // Define Root View
+        
 
         // Add View
         final EventListener callback = new EventListener() {

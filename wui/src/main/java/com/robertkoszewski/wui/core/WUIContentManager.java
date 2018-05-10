@@ -397,7 +397,7 @@ public class WUIContentManager implements ContentManager {
 		}
 
 		// Freeze request till data changes
-		if(remote_timestamp != 0) {
+		if(remote_timestamp == view.getLatestTimestamp() /*!= 0*/) {
 			try {
 				view.waitForViewChange();
 			} catch (InterruptedException e) {

@@ -90,7 +90,7 @@ public abstract class Node implements EventTarget, NodeData, Linkable, StreamedR
 		// Notify Element Update
 		Iterator<ViewInstance> vit = views.keySet().iterator();
 		while(vit.hasNext())
-			vit.next().viewChanged();
+			vit.next().viewChanged(this.element_timestamp);
 	}
 	
 	/**
@@ -267,18 +267,22 @@ public abstract class Node implements EventTarget, NodeData, Linkable, StreamedR
 	// Avoid Update Miss due to Concurrency Issues
 	
 	public void startRead() {
+		//System.out.println("START READ: " + getElementName() + " - " + this);
 		rwlock.readLock().lock();
 	}
 	
 	public void endRead() {
+		//System.out.println("END READ: " + getElementName() + " - " + this);
 		rwlock.readLock().unlock();
 	}
 	
 	protected void startWrite() {
+		//System.out.println("START WRITE: " + getElementName() + " - " + this);
 		rwlock.writeLock().lock();
 	}
 	
 	protected void endWrite() {
+		//System.out.println("END WRITE: " + getElementName() + " - " + this);
 		rwlock.writeLock().unlock();
 	}
 	

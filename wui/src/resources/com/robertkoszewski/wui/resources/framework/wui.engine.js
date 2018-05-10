@@ -49,15 +49,6 @@ var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 		this.placeholder_html = "<div>Loading...</div>"; // Placeholder Element
 		this.rootContainers = rootContainers;
 		
-		// Prepare Body Node
-		/*
-		document.body._wuidata = {
-			container: {
-				body: document.body
-			}
-		}
-		*/
-		
 		// Variables
 		this.DependencyProvider;
 	}
@@ -65,7 +56,6 @@ var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 	// WUIEngine Methods
 	WUIEngine.prototype = {
 		loadPage: function(url){
-			// alert("LOADING PAGE "+url)
 			this.getPageContent();
 		},
 		// Get Page Content
@@ -83,14 +73,6 @@ var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 				
 				console.debug("GOT DATA: ", data);
 				self.timestamp = data.timestamp; // Update Timestamp
-
-				// Template Child Nodes (TODO: To be inherited from the template)
-				/*
-				var template_child_nodes = {
-					body: document.body
-				}
-				*/
-				
 				self.new_nodes = data.nodes; // Set New Nodes
 				
 				// TODO: Implement Root Data Updating
@@ -141,7 +123,6 @@ var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 
 			}).onClose(function(){
 				self.getPageContent(); // Get Page Update
-				
 			});
 		},
 		// Process Child Nodes from a Parent Element
@@ -155,7 +136,7 @@ var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 			    var branch = child_nodes[key];
 			    var index = 0;
 			    branch.forEach(function(node_uuid){
-					// console.debug("processChildNodes: " + key + " @ " + node_uuid, root_nodes[key]);
+					console.debug("processChildNodes: " + key + " @ " + node_uuid + " - INDEX:  " + index, root_nodes[key]);
 					if(typeof root_nodes[key] !== 'undefined'){
 						// console.debug("######### NEW NODE: " + node_uuid)
 						self.appendNode(node_uuid, root_nodes[key], index++); // Append Node
@@ -173,12 +154,12 @@ var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 			// console.log("appendNode: APPENDING NODE: " + node_uuid + " AT INDEX: " + index);
 			// Check Active Nodes
 			if(typeof this.element_cache[node_uuid] !== 'undefined'){
-				// console.debug("[UPDATE] FOUND ACTIVE NODE: ", this.element_cache[node_uuid]);
+				console.debug("[UPDATE] FOUND ACTIVE NODE: ", this.element_cache[node_uuid]);
 				appendNodeAt(root, index, this.element_cache[node_uuid]);
 			} else
 			// Check New Nodes
 			if(typeof this.new_nodes[node_uuid] !== 'undefined'){
-				// console.debug("appendNode: [NEW] FOUND <NEW> NODE: ", this.new_nodes[node_uuid]);
+				console.debug("appendNode: [NEW] FOUND <NEW> NODE: ", this.new_nodes[node_uuid]);
 
 				if(typeof this.elements[this.new_nodes[node_uuid].element] !== 'undefined'){
 					// Element Definition Exists
@@ -194,9 +175,8 @@ var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 						eventTrigger: function(eventID, data){ triggerEvent(node_uuid, eventID, data); }
 					});
 					this.element_cache[node_uuid] = element; // Cache Element
-					root.appendChild(element.getNode()); // Get Placeholder Node
-					
-					this.initializeElement(element, this.new_nodes[node_uuid].data); // Initialize Element
+					appendNodeAt(root, index, element); // Get Placeholder Node
+					this.initializeElement(element, this.new_nodes[node_uuid].data, this.new_nodes[node_uuid].children); // Initialize Element
 					delete this.new_nodes[node_uuid]; // Remove New Element
 					
 				}else{
@@ -211,8 +191,7 @@ var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 						eventTrigger: function(eventID, data){ triggerEvent(node_uuid, eventID, data); }
 					});
 					this.element_cache[node_uuid] = element; // Cache Element
-					
-					root.appendChild(element.getNode()); // Get Placeholder Node
+					appendNodeAt(root, index, element); // Get Placeholder Node
 					var new_node = this.new_nodes[node_uuid];
 					delete this.new_nodes[node_uuid]; // Remove New Element
 					
@@ -239,13 +218,12 @@ var useSockets = false; // Enable WebSockets (DEBUG -> TO BE REMOVED)
 	
 					// Set Child Nodes
 					//console.debug("CHILD NODE CONTAINERS", element.childNodeContainers);
-					// console.debug("FOR DATA CHILDREN: ", children)
+					console.debug("FOR DATA CHILDREN: ", children)
 
 					// Process Child Elements
 					if(typeof children !== 'undefined' && typeof element.childNodeContainers !== 'undefined'){
 						self.processChildNodes(element.childNodeContainers, children);
 					}
-					// console.debug(element)
 				})
 				.fail(function(){
 					// TODO: Replace Element with failed to load node message node

@@ -96,6 +96,27 @@ public abstract class Parent extends Node{
 	}
 	
 	/**
+	 * Get Child Nodes
+	 * @param id
+	 * @return
+	 */
+	protected Node[] getChildren(String id) {
+		List<Node> branch = getChildren().get(id);
+		if(branch == null) return new Node[0];
+		return branch.toArray(new Node[branch.size()]);
+	}
+	
+	/**
+	 * Clear all Child Nodes
+	 */
+	protected void clearChildren(String id) {
+		Node[] nodes = getChildren(id);
+		for(Node node: nodes) {
+			removeChild(node);
+		}
+	}
+	
+	/**
 	 * Get Nesting Timestamp
 	 * @return
 	 */

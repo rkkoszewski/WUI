@@ -21,47 +21,33 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package elements;
+package com.robertkoszewski.wui.example.pictureviewer.elements;
 
 import java.io.IOException;
 
-import org.apache.commons.io.IOUtils;
-
-import com.robertkoszewski.wui.core.EventListener;
 import com.robertkoszewski.wui.template.ElementTemplate;
 import com.robertkoszewski.wui.ui.element.Node;
 
 /**
- * WUI Element Editor
+ * Folder Element
  * @author Robert Koszewski
+ *
  */
-public class ElementEditor extends Node{
-	
-	public ElementEditor() {
-		try {
-			setElementData("definition", IOUtils.toString(ElementEditor.class.getResourceAsStream("ElementEditor.def.json"), "UTF-8"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		addEventListener(new EventListener() {
+public class FolderElement extends Node {
 
-			public void run(String eventID, String data) {
-				if(eventID.equals("editor-update")) {
-					// Editor UPDATE
-					// System.err.println("EVENT ID!!!" + eventID +" WITH DATA: " + data);
-					setElementData("definition", data); // TODO: Check Data
-				}
-			}
-			
-		});
+	public FolderElement() {}
+	
+	public FolderElement(String label) {
+		setLabel(label);
+	}
+
+	public void setLabel(String label) {
+		setElementData("label", label);
 	}
 	
-	
-
 	public ElementTemplate getElementDefinition() {
 		try {
-			return new ElementTemplate(ElementEditor.class.getResourceAsStream("ElementEditor.def.json"));
+			return new ElementTemplate(FolderElement.class.getResourceAsStream("FolderElement.def.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

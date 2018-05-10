@@ -21,52 +21,32 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.layout;
+package com.robertkoszewski.wui.sdk.elements;
 
 import java.io.IOException;
+
 import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.ui.element.Node;
-import com.robertkoszewski.wui.ui.element.Parent;
+import com.robertkoszewski.wui.ui.element.Button;
 
-public class BorderLayout extends Parent{
+/**
+ * File Button
+ * @author Robert Koszewski
+ *
+ */
+public class FileButton extends Button {
 
+	public FileButton(String value) {
+		super(value);
+	}
+	
 	@Override
 	public ElementTemplate getElementDefinition() {
 		try {
-			return new ElementTemplate(BorderLayout.class.getResourceAsStream("BorderLayout.def.json"));
+			return new ElementTemplate(FileButton.class.getResourceAsStream("FileButton.def.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
-	
-	public void addElement(Node element, Position position) {
-		addChild(element, position.name());
-	}
-	
-	public void removeElement(Node element) {
-		removeChild(element);
-	}
-	
-	public Node[] getElements(Position position) {
-		return getChildren(position.name());
-	}
-	
-	public void clearElements(Position position) {
-		clearChildren(position.name());
-	}
 
-	/**
-	 * Element Positions
-	 * @author Robert Koszewski
-	 */
-	public enum Position{
-		north,
-		east,
-		south,
-		west,
-		center
-	}
-
-	
 }

@@ -23,92 +23,131 @@
 
 package com.robertkoszewski.wui.sdk.views;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Queue;
-import java.util.Vector;
+import java.io.File;
+import java.io.IOException;
 
 import com.robertkoszewski.wui.View;
 import com.robertkoszewski.wui.core.EventListener;
+import com.robertkoszewski.wui.sdk.elements.ElementEditor;
+import com.robertkoszewski.wui.sdk.elements.FileButton;
+import com.robertkoszewski.wui.sdk.elements.FileListContainer;
+import com.robertkoszewski.wui.sdk.elements.FolderButton;
+import com.robertkoszewski.wui.sdk.elements.SimpleFileButton;
+import com.robertkoszewski.wui.structs.HardReference;
 import com.robertkoszewski.wui.template.Content;
 import com.robertkoszewski.wui.ui.element.Button;
 import com.robertkoszewski.wui.ui.element.Label;
-import com.robertkoszewski.wui.ui.element.Node;
 import com.robertkoszewski.wui.ui.layout.BorderLayout;
-
-import elements.ElementEditor;
 
 public class ElementEditorView extends View {
 
 	public ElementEditorView(Scope type) {
 		super(type);
 	}
-	
-	static int i = 0;
-	static int e = 1;
-	static boolean left = true;
 
+	/**
+	 * Create Editor View
+	 */
 	public void createView(Content content) {
+		// Current File Reference
+		final HardReference<File> currentFile = new HardReference<File>(null);
+		
+		// Build UI
 		final BorderLayout layout = new BorderLayout();
 		content.addElement(layout);
-		
+
 		
 		// Element Editor
-		
-		ElementEditor editor = new ElementEditor();
-		
+		final ElementEditor editor = new ElementEditor();
 		layout.addElement(editor, BorderLayout.Position.center);
+
+		// Left Sidebar
+		BorderLayout sidebar = new BorderLayout();
+		layout.addElement(sidebar, BorderLayout.Position.west);
+
+		// Save Button
+		Button save = new Button("Save");
+		sidebar.addElement(save, BorderLayout.Position.north);
 		
-		/*
-		
-		final Label label = new Label("IT WORKS ");
-		layout.addElement(label, BorderLayout.Position.north); // Label Button
-		
-		Button button = new Button("PRESS ME");
-		button.addEventListener(new EventListener() {
+		save.addEventListener(new EventListener() {
 			public void run(String eventID, String data) {
-				label.setText("BUTTON PRESSED: "+ i++);
-				
-				if(left) {
-					//layout.removeElement(label);
-					layout.addElement(label, BorderLayout.Position.east); // Label Button
-					left = false;
+				File file = currentFile.getValue();
+				if(file == null)
+					System.out.println("Cannot save file. No file is loaded");
+				else
+					editor.saveDefinition(file);
+			}
+		});
+
+		// File Browser
+		FileListContainer fileList = new FileListContainer();
+		sidebar.addElement(fileList, BorderLayout.Position.center);
+		
+		ListFiles(new File("."), fileList, editor, currentFile);
+	}
+
+	/**
+	 * List Files
+	 * @param folder
+	 * @param sidebar
+	 * @param editor 
+	 * @param currentFile 
+	 */
+	public void ListFiles(final File folder, final FileListContainer list, final ElementEditor editor, final HardReference<File> currentFile) {
+		// Clear Previous List
+		list.clearElements();
+
+		// Label
+		list.addElement(new Label("Files"));
+		
+		// Back Button
+		Button backButton = new SimpleFileButton("...");
+		list.addElement(backButton);
+		
+		// Button Action
+		backButton.addEventListener(new EventListener() {
+			public void run(String eventID, String data) {
+				System.out.println("Clicked on: GO BACK");
+				File parent = folder.getAbsoluteFile().getParentFile();
+				if(parent == null) {
+					System.out.println("CANNOT GO BACK!!! " + folder.getAbsolutePath());
 				}else {
-					//layout.removeElement(label);
-					layout.addElement(label, BorderLayout.Position.north); // Label Button
-					left = true;
+					System.out.println("SWITCHING TO PARENT FOLDER: " + parent.getAbsolutePath());
+					ListFiles(parent, list, editor, currentFile);
 				}
 			}
 		});
-		layout.addElement(button, BorderLayout.Position.south);
 		
-		
-		// Dynamic Add Remove
-		
-		final Queue<Node> den = new ArrayDeque<Node>();
-				
-		Button button2 = new Button("CREATE NEW ELEMENT");
-		button2.addEventListener(new EventListener() {
-			public void run(String eventID, String data) {
-				Label nl = new Label("NEW ELEMENT " + e++);
-				den.add(nl);
-				layout.addElement(nl, BorderLayout.Position.center);;
-			}
-		});
-		layout.addElement(button2, BorderLayout.Position.south);
-		
-		Button button3 = new Button("REMOVE ELEMENT");
-		button3.addEventListener(new EventListener() {
-			public void run(String eventID, String data) {
-				
-				if(!den.isEmpty()) {
-					Node ele = den.poll();
-					layout.removeElement(ele);
+		// List Folders
+		File[] listOfFiles = folder.listFiles();
+		for(final File file: listOfFiles) {
+			if(!file.isDirectory() && !file.getName().endsWith(".def.json")) continue; // Ignore Unsupproted Files
+
+			Button fileLabel = file.isDirectory() ? new FolderButton(file.getName()) : new FileButton(file.getName());
+			//Button fileLabel = new Button(file.getName());
+			list.addElement(fileLabel);
+			
+			// Button Action
+			fileLabel.addEventListener(new EventListener() {
+
+				public void run(String eventID, String data) {
+					System.out.println("Clicked on: " + file.getName());
+					
+					if(file.isDirectory()) {
+						// Open Directory
+						ListFiles(file, list, editor, currentFile);
+						
+					}else {
+						// Load File
+						try {
+							editor.loadDefinition(file.toURI());
+							currentFile.setValue(file);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
 				}
-			}
-		});
-		layout.addElement(button3, BorderLayout.Position.south);
-		*/
+			});
+		}
 	}
 }

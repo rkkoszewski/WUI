@@ -61,7 +61,7 @@ public class FileUtils {
 	 * @param string
 	 * @throws IOException
 	 */
-	public static void writeStringtoFile(File file, String string) throws IOException{
+	public static void writeStringToFile(File file, String string) throws IOException{
 		try(PrintStream out = new PrintStream(new FileOutputStream(file))) {
 		    out.print(string);
 		}

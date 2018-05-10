@@ -5,4 +5,4 @@
  * @author Robert Koszewski
  *
  */
-package elements;
+package com.robertkoszewski.wui.sdk.elements;
