@@ -21,38 +21,17 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.element;
+package com.robertkoszewski.wui.template.features;
 
-import java.io.IOException;
-
-import com.robertkoszewski.wui.template.ElementTemplate;
-import com.robertkoszewski.wui.template.features.ChildElements;
+import com.robertkoszewski.wui.ui.element.Node;
 
 /**
- * Container Element
+ * Element with Child Elements
  * @author Robert Koszewski
  */
-public class Container extends Parent implements ChildElements {
-	
-	@Override
-	public ElementTemplate getElementDefinition() {
-		try {
-			return new ElementTemplate(Container.class.getResourceAsStream("Container.def.json"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
-	public void addElement(Node e) {
-		addChild(e, "default");
-	}
-	
-	public void removeElement(Node e) {
-		removeChild(e);
-	}
-	
-	public void clearElements() {
-		clearChildren("default");
-	}
+public interface PositionedChildElements <T extends Enum<?>> {
+	public void addElement(Node e, T position);
+	public void removeElement(Node e);
+	public void clearElements(T position);
+	public void clearElements();
 }

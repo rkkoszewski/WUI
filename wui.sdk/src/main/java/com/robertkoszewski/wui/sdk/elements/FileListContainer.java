@@ -26,6 +26,7 @@ package com.robertkoszewski.wui.sdk.elements;
 import java.io.IOException;
 
 import com.robertkoszewski.wui.template.ElementTemplate;
+import com.robertkoszewski.wui.template.features.ChildElements;
 import com.robertkoszewski.wui.ui.element.Container;
 
 /**
@@ -33,7 +34,7 @@ import com.robertkoszewski.wui.ui.element.Container;
  * @author Robert Koszewski
  *
  */
-public class FileListContainer extends Container {
+public class FileListContainer extends Container implements ChildElements{
 	
 	@Override
 	public ElementTemplate getElementDefinition() {

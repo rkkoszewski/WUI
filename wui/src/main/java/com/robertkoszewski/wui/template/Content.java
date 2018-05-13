@@ -23,9 +23,6 @@
 
 package com.robertkoszewski.wui.template;
 
-import java.util.Map;
-
-import com.robertkoszewski.wui.core.ViewInstance;
 import com.robertkoszewski.wui.ui.element.Node;
 
 /**
@@ -63,13 +60,6 @@ public interface Content{
 	 * @param index
 	 */
 	public void removeElementAt(int index);
-	
-	/**
-	 * Get Page Content
-	 * @return
-	 */
-	// public Map<String, Node[]> getElements(); // TODO: Replace with GETCHILDREN
-
 	/**
 	 * Set Content Data
 	 * @param id
@@ -92,7 +82,4 @@ public interface Content{
 	 */
 	public <T> T getSharedData(String name, Class<T> classOfT);
 
-	
-	// TODO: Remove this. TEMPORARY: Get ViewInstance to be able to access the current ViewContext
-	// public ViewInstance getViewInstance();
 }

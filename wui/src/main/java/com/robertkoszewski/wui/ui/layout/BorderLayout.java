@@ -25,10 +25,11 @@ package com.robertkoszewski.wui.ui.layout;
 
 import java.io.IOException;
 import com.robertkoszewski.wui.template.ElementTemplate;
+import com.robertkoszewski.wui.template.features.PositionedChildElements;
 import com.robertkoszewski.wui.ui.element.Node;
 import com.robertkoszewski.wui.ui.element.Parent;
 
-public class BorderLayout extends Parent{
+public class BorderLayout extends Parent implements PositionedChildElements<BorderLayout.Position>{
 
 	@Override
 	public ElementTemplate getElementDefinition() {
@@ -56,6 +57,11 @@ public class BorderLayout extends Parent{
 		clearChildren(position.name());
 	}
 
+	@Override
+	public void clearElements() {
+		clearChildren();
+	}
+	
 	/**
 	 * Element Positions
 	 * @author Robert Koszewski
@@ -67,6 +73,4 @@ public class BorderLayout extends Parent{
 		west,
 		center
 	}
-
-	
 }

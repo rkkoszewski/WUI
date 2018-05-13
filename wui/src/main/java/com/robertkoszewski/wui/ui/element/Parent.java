@@ -117,6 +117,20 @@ public abstract class Parent extends Node{
 	}
 	
 	/**
+	 * Clear all Child Nodes from all branches
+	 */
+	protected void clearChildren() {
+		Iterator<String> br = children.keySet().iterator();
+		while(br.hasNext()) {
+			String id = br.next();
+			Node[] nodes = getChildren(id);
+			for(Node node: nodes) {
+				removeChild(node);
+			}
+		}
+	}
+	
+	/**
 	 * Get Nesting Timestamp
 	 * @return
 	 */
