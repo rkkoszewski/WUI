@@ -42,7 +42,7 @@ import com.robertkoszewski.wui.utils.SystemInfo;
 public class RootView extends View{
 
 	public RootView() {
-		super(Scope.SHARED);
+		super(Scope.SESSION);
 	}
 
 	public void createView(final Content content) {

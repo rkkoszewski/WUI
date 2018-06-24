@@ -1,6 +1,10 @@
 package com.robertkoszewski.wui.example;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import com.google.devtools.common.options.OptionsParser;
 import com.robertkoszewski.wui.Preferences;
@@ -51,7 +55,7 @@ public class App
 
         
         // Setup Renderer
-        System.setProperty("wui.renderer", "javafx");
+        // System.setProperty("wui.renderer", "javafx");
         
         WUIEngine w = null;
 		try {
@@ -111,5 +115,22 @@ public class App
         
         */
         
+    }
+    
+    private void showSysUsage() {
+	  OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
+	  for (Method method : operatingSystemMXBean.getClass().getDeclaredMethods()) {
+	    method.setAccessible(true);
+	    if (method.getName().startsWith("get")
+	        && Modifier.isPublic(method.getModifiers())) {
+	            Object value;
+	        try {
+	            value = method.invoke(operatingSystemMXBean);
+	        } catch (Exception e) {
+	            value = e;
+	        } // try
+	        System.out.println(method.getName() + " = " + value);
+	    } // if
+	  } // for
     }
 }
