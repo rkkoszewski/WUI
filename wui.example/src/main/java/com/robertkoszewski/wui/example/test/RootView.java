@@ -30,6 +30,7 @@ import com.robertkoszewski.wui.ui.element.Button;
 import com.robertkoszewski.wui.ui.element.Container;
 import com.robertkoszewski.wui.ui.element.Image;
 import com.robertkoszewski.wui.ui.element.Label;
+import com.robertkoszewski.wui.ui.element.TextInput;
 import com.robertkoszewski.wui.ui.layout.BorderLayout;
 import com.robertkoszewski.wui.utils.StringUtils;
 import com.robertkoszewski.wui.utils.SystemInfo;
@@ -64,6 +65,9 @@ public class RootView extends View{
 
 		layout.addElement(cpu_label, BorderLayout.Position.west);
 		layout.addElement(ram_label, BorderLayout.Position.west);
+		
+		
+		layout.addElement(new TextInput(), BorderLayout.Position.west);
 
 		/*
 		content.createSharedElement("cpu_label", Label.class, 1, 2);

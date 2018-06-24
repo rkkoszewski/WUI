@@ -21,61 +21,62 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.element;
+package com.robertkoszewski.wui.example.test2;
 
-import java.io.IOException;
-
+import com.robertkoszewski.wui.Preferences;
+import com.robertkoszewski.wui.View;
+import com.robertkoszewski.wui.WUIEngine;
 import com.robertkoszewski.wui.core.EventListener;
-import com.robertkoszewski.wui.template.ElementTemplate;
+import com.robertkoszewski.wui.server.ServerNotFoundException;
+import com.robertkoszewski.wui.template.Content;
+import com.robertkoszewski.wui.template.materialdesign.MaterialDesignTemplate;
+import com.robertkoszewski.wui.ui.element.Button;
+import com.robertkoszewski.wui.ui.element.Label;
+import com.robertkoszewski.wui.ui.element.TextInput;
+import com.robertkoszewski.wui.ui.layout.BorderLayout;
 
-/**
- * Text Input Element
- * @author Robert Koszewski
- */
-public class TextInput extends Node{
-	
-	
-	
-	public TextInput() {
-		this.addEventListener(new EventListener() {
-			@Override
-			public void run(String eventID, String data) {
-				if(eventID.equals("input")) {
-					System.out.println("GOT INPUT DATA: " + data);
-					if(data.length() >= 2) {
-						setElementData("value", data.substring(1, data.length() - 1));
+public class TestApp2 {
+
+	public static void main(String[] args) throws InstantiationException, IllegalAccessException, ServerNotFoundException {
+		
+		System.setProperty("wui.renderer", "javafx");
+		
+		WUIEngine window = new WUIEngine(new MaterialDesignTemplate());
+		
+		// Root View
+		window.addView("/", new View(View.Scope.SHARED) {
+
+			public void createView(Content content) {
+				
+				// Container
+				final BorderLayout container = new BorderLayout();
+				content.addElement(container);
+				
+				// Left Menu
+				container.addElement(new Label("Add Note Here:"), BorderLayout.Position.west);
+				
+				final TextInput input = new TextInput();
+				container.addElement(input, BorderLayout.Position.west);
+				
+				Button btn = new Button("Add Note");
+				container.addElement(btn, BorderLayout.Position.west);
+				
+				btn.addEventListener(new EventListener() {
+					public void run(String eventID, String data) {
+
+						container.addElement(new Label(input.getValue()), BorderLayout.Position.center);
+						input.setValue("");
+						
 					}
-					
-				}
+				});
+	
 			}
+			
 		});
 		
-	}
+		// Open Window
+		window.showView();
 
-	/**
-	 * Set Text Input Value
-	 * @param value
-	 */
-	public void setValue(String value) {
-		setElementData("value", value);
 	}
 	
-	/**
-	 * Get Text Input Value
-	 * @return
-	 */
-	public String getValue() {
-		String v = getElementData("value");
-		return (v != null ? v : "");
-	}
-
-	@Override
-	public ElementTemplate getElementDefinition() {
-		try {
-			return new ElementTemplate(Label.class.getResourceAsStream("TextInput.def.json"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
 }

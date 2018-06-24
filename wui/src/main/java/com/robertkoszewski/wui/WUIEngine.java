@@ -29,7 +29,6 @@ import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.robertkoszewski.wui.core.CSSDependency;
 import com.robertkoszewski.wui.core.ContentManager;
 import com.robertkoszewski.wui.core.WUIContentManager;
 import com.robertkoszewski.wui.core.WebDependency;
@@ -63,7 +62,11 @@ public class WUIEngine {
 	 * Constructors 
 	 */
 	public WUIEngine() throws InstantiationException, IllegalAccessException, ServerNotFoundException {
-		this(null);
+		this(null, new BasicTemplate());
+	}
+	
+	public WUIEngine(WindowTemplate template) throws InstantiationException, IllegalAccessException, ServerNotFoundException {
+		this(null, template);
 	}
 	
 	public WUIEngine(Preferences preferences) throws InstantiationException, IllegalAccessException, ServerNotFoundException {

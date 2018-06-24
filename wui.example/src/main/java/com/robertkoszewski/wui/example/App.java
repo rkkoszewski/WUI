@@ -70,8 +70,8 @@ public class App
         w.setIcon(RootView.class.getResource("icon.png")); // Set Icon
 
         // Class Based View
-        //w.addView("/", new RootView()); // Define Root View
-        w.addView("/", new PictureViewerView(View.Scope.SHARED)); // Define Root View
+        w.addView("/", new RootView()); // Define Root View
+        //w.addView("/", new PictureViewerView(View.Scope.SHARED)); // Define Root View
         
 
         // Add View

@@ -21,61 +21,26 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.        *
 \**************************************************************************/
 
-package com.robertkoszewski.wui.ui.element;
+package com.robertkoszewski.todoapp;
 
 import java.io.IOException;
 
-import com.robertkoszewski.wui.core.EventListener;
 import com.robertkoszewski.wui.template.ElementTemplate;
+import com.robertkoszewski.wui.ui.element.Node;
 
-/**
- * Text Input Element
- * @author Robert Koszewski
- */
-public class TextInput extends Node{
+public class Note extends Node {
 	
-	
-	
-	public TextInput() {
-		this.addEventListener(new EventListener() {
-			@Override
-			public void run(String eventID, String data) {
-				if(eventID.equals("input")) {
-					System.out.println("GOT INPUT DATA: " + data);
-					if(data.length() >= 2) {
-						setElementData("value", data.substring(1, data.length() - 1));
-					}
-					
-				}
-			}
-		});
-		
+	public Note(String text) {
+		setElementData("value", text);
 	}
 
-	/**
-	 * Set Text Input Value
-	 * @param value
-	 */
-	public void setValue(String value) {
-		setElementData("value", value);
-	}
-	
-	/**
-	 * Get Text Input Value
-	 * @return
-	 */
-	public String getValue() {
-		String v = getElementData("value");
-		return (v != null ? v : "");
-	}
-
-	@Override
 	public ElementTemplate getElementDefinition() {
 		try {
-			return new ElementTemplate(Label.class.getResourceAsStream("TextInput.def.json"));
+			return new ElementTemplate(Note.class.getResourceAsStream("Note.def.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
-			return null;
 		}
+		return null;
 	}
+
 }
